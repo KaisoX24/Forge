@@ -1,4 +1,4 @@
-# Interactive Learning Platform — Project Plan
+# The FORGE Interactive Learning Platform — Project Plan
 
 ## 1. Problem Statement
 
