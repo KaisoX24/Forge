@@ -71,7 +71,7 @@ class SandBox:
         result=self.sandbox_instance()
         if result.success:
             return result.stdout
-        return result.stderr
+        return result.error_type
     
 if __name__=='__main__':
     try:
