@@ -1,27 +1,33 @@
 from pathlib import Path
-from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+from langchain_text_splitters import MarkdownTextSplitter,ExperimentalMarkdownSyntaxTextSplitter
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_core.documents import Document
 import re
 import hashlib
 
 class Chunker:
-    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
-        headers_to_split_on = [
-            ("#", "Header 1"),
-            ("##", "Header 2"),
-            ("###", "Header 3"),
-            ("####", "Header 4")
-        ]
-        self.header_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on,
-            strip_headers=False
+    HEADING_RE = re.compile(r'^(#{1,4})\s+(.+)$')
+    def __init__(self, chunk_size: int = 2500, chunk_overlap: int = 200):
+        self.header_splitter=ExperimentalMarkdownSyntaxTextSplitter(
+            headers_to_split_on=[("#", "Header 1"), ("##", "Header 2"), ("###", "Header 3"), ("####", "Header 4")],
+            strip_headers=False,
         )
-        self.char_splitter = RecursiveCharacterTextSplitter(
+        self.char_splitter = MarkdownTextSplitter(
             chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap
+            chunk_overlap=chunk_overlap,
+            strip_whitespace=False,
         )
 
+    def _merge_sections(self, docs:list[Document]):
+        merged = []
+        for d in docs:
+            headers = {k: v for k, v in d.metadata.items() if k.startswith("Header")}
+            if merged and merged[-1].metadata == headers:
+                merged[-1].page_content += d.page_content
+            else:
+                merged.append(Document(page_content=d.page_content, metadata=headers))
+        return merged
+    
     def _get_anchor_for_chunk(self, metadata: dict) -> str | None:
         for lvl in ["Header 4", "Header 3", "Header 2", "Header 1"]:
             if lvl in metadata:
@@ -39,8 +45,8 @@ class Chunker:
         return hashlib.sha256(raw.encode('utf-8')).hexdigest()
 
     def chunk_document(self, markdown_text: str, source_file: str) -> list[Document]:
-        header_chunks = self.header_splitter.split_text(markdown_text)
-        chunks = self.char_splitter.split_documents(header_chunks)
+        sections=self._merge_sections(self.header_splitter.split_text(markdown_text))
+        chunks = self.char_splitter.split_documents(sections)
         for i, c in enumerate(chunks):
             c.metadata['source_file'] = source_file
             c.metadata['anchor'] = self._get_anchor_for_chunk(c.metadata)
@@ -48,7 +54,7 @@ class Chunker:
         return chunks
 
     def chunk_directory(self, raw_docs_dir: Path) -> list[Document]:
-        docs_dir = DirectoryLoader(path=raw_docs_dir, glob="**/*.md", loader_cls=TextLoader)
+        docs_dir = DirectoryLoader(path=raw_docs_dir, glob="**/*.md", loader_cls=TextLoader,loader_kwargs={'encoding':'utf-8'})
         docs = docs_dir.lazy_load()
         all_docs: list[Document] = []
         for doc in docs:

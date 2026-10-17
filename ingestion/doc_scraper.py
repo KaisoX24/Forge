@@ -7,7 +7,7 @@ import json
 from datetime import datetime,timezone
 
 class DocScraper:
-    def __init__(self, output_dir: Path = Path(__file__).parent / "raw_docs", css_selector: str = "article"):
+    def __init__(self, output_dir: Path = Path(__file__).parent.parent / "raw_docs", css_selector: str = "article"):
         self.output_dir = Path(output_dir)
         self.manifest_path=self.output_dir/'manifest.json'
         self.css_selector = css_selector
