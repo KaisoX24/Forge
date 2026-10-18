@@ -4,9 +4,10 @@ from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_core.documents import Document
 import re
 import hashlib
+import json
+import logging
 
 class Chunker:
-    HEADING_RE = re.compile(r'^(#{1,4})\s+(.+)$')
     def __init__(self, chunk_size: int = 2500, chunk_overlap: int = 200):
         self.header_splitter=ExperimentalMarkdownSyntaxTextSplitter(
             headers_to_split_on=[("#", "Header 1"), ("##", "Header 2"), ("###", "Header 3"), ("####", "Header 4")],
@@ -44,24 +45,41 @@ class Chunker:
         raw = f"{source_file}::{anchor}::{index}"
         return hashlib.sha256(raw.encode('utf-8')).hexdigest()
 
-    def chunk_document(self, markdown_text: str, source_file: str) -> list[Document]:
-        sections=self._merge_sections(self.header_splitter.split_text(markdown_text))
+    def _load_manifest(self, raw_docs_dir: Path) -> dict:
+        path = raw_docs_dir / "manifest.json"
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+    def chunk_document(self, markdown_text: str, source_file: str, manifest_entry: dict) -> list[Document]:
+        sections = self._merge_sections(self.header_splitter.split_text(markdown_text))
         chunks = self.char_splitter.split_documents(sections)
-        for i, c in enumerate(chunks):
-            c.metadata['source_file'] = source_file
-            c.metadata['anchor'] = self._get_anchor_for_chunk(c.metadata)
-            c.metadata['chunk_id'] = self._generate_chunk_id(source_file, c.metadata['anchor'], i)
+        counters: dict[str, int] = {}
+        for c in chunks:
+            anchor = self._get_anchor_for_chunk(c.metadata) or ""
+            idx = counters.get(anchor, 0)
+            counters[anchor] = idx + 1
+            c.metadata.update(
+                url=manifest_entry["url"],
+                scraped_at=manifest_entry["scraped_at"],
+                source_file=source_file,
+                anchor=anchor,
+                chunk_id=self._generate_chunk_id(source_file, anchor, idx),
+            )
         return chunks
 
     def chunk_directory(self, raw_docs_dir: Path) -> list[Document]:
-        docs_dir = DirectoryLoader(path=raw_docs_dir, glob="**/*.md", loader_cls=TextLoader,loader_kwargs={'encoding':'utf-8'})
-        docs = docs_dir.lazy_load()
+        manifest = self._load_manifest(raw_docs_dir)
+        loader = DirectoryLoader(path=raw_docs_dir, glob="**/*.md", loader_cls=TextLoader,
+                                loader_kwargs={"encoding": "utf-8"})
         all_docs: list[Document] = []
-        for doc in docs:
-            filename = Path(doc.metadata['source']).name
-            all_docs.extend(self.chunk_document(doc.page_content, filename))
+        for doc in loader.lazy_load():
+            filename = Path(doc.metadata["source"]).name
+            entry = manifest.get(filename)
+            if entry is None:
+                logging.warning("Skipping %s: not in manifest.json", filename)
+                continue
+            all_docs.extend(self.chunk_document(doc.page_content, filename, entry))
         return all_docs
-
+    
 if __name__=='__main__':
     chunker=Chunker()
     print(f'Total Chunks: {len(chunker.chunk_directory(Path(__file__).parent/'raw_docs'))}')

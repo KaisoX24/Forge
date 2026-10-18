@@ -13,7 +13,11 @@ class VectorStore:
         content=[doc.page_content for doc in documents]
         metadatas=[doc.metadata for doc in documents]
 
-        self.vector_store._collection.add(
+        collection=self.vector_store._collection
+        for source in {d.metadata['source_file'] for d in documents}:
+            collection.delete(where={'source_file':source})
+
+        collection.upsert(
             ids=ids,
             documents=content,
             metadatas=metadatas,
