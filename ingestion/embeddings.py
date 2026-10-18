@@ -12,3 +12,6 @@ class EmbeddingService:
         texts = [document.page_content for document in documents]
 
         return self.embeddings.embed_documents(texts)
+
+    def embed_query(self,query:str)->list[list[float]]:
+        return self.embeddings.embed_query(query.strip())

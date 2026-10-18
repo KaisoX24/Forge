@@ -13,3 +13,8 @@ class ExecutionResult(BaseModel):
     stdout: str = ""
     stderr: str = ""
     error_type: ExecutionError | None = None
+
+class RetrievedDocument(BaseModel):
+    content:str
+    metadata:dict
+    distance:float
