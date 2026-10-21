@@ -1,6 +1,5 @@
 from ingestion.embeddings import EmbeddingService
 from ingestion.vector_store import VectorStore
-from langchain_core.documents import Document
 from models.data_models import RetrievedDocument
 
 class Retriever:
