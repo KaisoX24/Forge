@@ -1,42 +1,28 @@
+from pathlib import Path
+from statistics import median
+from course_sources import FASTAPI_URLS
+from planner.curriculum_planner import CurriculumPlanner
+from planner.doc_outline import DocOutline
 from retrieval.retriever import Retriever
 from retrieval.retrieval_tool import RetrievalTool
-from planner.curriculum_planner import CurriculumPlanner
+from exercises.grounding import ground_module
+outline = DocOutline.from_raw_docs(Path("raw_docs"), order=FASTAPI_URLS)
+retriever=Retriever()
+retriever_tool=RetrievalTool(retriever)
+
+planner = CurriculumPlanner("qwen3.5:9b", outline=outline,retrieval=retriever_tool)
+curriculum = planner.create_curriculum("FastAPI")
+
+retriever = Retriever(distance_threshold=float("inf"))
 
 
-def main():
-    retriever = Retriever()
-
-    retrieval_tool = RetrievalTool(retriever)
-
-    planner = CurriculumPlanner(
-        model_name="qwen3.5:9b",
-        retrieval=retrieval_tool
-    )
-
-    technology = "FastAPI"
-
-    print(f"Creating curriculum for: {technology}")
-    print("=" * 80)
-
-    curriculum = planner.create_curriculum(technology)
-
-    print("\nCURRICULUM")
-    print("=" * 80)
-
-    for index, module in enumerate(curriculum.modules, start=1):
-        print(f"\nMODULE {index}: {module.title}")
-        print("-" * 80)
-
-        print("\nObjectives:")
-        for objective in module.objectives:
-            print(f"  - {objective}")
-
-        print("\nDocumentation Requirements:")
-        for requirement in module.documentation_requirements:
-            print(f"  - {requirement}")
-
-        print()
+def best_distance(query: str) -> float | None:
+    hits = retriever.retrieve(query, top_k=5)
+    return min((h.distance for h in hits), default=None)
 
 
-if __name__ == "__main__":
-    main()
+for module in curriculum.modules:
+    g=ground_module(module,lambda q:retriever.retrieve(q,top_k=5))
+    print(f"{module.title}: {g.label}  {g.counts}")
+    for item in g.items:
+        print(f"   {item.label:<9} cov={item.coverage:.2f}  {item.requirement[:70]}")
