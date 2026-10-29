@@ -21,6 +21,7 @@ dependencies = [
     "psutil>=7.2.2",
     "pydantic>=2.13.5",
     "scikit-learn>=1.9.1",
+    "snowballstemmer>=2.2.0",
     "unstructured>=0.18.32",
 ]
 

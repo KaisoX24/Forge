@@ -1,11 +1,11 @@
 from __future__ import annotations
 import logging
 import re
-from typing import Callable,TypeVar
-from langchain.messages import AIMessage,SystemMessage,HumanMessage
-from langchain_core.messages import BaseMessage
+from typing import TYPE_CHECKING,TypeVar
+from langchain.messages import SystemMessage,HumanMessage
 from pydantic import BaseModel
-from retrieval.retrieval_tool import RetrievalTool
+if TYPE_CHECKING:
+    from retrieval.retrieval_tool import RetrievalTool
 from pathlib import Path
 from models.data_models import(
     Curriculum,
@@ -16,6 +16,7 @@ from models.data_models import(
 )
 from planner.doc_outline import DocOutline
 from reasoning.model import get_llm
+from reasoning.structured import StructuredResult
 
 
 logger=logging.getLogger(__name__)
@@ -35,124 +36,35 @@ def _words(title: str, extra_stop: set[str]) -> set[str]:
 def _jaccard(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b) if (a | b) else 0.0
 
-def _describe_error(err: BaseException) -> str:
-    "Short, model-readable description of why parsing failed."
-    cause = err.__cause__
-    errors = getattr(cause, "errors", None)
-    if callable(errors):
-        lines = []
-        for e in errors():
-            where = ".".join(str(p) for p in e["loc"]) or "output"
-            lines.append(f"- {where}: {e['msg']}")
-        return "The JSON did not match the required format:\n" + "\n".join(lines)
-    text = str(err)
-    if "Invalid json" in text:
-        return "The reply was not valid JSON."
-    return text[:400]
-
 class CurriculumPlanner:
     def __init__(
         self,
         model_name: str,
         *,
         outline:DocOutline,
-        retrieval:RetrievalTool|None=None,
+        retrieval:"RetrievalTool|None"=None,
+        llm=None,
         min_modules:int=3,
         max_modules:int=5,
         max_attempts:int=3,
         section_char_budget:int=6000,
     ):
+        self.model_name=model_name
         self.outline=outline
         self.min_modules = min_modules
         self.max_modules = max_modules
         self.max_attempts = max_attempts
         self.section_char_budget = section_char_budget
         self.retrieval = retrieval
-        self.llm = get_llm(model_name)
-        self.retrieval_tool = retrieval.as_tool()
 
-        self.llm_with_tools = self.llm.bind_tools(
-            [self.retrieval_tool]
+        self.structured_result=StructuredResult(
+            llm=llm or get_llm(model_name),
+            error_cls=PlannerError,
+            max_attempts=self.max_attempts
         )
 
         self.outline_prompt = (_PROMPT_DIR / "curriculum_outline.txt").read_text(encoding="utf-8")
         self.detail_prompt = (_PROMPT_DIR / "module_detail.txt").read_text(encoding="utf-8")
-
-    def _call_structured(
-        self,
-        schema: type[T],
-        messages: list[BaseMessage],
-        *,
-        label: str,
-        validate: Callable[[T], None] | None = None,
-    ) -> T:
-        structured = self.llm.with_structured_output(schema, include_raw=True)
-        feedback:list[BaseMessage]=[]
-        last_problem = "no attempt was made"
-
-        for attempt in range(1, self.max_attempts + 1):
-            try:
-            # Runs for max 3 iterations if any error occurs store the detail and pass it to llm for retry
-                result = structured.invoke(list(messages)+feedback)
-            except Exception as e:
-                last_problem = f"model call failed: {type(exc).__name__}: {exc}"
-                logger.warning("%s attempt %d failed: %s", label, attempt, last_problem)
-                continue
-
-            raw, parsed, error = result.get("raw"), result.get("parsed"), result.get("parsing_error")
-            self._log_attempt(label, attempt, raw)
-
-            problem = None
-            if parsed is None:
-                problem = _describe_error(error) if error else "The reply was empty."
-            elif validate is not None:
-                try:
-                    validate(parsed)
-                except ValueError as exc:
-                    problem = str(exc)
-
-            if problem is None:
-                return parsed
-
-            logger.warning("%s attempt %d rejected: %s", label, attempt, problem.replace("\n", " | "))
-            last_problem=problem
-
-            previous = self._text(raw)
-            if parsed is None and previous.strip():
-                feedback = [
-                    AIMessage(content=previous),
-                    HumanMessage(content=f"Your previous reply was rejected:\n{problem}\n\n"
-                                         "Reply again with corrected JSON only."),
-                ]
-            else:
-                feedback = [
-                    HumanMessage(content=f"A previous attempt was rejected for this reason:\n{problem}\n\n"
-                                         "Avoid it. Reply with the JSON only.")
-                ]
-
-        raise PlannerError(f"{label}: gave up after {self.max_attempts} attempts. Last problem: {problem}")
-
-    @staticmethod
-    def _text(raw) -> str:
-        # Handles Extraction of messages from the llms response
-        content = getattr(raw, "content", "")
-        return content if isinstance(content, str) else str(content)
-
-    def _log_attempt(self, label: str, attempt: int, raw) -> None:
-        # Basic Diagonostic for evaluation
-        meta = getattr(raw, "response_metadata", None) or {}
-        prompt_tokens = meta.get("prompt_eval_count")
-        output_tokens = meta.get("eval_count")
-        done_reason = meta.get("done_reason")
-        logger.info(
-            "%s attempt %d: done_reason=%s prompt_tokens=%s output_tokens=%s empty=%s",
-            label, attempt, done_reason, prompt_tokens, output_tokens, not self._text(raw).strip(),
-        )
-        num_ctx = getattr(self.llm, "num_ctx", None)
-        if prompt_tokens and num_ctx and prompt_tokens >= 0.9 * num_ctx:
-            logger.warning("%s: prompt used %s of %s context tokens; truncation is likely", label, prompt_tokens, num_ctx)
-        if done_reason == "length":
-            logger.warning("%s: generation stopped at the token limit before finishing", label)
 
     def _module_range(self) -> tuple[int, int]:
         "How many modules the docs can honestly support (about 2 sections each)."
@@ -213,7 +125,7 @@ class CurriculumPlanner:
                 f"Documentation outline:\n{self.outline.render()}"
             ),
         ]
-        return self._call_structured(
+        return self.structured_result.call(
             CurriculumOutline,
             messages,
             label="outline",
@@ -258,7 +170,7 @@ class CurriculumPlanner:
                 f"Documentation for this module:\n{docs}"
             ),
         ]
-        return self._call_structured(
+        return self.structured_result.call(
             ModuleDetail,
             messages,
             label=f"module {index}",

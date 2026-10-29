@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import re
+import snowballstemmer
 from typing import Callable,Literal
 from pydantic import BaseModel
 from models.data_models import Module,RetrievedDocument
-
-Label=Literal["grounded", "weak", "unproved"]
+from models.lesson_generation_models import Label
 
 class RequirementGrounding(BaseModel):
     step_objective: str
@@ -40,12 +40,10 @@ _STOP = {
     "those", "as", "by", "from", "at", "into", "use", "using", "used", "between", "correct", "way",
     "need", "make", "get", "set", "so", "not", "than", "then", "there", "their", "one",
 }
-
+_STEMMER=snowballstemmer.stemmer('english')
 def _stem(word: str) -> str:
-    for suffix in ("ing", "ed", "es", "s"):
-        if word.endswith(suffix) and len(word) - len(suffix) >= 4:
-            return word[: -len(suffix)]
-    return word
+    return _STEMMER.stemWord(word)
+    
 
 def _split_identifier(token: str) -> list[str]:
     spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", token)

@@ -2,8 +2,16 @@ from pydantic import BaseModel,Field,field_validator,StringConstraints
 from enum import Enum
 import re
 from typing import Annotated
+import json
+import hashlib
+
 
 _TITLE_PREFIX = re.compile(r"^\s*(module|lesson|unit)\s*\d+\s*[:.\-\u2013]\s*", re.I)
+
+
+_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+_VERSION = re.compile(r"^[0-9][A-Za-z0-9.!+_-]*$")
+_APT = re.compile(r"^[a-z0-9][a-z0-9.+-]*$")
 
 def _strip_title_prefix(title: str) -> str:
     # Cleans the title from cosmetic prefixs like module|lesson|unit
@@ -84,6 +92,52 @@ class ExecutionResult(BaseModel):
     stdout: str = ""
     stderr: str = ""
     error_type: ExecutionError | None = None
+
+class DocScan(BaseModel):
+    imports:dict[str,list[str]]
+    install_hints:dict[str,list[str]]
+
+class EnvironmentSpec(BaseModel):
+    python:str="3.11"
+    packages:dict[str,str]=Field(default_factory=dict)
+    apt:list[str]=[]
+    memory_mb:int=Field(default=256,ge=64,le=2048)
+
+    @field_validator('python')
+    @classmethod
+    def _python(cls,v:str) -> str:
+        if not re.fullmatch(r"3\.\d{1,2}", v):
+            raise ValueError("python must look like '3.11'")
+        return v
+
+    @field_validator('packages')
+    @classmethod
+    def _packages(cls, v: dict[str, str]) -> dict[str, str]:
+        for name, version in v.items():
+            if not _NAME.fullmatch(name):
+                raise ValueError(f"bad package name: {name!r}")
+            if not _VERSION.fullmatch(version):
+                raise ValueError(f"version for {name} must be an exact pin like '1.2.3', got {version!r}")
+        return v
+
+    @field_validator('apt')
+    @classmethod
+    def _apt(cls, v: list[str]) -> list[str]:
+        for pkg in v:
+            if not _APT.fullmatch(pkg):
+                raise ValueError(f"bad apt package: {pkg!r}")
+        return v
+
+    @property
+    def env_id(self) ->str:
+        "Courses with identical spec share one image."
+        canonical = json.dumps(self.model_dump(), sort_keys=True)
+        return hashlib.sha256(canonical.encode()).hexdigest()[:12]
+
+    @property
+    def image_tag(self) -> str:
+        return f"forge-sbx:{self.env_id}"
+
 
 class RetrievedDocument(BaseModel):
     content:str
