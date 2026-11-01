@@ -7,6 +7,9 @@ from exercises.case_runner import HarnessError,RunReport
 
 _MAX_ROWS=6
 
+class StarterError(RuntimeError):
+    "The starter code we derived did not even load: a bug on our side, never the model's fault."
+
 def _show(value: Any, limit: int = 60) -> str:
     text = json.dumps(value)
     return text if len(text) <= limit else text[: limit - 3] + "..."
@@ -60,3 +63,15 @@ def verify_reference_run(report: RunReport, labels: list[str], inputs: list[list
     check_distinct_inputs(labels, inputs)
     check_variety(labels, inputs, outputs)
     return outputs
+
+def check_starter_fails(graded: list[dict]) -> None:
+    "Run on the STARTER code. At least one case must fail."
+    if not graded:
+        return
+    if graded[0].get("reason") == "load_error":
+        raise StarterError(f"The derived starter code could not be loaded: {graded[0].get('detail')}")
+    if all(g["passed"] for g in graded):
+        raise ValueError(
+            "The starter code (an empty function that returns None) already passes every test case. "
+            "Every test must require real work: the function must RETURN a computed value that the "
+            "tests compare, not print something or change something and return nothing.")

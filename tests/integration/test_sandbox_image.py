@@ -60,3 +60,35 @@ def test_background_process_never_survives_into_the_next_run(pool):
     count = "import os; print(len([p for p in os.listdir('/proc') if p.isdigit()]))"
     SandBox(pool, spawn).sandbox_instance()
     assert int(SandBox(pool, count).sandbox_instance().stdout.strip()) <= 3
+
+def test_reference_passes_and_starter_fails_in_the_container(pool):
+    from exercises.case_runner import grade, run_cases
+    from exercises.checks import check_starter_fails
+    from exercises.starter import make_starter
+
+    run = lambda code: SandBox(pool, code, timeout_seconds=20).sandbox_instance()
+    reference = "def add(a, b):\n    return a + b\n"
+    inputs = [[1, 2], [5, 5], [0, 0]]
+
+    ref_report = run_cases(run, reference, "add", inputs)
+    expected = [o.value for o in ref_report.cases]
+    assert expected == [3, 10, 0]
+    assert all(g["passed"] for g in grade(ref_report, expected))
+
+    starter_graded = grade(run_cases(run, make_starter(reference, "add"), "add", inputs), expected)
+    assert not any(g["passed"] for g in starter_graded)
+    check_starter_fails(starter_graded)
+
+
+def test_print_only_exercise_is_rejected_in_the_container(pool):
+    from exercises.case_runner import grade, run_cases
+    from exercises.checks import check_starter_fails
+    from exercises.starter import make_starter
+
+    run = lambda code: SandBox(pool, code, timeout_seconds=20).sandbox_instance()
+    reference = "def show(x):\n    print(x)\n"
+    inputs = [["a"], ["b"]]
+    expected = [o.value for o in run_cases(run, reference, "show", inputs).cases]       # [None, None]
+    starter_graded = grade(run_cases(run, make_starter(reference, "show"), "show", inputs), expected)
+    with pytest.raises(ValueError, match="already passes"):
+        check_starter_fails(starter_graded)
