@@ -1,12 +1,13 @@
 from __future__ import annotations
 import logging
-from typing import Callable,TypeVar
+from typing import Callable,TypeVar,Any,overload
 from langchain.messages import AIMessage,HumanMessage
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
 
 logger=logging.getLogger(__name__)
 T=TypeVar("T",bound=BaseModel)
+R=TypeVar("R")
 
 def _describe_error(err: BaseException) -> str:
     "Short, model-readable description of why parsing failed."
@@ -36,14 +37,22 @@ class StructuredResult:
         self.llm=llm
         self.max_attempts=max_attempts
 
+    @overload
+    def call(self, schema: type[T], messages: list[BaseMessage], *, label: str,
+             validate: Callable[[T], None] | None = None) -> T: ...
+    
+    @overload
+    def call(self, schema: type[T], messages: list[BaseMessage], *, label: str,
+             validate: Callable[[T], R]) -> T | R: ...
+    
     def call(
         self,
         schema: type[T],
         messages: list[BaseMessage],
         *,
         label: str,
-        validate: Callable[[T], None] | None = None,
-    ) -> T:
+        validate: Callable[[T], Any] | None = None,
+    ) -> Any:
             
         structured = self.llm.with_structured_output(schema, include_raw=True)
         feedback:list[BaseMessage]=[]
@@ -60,16 +69,17 @@ class StructuredResult:
             self._log_attempt(label, attempt, raw)
 
             problem = None
+            replacement=None
             if parsed is None:
                 problem = _describe_error(error) if error else "The reply was empty."
             elif validate is not None:
                 try:
-                    validate(parsed)
+                    replacement=validate(parsed)
                 except ValueError as exc:
                     problem = str(exc)
 
             if problem is None:
-                return parsed
+                return parsed if replacement is None else replacement
             
             logger.warning("%s attempt %d rejected: %s", label, attempt, problem.replace("\n", " | "))
             last_problem=problem
@@ -87,7 +97,7 @@ class StructuredResult:
                                         "Avoid it. Reply with the JSON only.")
                 ]
 
-        raise self.ERROR(f"{label}: gave up after {self.max_attempts} attempts. Last problem: {problem}")
+        raise self.ERROR(f"{label}: gave up after {self.max_attempts} attempts. Last problem: {last_problem}")
 
     @staticmethod
     def _text(raw) -> str:

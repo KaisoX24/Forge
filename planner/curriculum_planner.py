@@ -57,6 +57,11 @@ class CurriculumPlanner:
         self.section_char_budget = section_char_budget
         self.retrieval = retrieval
 
+        if not self.outline.sections:
+            raise PlannerError(
+                "Cannot create a curriculum from an empty documentation Outline"
+            )
+        
         self.structured_result=StructuredResult(
             llm=llm or get_llm(model_name),
             error_cls=PlannerError,

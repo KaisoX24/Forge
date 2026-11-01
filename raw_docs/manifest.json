@@ -2,86 +2,103 @@
   "fastapi.tiangolo_tutorial_body.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/body/",
     "scraped_at": "2026-10-24T11:57:25.022000+00:00",
-    "title": "Request Body"
+    "title": "Request Body",
+    "position": 4
   },
   "fastapi.tiangolo_tutorial.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/",
     "scraped_at": "2026-10-24T11:57:25.055930+00:00",
-    "title": "Tutorial - User Guide"
+    "title": "Tutorial - User Guide",
+    "position": 0
   },
   "fastapi.tiangolo_tutorial_body_fields.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/body-fields/",
     "scraped_at": "2026-10-24T11:57:25.103762+00:00",
-    "title": "Body - Fields"
+    "title": "Body - Fields",
+    "position": 8
   },
   "fastapi.tiangolo_tutorial_body_nested_models.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/",
     "scraped_at": "2026-10-24T11:57:25.185594+00:00",
-    "title": "Body - Nested Models"
+    "title": "Body - Nested Models",
+    "position": 9
   },
   "fastapi.tiangolo_tutorial_body_multiple_params.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/",
     "scraped_at": "2026-10-24T11:57:25.271196+00:00",
-    "title": "Body - Multiple Parameters"
+    "title": "Body - Multiple Parameters",
+    "position": 7
   },
   "fastapi.tiangolo_tutorial_dependencies.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/dependencies/",
     "scraped_at": "2026-10-24T11:57:26.232619+00:00",
-    "title": "Dependencies"
+    "title": "Dependencies",
+    "position": 15
   },
   "fastapi.tiangolo_tutorial_dependencies_classes_as_dependencies.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/",
     "scraped_at": "2026-10-24T11:57:26.521948+00:00",
-    "title": "Classes as Dependencies"
+    "title": "Classes as Dependencies",
+    "position": 16
   },
   "fastapi.tiangolo_tutorial_extra_models.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/extra-models/",
     "scraped_at": "2026-10-24T11:57:26.569071+00:00",
-    "title": "Extra Models"
+    "title": "Extra Models",
+    "position": 12
   },
   "fastapi.tiangolo_tutorial_first_steps.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/first-steps/",
     "scraped_at": "2026-10-24T11:57:26.812887+00:00",
-    "title": "First Steps"
+    "title": "First Steps",
+    "position": 1
   },
   "fastapi.tiangolo_tutorial_handling_errors.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/",
     "scraped_at": "2026-10-24T11:57:27.520066+00:00",
-    "title": "Handling Errors"
+    "title": "Handling Errors",
+    "position": 14
   },
   "fastapi.tiangolo_tutorial_path_params_numeric_validations.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/",
     "scraped_at": "2026-10-24T11:57:27.912164+00:00",
-    "title": "Path Parameters and Numeric Validations"
+    "title": "Path Parameters and Numeric Validations",
+    "position": 6
   },
   "fastapi.tiangolo_tutorial_path_params.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/path-params/",
     "scraped_at": "2026-10-24T11:57:28.217193+00:00",
-    "title": "Path Parameters"
+    "title": "Path Parameters",
+    "position": 2
   },
   "fastapi.tiangolo_tutorial_query_params_str_validations.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/",
     "scraped_at": "2026-10-24T11:57:28.775196+00:00",
-    "title": "Query Parameters and String Validations"
+    "title": "Query Parameters and String Validations",
+    "position": 5
   },
   "fastapi.tiangolo_tutorial_query_params.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/query-params/",
     "scraped_at": "2026-10-24T11:57:28.847102+00:00",
-    "title": "Query Parameters"
+    "title": "Query Parameters",
+    "position": 3
   },
   "fastapi.tiangolo_tutorial_response_model.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/response-model/",
     "scraped_at": "2026-10-24T11:57:29.274436+00:00",
-    "title": "Response Model - Return Type"
+    "title": "Response Model - Return Type",
+    "position": 11
   },
   "fastapi.tiangolo_tutorial_response_status_code.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/response-status-code/",
     "scraped_at": "2026-10-24T11:57:29.319975+00:00",
-    "title": "Response Status Code"
+    "title": "Response Status Code",
+    "position": 13
   },
   "fastapi.tiangolo_tutorial_extra_data_types.md": {
     "url": "https://fastapi.tiangolo.com/tutorial/extra-data-types/",
     "scraped_at": "2026-10-24T11:57:31.429451+00:00",
-    "title": "Extra Data Types"
+    "title": "Extra Data Types",
+    "position": 10
   }
 }

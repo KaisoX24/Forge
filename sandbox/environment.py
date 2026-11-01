@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import sys
+import shlex
 from collections import defaultdict
 from pathlib import Path
 from models.data_models import EnvironmentSpec,DocScan
@@ -31,7 +32,7 @@ def render_dockerfile(spec:EnvironmentSpec) -> str:
                      + " ".join(sorted(spec.apt)) + " && rm -rf /var/lib/apt/lists/*")
 
     if spec.packages:
-        pins = " ".join(f"{n}=={v}" for n, v in sorted(spec.packages.items()))
+        pins = " ".join(shlex.quote(f"{n}=={v}") for n, v in sorted(spec.packages.items()))
         lines.append(f"RUN pip install --no-cache-dir --only-binary=:all: {pins}")
 
     return "\n".join(lines)+"\n"

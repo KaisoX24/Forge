@@ -28,10 +28,10 @@
 #         print(f"   {item.label:<9} cov={item.coverage:.2f}  {item.requirement[:70]}")
 
 
-from pathlib import Path
-from sandbox.environment import scan_docs,propose_packages
+# from pathlib import Path
+# from sandbox.environment import scan_docs,propose_packages
 
-scan=scan_docs(Path('raw_docs'))
-print(scan.imports.keys())
-print(scan.install_hints)
-print(propose_packages(scan))
+# scan=scan_docs(Path('raw_docs'))
+# print(scan.imports.keys())
+# print(scan.install_hints)
+# print(propose_packages(scan))

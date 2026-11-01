@@ -43,11 +43,12 @@ class DocScraper:
             print(f"Exception occurred while saving {url}: {e}")
             return False
 
-    def _record_metadata(self, manifest: dict, url: str, filename: str, result: CrawlResult) -> None:
+    def _record_metadata(self, manifest: dict, url: str, filename: str, result: CrawlResult,position:int) -> None:
         manifest[filename] = {
             "url": url,
             "scraped_at":datetime.now(timezone.utc).isoformat(),
             "title":self._extract_title(result.markdown),
+            "position":position
         }
 
     def _write_manifest(self, manifest: dict) -> None:
@@ -57,7 +58,7 @@ class DocScraper:
         succeeded = []
         failed = []
         manifest={}
-
+        position_of={u.rstrip("/"): i for i, u in enumerate(urls)}
         async with self.crawler:
             results:list[CrawlResult] = await self.crawler.arun_many(
                 urls=urls,
@@ -67,7 +68,7 @@ class DocScraper:
                 if res.success and res.markdown:
                     filename=self._url_to_filename(res.url)
                     self._save_document(res.markdown, res.url,filename)
-                    self._record_metadata(manifest,res.url,filename,res)
+                    self._record_metadata(manifest,res.url,filename,res,position_of.get(res.url.rstrip("/"),len(urls)))
                     succeeded.append(res.url)
                 else:
                     reason = res.error_message if res.success else "empty or missing content"

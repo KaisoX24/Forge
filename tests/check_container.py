@@ -1,9 +1,3 @@
-"""Run the case runner inside your REAL sandbox container.
-
-    python check_container.py
-
-Each check prints PASS/FAIL with a reason. Nothing here calls a model.
-"""
 from exercises.case_runner import HarnessError, grade, run_cases
 
 

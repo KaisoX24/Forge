@@ -58,7 +58,7 @@ class SandBox:
 
         finally:
             if container is not None:
-                if finished_event.is_set():
+                if finished_event.is_set() and self.pool.reset(container):
                     self.pool.return_container(container)
                 else:
                     try:

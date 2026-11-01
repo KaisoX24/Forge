@@ -10,8 +10,21 @@ _TITLE_PREFIX = re.compile(r"^\s*(module|lesson|unit)\s*\d+\s*[:.\-\u2013]\s*", 
 
 
 _NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+_REQ = re.compile(r"^([A-Za-z0-9][A-Za-z0-9._-]*)(?:\[([A-Za-z0-9._,\s-]+)\])?$")
 _VERSION = re.compile(r"^[0-9][A-Za-z0-9.!+_-]*$")
 _APT = re.compile(r"^[a-z0-9][a-z0-9.+-]*$")
+
+
+def _norm(name:str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+def canonical_requirement(raw: str) -> str:
+    m = _REQ.fullmatch(raw.strip())
+    if not m:
+        raise ValueError(f"bad package name: {raw!r}")
+    extras = sorted({_norm(e.strip()) for e in (m.group(2) or "").split(",") if e.strip()})
+    name = _norm(m.group(1))
+    return f"{name}[{','.join(extras)}]" if extras else name
 
 def _strip_title_prefix(title: str) -> str:
     # Cleans the title from cosmetic prefixs like module|lesson|unit
@@ -113,12 +126,15 @@ class EnvironmentSpec(BaseModel):
     @field_validator('packages')
     @classmethod
     def _packages(cls, v: dict[str, str]) -> dict[str, str]:
-        for name, version in v.items():
-            if not _NAME.fullmatch(name):
-                raise ValueError(f"bad package name: {name!r}")
+        out: dict[str, str] = {}
+        for raw, version in v.items():
             if not _VERSION.fullmatch(version):
-                raise ValueError(f"version for {name} must be an exact pin like '1.2.3', got {version!r}")
-        return v
+                raise ValueError(f"version for {raw} must be an exact pin like '1.2.3', got {version!r}")
+            key = canonical_requirement(raw)
+            if out.get(key, version) != version:
+                raise ValueError(f"conflicting pins for {key}: {out[key]} vs {version}")
+            out[key] = version
+        return dict(sorted(out.items()))
 
     @field_validator('apt')
     @classmethod
@@ -126,7 +142,7 @@ class EnvironmentSpec(BaseModel):
         for pkg in v:
             if not _APT.fullmatch(pkg):
                 raise ValueError(f"bad apt package: {pkg!r}")
-        return v
+        return sorted(set(v))
 
     @property
     def env_id(self) ->str:

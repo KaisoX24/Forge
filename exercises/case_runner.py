@@ -1,9 +1,4 @@
-"""Runs a function against many inputs inside ONE sandbox execution.
-
-SandBox runs a single `python3 -c <string>`, so the learner's (or reference)
-code and the test driver are bundled into one script. The driver prints one
-JSON line with a marker; everything else the code prints is ignored.
-"""
+"""Runs a function against many inputs inside ONE sandbox execution."""
 from __future__ import annotations
 
 import json
@@ -45,7 +40,7 @@ if func is not None:
             signal.alarm(payload["case_timeout"])
             value = func(*args)
             signal.alarm(0)
-            json.dumps(value)  # must be JSON-serialisable to be comparable
+            json.dumps(value)
             report["cases"].append({"ok": True, "value": value})
         except _CaseTimeout:
             report["cases"].append({"ok": False, "error": "TimeoutError: case took too long"})
@@ -66,7 +61,7 @@ class CaseOutcome:
 
 @dataclass(frozen=True)
 class RunReport:
-    fatal: str | None          # the code itself failed to load (syntax error, missing function...)
+    fatal: str | None 
     cases: list[CaseOutcome]
 
 
@@ -78,7 +73,6 @@ def build_script(source: str, function_name: str, inputs: list[list], case_timeo
     payload = json.dumps(
         {"source": source, "function": function_name, "inputs": inputs, "case_timeout": case_timeout}
     )
-    # repr() turns the JSON text into a safe Python string literal, whatever it contains
     return _DRIVER.replace("__PAYLOAD__", repr(payload)).replace("__MARKER__", _MARKER)
 
 

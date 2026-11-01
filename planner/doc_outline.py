@@ -96,15 +96,17 @@ class DocOutline:
         ranks={url.rstrip("/"): i for i,url in enumerate(order or [])}
 
         def rank(md_file: Path) -> int:
-            url = manifest.get(md_file.name, {}).get("url", "")
-            return ranks.get(url.rstrip("/"), len(ranks))
+            entry = manifest.get(md_file.name, {})
+            if ranks:
+                return ranks.get(entry.get("url", "").rstrip("/"), len(ranks))
+            return entry.get("position",10**9)
 
         md_files=sorted(raw_dir.glob("*.md"))
         md_files.sort(key=rank)
 
         sections: list[Section] = []
         next_id = 1
-        for md_file in sorted(raw_dir.glob("*.md")):
+        for md_file in md_files:
             fallback = manifest.get(md_file.name, {}).get("title") or md_file.stem
             page_title, raw_sections = _parse_page(md_file.read_text(encoding="utf-8"), fallback)
             page_title = manifest.get(md_file.name, {}).get("title") or page_title
