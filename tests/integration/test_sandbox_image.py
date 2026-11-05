@@ -92,3 +92,37 @@ def test_print_only_exercise_is_rejected_in_the_container(pool):
     starter_graded = grade(run_cases(run, make_starter(reference, "show"), "show", inputs), expected)
     with pytest.raises(ValueError, match="already passes"):
         check_starter_fails(starter_graded)
+
+def test_set_ordering_is_caught_as_nondeterministic_in_the_container(pool):
+    from exercises.case_runner import run_cases
+    from exercises.checks import verify_reference_run
+
+    run = lambda code: SandBox(pool, code, timeout_seconds=20).sandbox_instance()
+    ref = "def uniq(words):\n    return list(set(words))\n"
+    words = ["pear", "apple", "fig", "kiwi", "plum", "lime", "date", "peach", "mango", "grape"]
+    inputs = [[words]]
+    first, second = run_cases(run, ref, "uniq", inputs), run_cases(run, ref, "uniq", inputs)
+    with pytest.raises(ValueError, match="different results"):
+        verify_reference_run(first, ["many fruits"], inputs, second_report=second)
+
+
+def test_a_stable_reference_passes_both_runs_in_the_container(pool):
+    from exercises.case_runner import run_cases
+    from exercises.checks import verify_reference_run
+
+    run = lambda code: SandBox(pool, code, timeout_seconds=20).sandbox_instance()
+    ref = "def uniq(words):\n    return sorted(set(words))\n"
+    inputs = [[["b", "a", "b", "c"]]]
+    first, second = run_cases(run, ref, "uniq", inputs), run_cases(run, ref, "uniq", inputs)
+    assert verify_reference_run(first, ["dupes"], inputs, second_report=second) == [["a", "b", "c"]]
+
+
+def test_a_missing_module_is_reported_with_the_installed_packages(pool):
+    from exercises.case_runner import run_cases
+    from exercises.checks import verify_reference_run
+
+    run = lambda code: SandBox(pool, code, timeout_seconds=20).sandbox_instance()
+    report = run_cases(run, "import numpy\n\ndef f(x):\n    return x\n", "f", [[1]])
+    with pytest.raises(ValueError, match="standard library") as exc:
+        verify_reference_run(report, ["a"], [[1]], available_packages=["pydantic"])
+    assert "numpy" in str(exc.value) and "pydantic" in str(exc.value)
