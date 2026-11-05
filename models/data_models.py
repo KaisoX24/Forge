@@ -57,6 +57,11 @@ class ModuleOutline(BaseModel):
 class ObjectivePlan(BaseModel):
     objective:Objective
     requirements:list[Requirement]=Field(min_length=1,max_length=2)
+    graded:bool=Field(
+        default=True,
+        description="True if the learner can show this objective by writing a function that returns a "
+                    "checkable value. False for setup, installation or import-only steps: read-only lessons.",
+    )
 
 
 class CurriculumOutline(BaseModel):

@@ -44,7 +44,14 @@ def test_budget_follows_the_window_and_the_reserved_answer_room():
 
 def test_budget_refuses_a_configuration_with_no_room():
     with pytest.raises(ValueError, match="No room"):
-        docs_budget(num_ctx=4096, num_predict=2048, fixed_prompt_tokens=1500)
+        docs_budget(num_ctx=4096, num_predict=2048, fixed_prompt_tokens=2500)
+
+
+def test_budget_boundary_zero_is_refused_one_is_allowed():
+    # 4096 - 2048 - fixed - int(409.6) = 1639 - fixed
+    with pytest.raises(ValueError, match="No room"):
+        docs_budget(num_ctx=4096, num_predict=2048, fixed_prompt_tokens=1639)
+    assert docs_budget(num_ctx=4096, num_predict=2048, fixed_prompt_tokens=1638) == 1
 
 
 def test_heading_link_junk_is_removed():

@@ -5,6 +5,10 @@ You will receive the module title and the documentation text it is based on. Use
 Write 2 to 4 steps. Each step has:
 - objective: one thing the learner will be able to DO after the step. Start with an action verb such as Define, Write, Declare, Convert, Validate or Fix. It must be something a coding exercise could check. Never start with "Understand", "Learn" or "Know".
 - requirements: 1 or 2 specific questions the documentation must answer so that the lesson and exercise for THIS objective are accurate. Example: "How does a Pydantic model declare an optional field with a default value?"
+- graded: true or false.
+  - Use true when the learner can show the objective by writing a Python function that takes inputs and RETURNS a value a test can compare. The function should apply an idea from the documentation: validating or converting data, building a structure, choosing between behaviours, applying a rule.
+  - Use false when there is no returned value to check: installing packages, running commands or servers, editing configuration, importing a name, or creating or starting the framework's main application object. These steps become read-only lessons.
+  - When unsure, use true.
 
 Reply with JSON only, in this shape:
-{"steps": [{"objective": "...", "requirements": ["..."]}]}
+{"steps": [{"objective": "...", "requirements": ["..."], "graded": true}]}

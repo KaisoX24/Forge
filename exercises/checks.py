@@ -17,23 +17,6 @@ def _show(value: Any, limit: int = 60) -> str:
 def _key(value:Any) -> str:
     return json.dumps(value,sort_keys=True)
 
-def reference_outputs(report:RunReport,labels:list[str],inputs: list[list])->list[Any]:
-    "The reference's output for every case, or a ValueError listing everything that went wrong."
-    if report.fatal:
-        raise ValueError(f"The reference solution could not be loaded: {report.fatal}")
-    if len(report.cases)!=len(inputs):
-        raise HarnessError(f"Driver returned {len(report.cases)} results for {len(inputs)} cases.")
-
-    problems=[
-        f"- case {label!r} with inputs {_show(args)} crashed: {outcome.error}"
-        for label, args, outcome in zip(labels, inputs, report.cases) if not outcome.ok
-    ]
-
-    if problems:
-        raise ValueError("The reference solution crashed on its own test cases:\n" + "\n".join(problems))
-
-    return [outcome.value for outcome in report.cases]
-
 def check_distinct_inputs(labels: list[str], inputs: list[list]) -> None:
     seen: dict[str, str] = {}
     for label, args in zip(labels, inputs):
@@ -43,10 +26,36 @@ def check_distinct_inputs(labels: list[str], inputs: list[list]) -> None:
                 f"Cases {first!r} and {label!r} use identical inputs {_show(args)}. "
                 "Every test case must use different inputs.")
 
+MAX_SHARE=0.6
+MIN_CASES_FOR_SHARE=4
+
+def _check_not_dominated(labels:list[str],inputs:list[list],outputs:list[Any]) -> None:
+    "With enough cases, one value may not make up most of them: a lazy guess would pass nearly every case."
+    n=len(outputs)
+    if n < MIN_CASES_FOR_SHARE:
+        return
+    counts: dict[str, int] = {}
+    for o in outputs:
+        counts[_key(o)] = counts.get(_key(o), 0) + 1
+    top_key, top = max(counts.items(), key=lambda kv: kv[1])
+    if top / n <= MAX_SHARE:
+        return
+    value = next(o for o in outputs if _key(o) == top_key)
+    rows = "\n".join(f"- {l!r}: inputs {_show(i)} -> {_show(o)}"
+                     for l, i, o in list(zip(labels, inputs, outputs))[:_MAX_ROWS])
+    raise ValueError(
+        f"{top} of {n} test cases give the same result ({_show(value)}), so a lazy solution that "
+        "mostly returns that value would nearly pass. No single result may be the answer to more than "
+        f"{int(MAX_SHARE * 100)}% of the cases: add inputs whose correct answers differ "
+        f"(for a True/False function use about as many True cases as False cases).\n{rows}")
+
 def check_variety(labels:list[str],inputs:list[list],outputs:list[Any]) ->None:
     "Reject test sets where one constant answer would pass every case."
 
-    if len(outputs) < 2 or len({_key(o) for o in outputs}) >= 2:
+    if len(outputs) < 2:
+        return
+    if len({_key(o) for o in outputs}) >= 2:
+        _check_not_dominated(labels, inputs, outputs)
         return
     if all(o is None for o in outputs):
         raise ValueError(
@@ -62,13 +71,6 @@ def check_variety(labels:list[str],inputs:list[list],outputs:list[Any]) ->None:
         "always returns that value would pass every test. Change or add test inputs so that different "
         "inputs have different correct results (for example an input whose correct answer is the "
         f"opposite).\n{rows}")
-
-def verify_reference_run(report: RunReport, labels: list[str], inputs: list[list]) -> list[Any]:
-    "All checks in order. Returns the outputs to store as `expected`, or raises ValueError."
-    outputs = reference_outputs(report, labels, inputs)
-    check_distinct_inputs(labels, inputs)
-    check_variety(labels, inputs, outputs)
-    return outputs
 
 def check_starter_fails(graded: list[dict]) -> None:
     "Run on the STARTER code. At least one case must fail."

@@ -62,8 +62,20 @@ def test_a_false_output_is_perfectly_valid_variety_is_what_matters():
         check_variety(LABELS, INPUTS, [False, False, False]) 
 
 
-def test_mostly_one_value_with_a_single_different_one_is_accepted():
-    check_variety(["a"] * 5, [[i] for i in range(5)], [True, True, True, True, False])
+def test_one_value_dominating_four_or_more_cases_is_rejected():
+    with pytest.raises(ValueError, match="4 of 5 test cases give the same result"):
+        check_variety(["a"] * 5, [[i] for i in range(5)], [True, True, True, True, False])
+    with pytest.raises(ValueError, match="3 of 4"):
+        check_variety(list("abcd"), [[i] for i in range(4)], [False, False, False, True])
+
+
+def test_a_balanced_set_is_accepted_at_the_limit():
+    check_variety(list("abcde"), [[i] for i in range(5)], [True, True, True, False, False])   # 60% is allowed
+    check_variety(list("abcd"), [[i] for i in range(4)], [True, True, False, False])
+
+
+def test_three_cases_are_not_checked_for_dominance():
+    check_variety(["a", "b", "c"], [[1], [2], [3]], [True, True, False])
 
 
 def test_unhashable_outputs_are_compared_correctly():

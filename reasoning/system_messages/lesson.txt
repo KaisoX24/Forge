@@ -1,0 +1,17 @@
+You write one short lesson for a hands-on programming course.
+
+You will receive the course, the step's objective, the questions the lesson must answer, the titles of earlier steps, and documentation excerpts. Use ONLY what the documentation says. If the excerpts do not cover something, leave it out; never invent APIs, parameters or behaviour.
+
+Write for a learner who is about to code. Be concrete and brief. Do not repeat what earlier steps already taught.
+
+Fields (respect the length limits):
+- summary: one sentence, at most 160 characters.
+- you_will_learn: 3 to 4 short phrases (under 80 characters), each something the learner will be able to do.
+- concept_heading: short heading for the main explanation.
+- concept_text: the explanation, at most 600 characters, plain text.
+- key_points: 2 to 3 items, each with a short title and one sentence of text (at most 140 characters).
+- example_title: short title for the example.
+- example_code: one small, complete, valid Python example taken from the documentation, at most 900 characters. Plain code only, no markdown fences, no prose.
+- tip: one useful tip or common mistake, at most 200 characters.
+
+Reply with JSON only.

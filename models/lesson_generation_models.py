@@ -17,6 +17,10 @@ class LessonDraft(BaseModel):
     concept_text:str=Field(max_length=600)
     key_points:list[KeyPoint]=Field(min_length=2,max_length=3)
     example_title:Short
+    example_language: Literal["python", "bash", "text"] = Field(
+        default="python",
+        description="python for code, bash for shell commands, text for config files or other output",
+    )
     example_code:str=Field(max_length=900)
     tip:str=Field(max_length=200)
 
