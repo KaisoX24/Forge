@@ -38,7 +38,7 @@ def _kept_imports(tree: ast.Module, used: set[str]) -> list[ast.stmt]:
                 kept.append(ast.ImportFrom(module=node.module, names=names, level=node.level))
     return kept
 
-def make_starter(reference: str, function_name: str) -> str:
+def _make_function_starter(reference: str, function_name: str) -> str:
     try:
         tree = ast.parse(reference)
     except SyntaxError as exc:
@@ -73,3 +73,27 @@ def make_starter(reference: str, function_name: str) -> str:
     module = ast.Module(body=[*_kept_imports(tree, used), stub], type_ignores=[])
     text = ast.unparse(ast.fix_missing_locations(module)).rstrip()
     return text + "  # TODO: write your solution here\n" if text.endswith("pass") else text + "\n"
+
+
+def make_starter(
+    reference_files: dict[str, str],
+    starter_files: dict[str, str],
+    *,
+    entry_file: str,
+    function_name: str,
+) -> dict[str, str]:
+    if entry_file not in reference_files:
+        raise ValueError(
+            f"The reference project does not contain the entry file {entry_file!r}."
+        )
+    if entry_file not in starter_files:
+        raise ValueError(
+            f"The starter project does not contain the entry file {entry_file!r}."
+        )
+
+    project = dict(starter_files)
+    project[entry_file] = _make_function_starter(
+        reference_files[entry_file],
+        function_name,
+    )
+    return project

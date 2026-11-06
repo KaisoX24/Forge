@@ -1,183 +1,96 @@
 import pytest
+from pydantic import ValidationError
+from models.lesson_generation_models import (
+    Exercise, ExerciseDraft, FunctionCase, FunctionCaseDraft, FunctionEvaluationConfig,
+    FunctionExecutionConfig, HttpCase, HttpCaseDraft, HttpEvaluationConfig, HttpExecutionConfig,
+)
 
-from exercises.case_runner import CaseOutcome, HarnessError, RunReport
-from exercises.checks import StarterError
-from exercises.starter import make_starter
-from exercises.verify import make_verifier
-from models.data_models import EnvironmentSpec
-from models.lesson_generation_models import CaseDraft, Exercise, ExerciseDraft
+FUNCTION_FILES = {"main.py": "def add(a, b):\n    return a + b\n"}
+REFERENCE_FILES = {"main.py": "def add(a, b):\n    return a + b\n"}
+FUNCTION_CASES = [
+    FunctionCaseDraft(label="positive values", inputs=[2, 3]),
+    FunctionCaseDraft(label="negative values", inputs=[-2, -3]),
+    FunctionCaseDraft(label="zero", inputs=[0, 0]),
+]
 
-REFERENCE = "def is_even(n):\n    return n % 2 == 0\n"
-STARTER = make_starter(REFERENCE, "is_even")
-ENV = EnvironmentSpec(packages={"pydantic": "2.9.0"})
+def make_draft(**overrides):
+    base = dict(title="Add numbers", description="Return the sum of two numbers.",
+        instructions=["Implement add(a, b).", "Return the sum."], difficulty="easy",
+        files=FUNCTION_FILES, reference_files=REFERENCE_FILES,
+        execution=FunctionExecutionConfig(function_name="add"),
+        evaluation=FunctionEvaluationConfig(cases=FUNCTION_CASES),
+        hints=["Use the + operator.", "Return the calculated value."],
+        explanation="The + operator adds two numbers.")
+    return ExerciseDraft(**{**base, **overrides})
 
+def test_function_draft_accepts_new_project_contract():
+    draft=make_draft()
+    assert draft.execution.target == draft.evaluation.target == "function"
+    assert draft.execution.entry_file == "main.py"
+    assert len(draft.evaluation.cases) == 3
 
-def rep(*values, fatal=None):
-    return RunReport(fatal=fatal, cases=[CaseOutcome(ok=True, value=v) for v in values])
+def test_execution_and_evaluation_targets_must_match():
+    with pytest.raises(ValidationError, match="targets must match"):
+        make_draft(execution=HttpExecutionConfig(command=["python", "main.py"]))
 
+@pytest.mark.parametrize("files", [{}, {"../outside.py":"x"}, {"/absolute.py":"x"}, {"folder\\\\file.py":"x"}, {"folder/":"x"}])
+def test_project_file_paths_must_be_safe_and_nonempty(files):
+    with pytest.raises(ValidationError): make_draft(files=files)
 
-def crashed(error):
-    return CaseOutcome(ok=False, error=error)
+def test_function_entry_file_must_exist_in_starter_and_reference():
+    with pytest.raises(ValidationError, match="starter project"):
+        make_draft(files={"other.py":"pass"})
+    with pytest.raises(ValidationError, match="reference project"):
+        make_draft(reference_files={"other.py":"pass"})
 
+def http_cases():
+    return [
+        HttpCaseDraft(label="health check", method="GET", path="/health", expected_status=200),
+        HttpCaseDraft(label="create item", method="POST", path="/items", json_body={"name":"pen"}, expected_status=201),
+        HttpCaseDraft(label="missing item", method="GET", path="/items/999", expected_status=404),
+    ]
 
-class ScriptedRunner:
-    "Answers reference runs from a queue, and starter runs with a fixed report. Records every call."
-    def __init__(self, *reference_reports, starter=None):
-        self.reference_reports = list(reference_reports)
-        self.starter = starter if starter is not None else rep(None, None, None)
-        self.calls: list[str] = []
+def test_http_draft_uses_typed_execution_and_evaluation_configs():
+    draft=make_draft(files={"main.py":"from app import app"}, reference_files={"main.py":"from app import app"},
+        execution=HttpExecutionConfig(command=["python","main.py"]), evaluation=HttpEvaluationConfig(cases=http_cases()))
+    assert draft.execution.target == draft.evaluation.target == "http"
+    assert draft.execution.command == ["python","main.py"]
+    assert [case.method for case in draft.evaluation.cases] == ["GET","POST","GET"]
 
-    def __call__(self, source, function_name, inputs):
-        self.calls.append("reference" if source == REFERENCE else "starter" if source == STARTER else "other")
-        return self.reference_reports.pop(0) if source == REFERENCE else self.starter
+def test_http_execution_rejects_empty_command_at_draft_validation():
+    with pytest.raises(ValidationError, match="launch command"):
+        make_draft(files={"main.py":"from app import app"}, reference_files={"main.py":"from app import app"},
+            execution=HttpExecutionConfig(command=[]), evaluation=HttpEvaluationConfig(cases=http_cases()))
 
+def test_http_case_rejects_invalid_method_and_status():
+    with pytest.raises(ValidationError): HttpCaseDraft(label="bad method", method="OPTIONS", path="/", expected_status=200)
+    with pytest.raises(ValidationError): HttpCaseDraft(label="bad status", method="GET", path="/", expected_status=99)
 
-def make_draft(**over) -> ExerciseDraft:
-    base = dict(
-        title="Even or odd", description="Say whether a number is even.",
-        instructions=["Write is_even(n)", "Return True for even numbers"], difficulty="easy",
-        function_name="is_even", reference_solution=REFERENCE,
-        tests=[CaseDraft(label="typical even", inputs=[2]), CaseDraft(label="odd", inputs=[3]),
-               CaseDraft(label="zero", inputs=[0])],
-        hints=["Use the % operator", "n % 2 is 0 for even numbers"], explanation="Even numbers divide by 2.")
-    return ExerciseDraft(**{**base, **over})
+def test_evaluation_configs_require_three_to_six_cases():
+    with pytest.raises(ValidationError): FunctionEvaluationConfig(cases=FUNCTION_CASES[:2])
+    with pytest.raises(ValidationError): FunctionEvaluationConfig(cases=FUNCTION_CASES*3)
 
+def test_exercise_from_draft_excludes_private_reference_data():
+    draft=make_draft()
+    cases=[FunctionCase(label=c.label, inputs=c.inputs, expected=v, visible=i<2)
+           for i,(c,v) in enumerate(zip(draft.evaluation.cases,[5,-5,0]))]
+    exercise=Exercise.from_draft(draft,cases=cases)
+    assert exercise.files == draft.files and exercise.execution == draft.execution
+    assert exercise.cases == cases and exercise.hints == draft.hints
+    assert exercise.explanation == draft.explanation
+    assert not hasattr(exercise,"reference_files") and not hasattr(exercise,"evaluation")
 
-def verifier(runner, **kw):
-    return make_verifier(None, ENV, runner=runner, **kw)
+def test_finished_function_exercise_json_round_trip():
+    draft=make_draft()
+    exercise=Exercise.from_draft(draft,cases=[FunctionCase(label=c.label,inputs=c.inputs,expected=v)
+        for c,v in zip(draft.evaluation.cases,[5,-5,0])])
+    assert Exercise.model_validate_json(exercise.model_dump_json()) == exercise
 
+def test_http_cases_can_be_used_in_finished_exercise_and_round_trip():
+    draft=make_draft(files={"main.py":"from app import app"}, reference_files={"main.py":"from app import app"},
+        execution=HttpExecutionConfig(command=["python","main.py"]), evaluation=HttpEvaluationConfig(cases=http_cases()))
+    cases=[HttpCase(label=c.label,method=c.method,path=c.path,expected_status=c.expected_status) for c in draft.evaluation.cases]
+    exercise=Exercise.from_draft(draft,cases=cases)
+    assert exercise.execution.target == "http" and exercise.cases == cases
+    assert Exercise.model_validate_json(exercise.model_dump_json()) == exercise
 
-GOOD = lambda: ScriptedRunner(rep(True, False, True), rep(True, False, True))
-
-
-def test_good_draft_becomes_a_finished_exercise():
-    ex = verifier(GOOD())(make_draft())
-    assert isinstance(ex, Exercise)
-    assert ex.function_name == "is_even" and ex.solution == REFERENCE
-    assert ex.starter_code == STARTER and "return" not in ex.starter_code
-    assert [(c.label, c.inputs, c.expected) for c in ex.cases] == [
-        ("typical even", [2], True), ("odd", [3], False), ("zero", [0], True)]
-
-
-def test_everything_the_learner_needs_is_carried_over_from_the_draft():
-    ex = verifier(GOOD())(make_draft())
-    assert ex.title == "Even or odd" and ex.difficulty == "easy"
-    assert ex.hints == ["Use the % operator", "n % 2 is 0 for even numbers"]
-    assert ex.explanation == "Even numbers divide by 2."
-
-
-def test_each_case_gets_the_reference_output_for_ITS_OWN_inputs():
-    "Asymmetric on purpose: [True, False, False] reversed would be a different list."
-    draft = make_draft(tests=[CaseDraft(label="typical even", inputs=[2]), CaseDraft(label="odd", inputs=[3]),
-                              CaseDraft(label="large odd", inputs=[7])])
-    ex = verifier(ScriptedRunner(rep(True, False, False), rep(True, False, False)))(draft)
-    assert [(c.label, c.inputs, c.expected) for c in ex.cases] == [
-        ("typical even", [2], True), ("odd", [3], False), ("large odd", [7], False)]
-
-
-def test_the_result_survives_a_json_round_trip():
-    ex = verifier(GOOD())(make_draft())
-    assert Exercise.model_validate_json(ex.model_dump_json()) == ex
-
-
-# how many sandbox runs, and in what order
-def test_a_good_draft_costs_two_reference_runs_and_one_starter_run():
-    runner = GOOD()
-    verifier(runner)(make_draft())
-    assert runner.calls == ["reference", "reference", "starter"]
-
-
-def test_a_crash_on_the_first_run_skips_the_second_run():
-    runner = ScriptedRunner(RunReport(None, [CaseOutcome(True, True), crashed("ZeroDivisionError"), CaseOutcome(True, True)]))
-    with pytest.raises(ValueError, match="crashed"):
-        verifier(runner)(make_draft())
-    assert runner.calls == ["reference"]
-
-
-def test_static_problems_never_reach_the_sandbox():
-    for bad in (make_draft(function_name="is_odd"),
-                make_draft(reference_solution="async def is_even(n):\n    return n % 2 == 0\n")):
-        runner = GOOD()
-        with pytest.raises(ValueError):
-            verifier(runner)(bad)
-        assert runner.calls == []
-
-
-def test_the_starter_is_not_run_when_the_reference_is_flaky():
-    runner = ScriptedRunner(rep(True, False, True), rep(False, False, True))
-    with pytest.raises(ValueError, match="different results"):
-        verifier(runner)(make_draft())
-    assert runner.calls == ["reference", "reference"]
-
-
-# problems the model hears about
-def test_unloadable_reference():
-    with pytest.raises(ValueError, match="could not be loaded: SyntaxError"):
-        verifier(ScriptedRunner(rep(fatal="SyntaxError: invalid syntax")))(make_draft())
-
-
-def test_all_outputs_identical():
-    with pytest.raises(ValueError, match="same result"):
-        verifier(ScriptedRunner(rep(True, True, True), rep(True, True, True)))(make_draft())
-
-
-def test_duplicate_test_inputs():
-    draft = make_draft(tests=[CaseDraft(label="case a", inputs=[2]), CaseDraft(label="case b", inputs=[3]),
-                              CaseDraft(label="case c", inputs=[2])])
-    with pytest.raises(ValueError, match="identical inputs"):
-        verifier(ScriptedRunner(rep(True, False, True), rep(True, False, True)))(draft)
-
-
-def test_starter_that_already_passes_everything():
-    runner = ScriptedRunner(rep(None, True, None), rep(None, True, None), starter=rep(None, True, None))
-    with pytest.raises(ValueError, match="already passes every test case"):
-        verifier(runner)(make_draft())
-
-
-def test_a_missing_module_message_lists_the_courses_installed_packages():
-    runner = ScriptedRunner(rep(fatal="ModuleNotFoundError: No module named 'numpy'"))
-    with pytest.raises(ValueError, match="pydantic"):
-        verifier(runner)(make_draft())
-
-
-# problems that are NOT the model's fault must not look like it 
-def test_a_starter_that_cannot_load_is_our_bug_and_not_a_value_error():
-    runner = ScriptedRunner(rep(True, False, True), rep(True, False, True), starter=rep(fatal="NameError: Item"))
-    with pytest.raises(StarterError):
-        verifier(runner)(make_draft())
-
-
-def test_sandbox_infrastructure_errors_pass_straight_through():
-    def broken(source, function_name, inputs):
-        raise HarnessError("Sandbox run failed: docker down")
-    with pytest.raises(HarnessError):
-        verifier(broken)(make_draft())
-
-
-#  visibility
-def test_by_default_the_first_two_cases_are_visible_and_the_rest_hidden():
-    draft = make_draft(tests=[CaseDraft(label=f"case {i}", inputs=[i]) for i in range(5)])
-    ex = verifier(ScriptedRunner(rep(True, False, True, False, True), rep(True, False, True, False, True),
-                                 starter=rep(*[None] * 5)))(draft)
-    assert [c.visible for c in ex.cases] == [True, True, False, False, False]
-
-
-def test_a_minimum_size_exercise_still_has_a_hidden_case():
-    assert [c.visible for c in verifier(GOOD())(make_draft()).cases] == [True, True, False]
-
-
-def test_one_visible_case_is_allowed():
-    ex = verifier(GOOD(), visible_cases=1)(make_draft())
-    assert [c.visible for c in ex.cases] == [True, False, False]
-
-
-@pytest.mark.parametrize("n", [0, 3, -1, 10])
-def test_visible_cases_outside_1_or_2_is_rejected_up_front(n):
-    with pytest.raises(ValueError, match="hidden"):
-        make_verifier(None, ENV, visible_cases=n, runner=GOOD())
-
-
-def test_a_print_only_exercise_is_told_to_return_a_value():
-    runner = ScriptedRunner(rep(None, None, None), rep(None, None, None))
-    with pytest.raises(ValueError, match="RETURN a computed value"):
-        verifier(runner)(make_draft())

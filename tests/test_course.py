@@ -6,7 +6,7 @@ from pydantic import ValidationError
 import json
 from models.course import Course, step_id
 from models.data_models import Curriculum, EnvironmentSpec, Module, ObjectivePlan
-from models.lesson_generation_models import Case, DocRef, Exercise, Lesson, TextBlock
+from models.lesson_generation_models import DocRef, Exercise, FunctionCase, FunctionExecutionConfig, Lesson, TextBlock
 
 
 def plan(n: int) -> ObjectivePlan:
@@ -27,9 +27,10 @@ def make_course(**kw) -> Course:
 def make_lesson(lid: str, *, expected=1, title="A lesson") -> Lesson:
     exercise = Exercise(
         title="Add numbers", description="Add two numbers", instructions=["Write add()", "Return the sum"],
-        difficulty="easy", function_name="add", starter_code="def add(a, b):\n    pass\n",
-        cases=[Case(label="basic", inputs=[1, 2], expected=expected)],
-        hints=["Use +", "Return it"], solution="def add(a, b):\n    return a + b\n", explanation="Because.")
+        difficulty="easy", files={"main.py": "def add(a, b):\n    pass\n"},
+        execution=FunctionExecutionConfig(function_name="add"),
+        cases=[FunctionCase(label="basic", inputs=[1, 2], expected=expected)],
+        hints=["Use +", "Return it"], explanation="Because.")
     return Lesson(id=lid, title=title, summary="s", you_will_learn=["a", "b", "c"],
                   blocks=[TextBlock(body="hello")],
                   docs=[DocRef(label="Docs", url="https://x", grounding="grounded", coverage=0.9)],
