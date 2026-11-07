@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "id": "fastapi-smoke",
+  "title": "FastAPI",
+  "framework": "fastapi",
+  "docs_as_of": "2026-10-24T11:57:31.429451Z",
+  "env": {
+    "python": "3.11",
+    "packages": {
+      "email-validator": "2.3.0",
+      "fastapi[standard]": "0.162.0",
+      "pydantic[email]": "2.14.1"
+    },
+    "apt": [],
+    "memory_mb": 256
+  },
+  "curriculum": {
+    "modules": [
+      {
+        "title": "Installation and First API Endpoint",
+        "steps": [
+          {
+            "objective": "Declare a FastAPI application instance named 'app'.",
+            "requirements": [
+              "How do you import the FastAPI class?",
+              "What is the syntax to instantiate the FastAPI class and assign it to a variable?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Define a path operation decorator for a GET request at the root path.",
+            "requirements": [
+              "What is the correct syntax for the @app.get() decorator?",
+              "How do you associate a function with a specific HTTP method and path using this decorator?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Implement a root endpoint that returns a JSON dictionary.",
+            "requirements": [
+              "What should the function inside the decorator return to satisfy the GET / request?",
+              "How do you structure the response as a JSON-compatible dictionary?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          }
+        ],
+        "source_sections": [
+          "https://fastapi.tiangolo.com/tutorial/#install-fastapi",
+          "https://fastapi.tiangolo.com/tutorial/first-steps/#recap-step-by-step"
+        ]
+      },
+      {
+        "title": "Path Parameters with Validation",
+        "steps": [
+          {
+            "objective": "Declare a path parameter with a specific Python type annotation to enable automatic parsing and validation.",
+            "requirements": [
+              "How does FastAPI convert the string value from the URL path into the declared Python type?",
+              "What happens when an invalid value (like 'foo') is provided for a path parameter declared as an int?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Create a custom Enum class inheriting from str to define a set of valid string values for a path parameter.",
+            "requirements": [
+              "How do you create an Enum subclass that inherits from str so FastAPI knows the values are strings?",
+              "How do you define class attributes within the Enum to specify the available valid values?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          }
+        ],
+        "source_sections": [
+          "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-with-types",
+          "https://fastapi.tiangolo.com/tutorial/path-params/#data-conversion",
+          "https://fastapi.tiangolo.com/tutorial/path-params/#data-validation",
+          "https://fastapi.tiangolo.com/tutorial/path-params/#documentation",
+          "https://fastapi.tiangolo.com/tutorial/path-params/#pydantic",
+          "https://fastapi.tiangolo.com/tutorial/path-params/#predefined-values",
+          "https://fastapi.tiangolo.com/tutorial/path-params/#recap"
+        ]
+      },
+      {
+        "title": "Query Parameters and Request Bodies",
+        "steps": [
+          {
+            "objective": "Define a FastAPI endpoint that accepts an optional query parameter with a default value and returns different responses based on its presence.",
+            "requirements": [
+              "How do you declare an optional query parameter with a default value of None in a FastAPI function?",
+              "What happens to the response when the optional query parameter is not provided versus when it is provided?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Declare a boolean query parameter that automatically converts string inputs like 'true'/'false' to Python bool values.",
+            "requirements": [
+              "How do you declare a query parameter with type `bool` in FastAPI?",
+              "What is the default value for a boolean query parameter if not specified?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Create a Pydantic model inheriting from `BaseModel` to define a structured request body with required and optional fields.",
+            "requirements": [
+              "How do you import `BaseModel` from Pydantic?",
+              "What Python types should be used for the attributes of a Pydantic model?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Implement a POST endpoint that accepts both path parameters and a request body defined by a Pydantic model.",
+            "requirements": [
+              "How do you declare a function parameter to receive data from the request body in FastAPI?",
+              "How does FastAPI distinguish between path parameters and request body parameters in the same function?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          }
+        ],
+        "source_sections": [
+          "https://fastapi.tiangolo.com/tutorial/query-params/#defaults",
+          "https://fastapi.tiangolo.com/tutorial/query-params/#optional-parameters",
+          "https://fastapi.tiangolo.com/tutorial/query-params/#query-parameter-type-conversion",
+          "https://fastapi.tiangolo.com/tutorial/query-params/#multiple-path-and-query-parameters",
+          "https://fastapi.tiangolo.com/tutorial/query-params/#required-query-parameters",
+          "https://fastapi.tiangolo.com/tutorial/body/#import-pydantics-basemodel",
+          "https://fastapi.tiangolo.com/tutorial/body/#create-your-data-model",
+          "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "https://fastapi.tiangolo.com/tutorial/body/#results",
+          "https://fastapi.tiangolo.com/tutorial/body/#automatic-docs",
+          "https://fastapi.tiangolo.com/tutorial/body/#editor-support",
+          "https://fastapi.tiangolo.com/tutorial/body/#use-the-model",
+          "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-parameters",
+          "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters",
+          "https://fastapi.tiangolo.com/tutorial/body/#without-pydantic"
+        ]
+      },
+      {
+        "title": "Advanced Models and Response Handling",
+        "steps": [
+          {
+            "objective": "Declare Pydantic model attributes using `Field` to add extra information that appears in the generated JSON Schema.",
+            "requirements": [
+              "How do you import and use `Field` from `pydantic`?",
+              "What is the purpose of `json_schema_extra` within a `Field` definition?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Define Pydantic models with complex types such as lists containing submodels, sets, or arbitrary dictionaries.",
+            "requirements": [
+              "How do you declare a list of Pydantic models (e.g., `list[Image]`) in a function parameter?",
+              "How do you define a model attribute that accepts an arbitrary dictionary with typed keys and values?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Create separate input and output Pydantic models to handle data filtering (e.g., hiding sensitive fields like passwords in the response).",
+            "requirements": [
+              "How do you define an input model that includes a plaintext password field?",
+              "How do you define a corresponding output model that excludes the password field?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Annotate a FastAPI endpoint to return a `Union` of two or more types, allowing the API to respond with any of the specified formats.",
+            "requirements": [
+              "How do you use Python's `Union` type hint to declare a response that can be one of several models?",
+              "What does this look like in the generated OpenAPI documentation?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          }
+        ],
+        "source_sections": [
+          "https://fastapi.tiangolo.com/tutorial/body-fields/#import-field",
+          "https://fastapi.tiangolo.com/tutorial/body-fields/#declare-model-attributes",
+          "https://fastapi.tiangolo.com/tutorial/body-fields/#add-extra-information",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#list-fields",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#list-fields-with-type-parameter",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#set-types",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#nested-models",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#special-types-and-validation",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#attributes-with-lists-of-submodels",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#deeply-nested-models",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#bodies-of-pure-lists",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#bodies-of-arbitrary-dicts",
+          "https://fastapi.tiangolo.com/tutorial/body-nested-models/#recap",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-parameter",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#return-the-same-input-data",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#add-an-output-model",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#return-type-and-data-filtering",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#see-it-in-the-docs",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#other-return-type-annotations",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-encoding-parameters",
+          "https://fastapi.tiangolo.com/tutorial/extra-models/#multiple-models",
+          "https://fastapi.tiangolo.com/tutorial/extra-models/#reduce-duplication",
+          "https://fastapi.tiangolo.com/tutorial/extra-models/#union-or-anyof",
+          "https://fastapi.tiangolo.com/tutorial/extra-models/#list-of-models",
+          "https://fastapi.tiangolo.com/tutorial/extra-models/#response-with-arbitrary-dict",
+          "https://fastapi.tiangolo.com/tutorial/extra-models/#recap"
+        ]
+      },
+      {
+        "title": "Error Handling and Dependencies",
+        "steps": [
+          {
+            "objective": "Raise an HTTPException with a specific status code and detail message to return a standardized JSON error response.",
+            "requirements": [
+              "How do you import HTTPException from FastAPI?",
+              "What arguments (status_code, detail) are required when raising an HTTPException?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Add custom headers to an HTTPException response for advanced security or tracking scenarios.",
+            "requirements": [
+              "How do you pass a dictionary of custom headers when raising an HTTPException?",
+              "What is the correct structure for the 'headers' argument in HTTPException?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Create a dependency function that accepts query parameters and returns a dictionary annotated with Depends().",
+            "requirements": [
+              "How do you define a dependency function using Annotated and Depends?",
+              "What is the correct syntax for returning a dict from a dependency?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Declare a class as a dependency by instantiating it with parameters and using it in a path operation.",
+            "requirements": [
+              "How do you define a Python class that can be used as a FastAPI dependency?",
+              "What is the correct way to instantiate a class inside a dependency function?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          }
+        ],
+        "source_sections": [
+          "https://fastapi.tiangolo.com/tutorial/handling-errors/#use-httpexception",
+          "https://fastapi.tiangolo.com/tutorial/handling-errors/#add-custom-headers",
+          "https://fastapi.tiangolo.com/tutorial/handling-errors/#install-custom-exception-handlers",
+          "https://fastapi.tiangolo.com/tutorial/handling-errors/#override-the-default-exception-handlers",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#what-is-dependency-injection",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#first-steps",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#share-annotated-dependencies",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#to-async-or-not-to-async",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#integrated-with-openapi",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#simple-usage",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#fastapi-plug-ins",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#fastapi-compatibility",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#simple-and-powerful",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/#integrated-with-openapi_1",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#a-dict-from-the-previous-example",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#what-makes-a-dependency",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#classes-as-dependencies_1",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#use-it",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#type-annotation-vs-depends",
+          "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#shortcut"
+        ]
+      }
+    ]
+  },
+  "lessons": {
+    "m1-s1": {
+      "schema_version": 1,
+      "id": "m1-s1",
+      "title": "Declare a FastAPI application instance named 'app'.",
+      "summary": "Import the FastAPI class and create an instance named 'app' to start building your API.",
+      "you_will_learn": [
+        "Import FastAPI from the fastapi package",
+        "Instantiate the FastAPI class",
+        "Assign the instance to a variable named app"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Creating Your FastAPI Application",
+          "body": "To start building your API, you must first import the `FastAPI` class. Then, instantiate it by calling the class with parentheses and assign the resulting object to a variable, typically named `app`. This instance is the central point for defining all your API routes."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Importing FastAPI",
+              "text": "Use the statement `from fastapi import FastAPI` to bring the class into your script."
+            },
+            {
+              "title": "Instantiating the App",
+              "text": "Call `FastAPI()` with no arguments inside parentheses to create a new application instance."
+            },
+            {
+              "title": "Assigning to Variable",
+              "text": "Store the result in a variable like `app = FastAPI()` to use it for route definitions."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Basic App Initialization",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "The `app` variable is the main object you will use to define all your API endpoints and configure settings."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Step 1: import `FastAPI`",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-1-import-fastapi",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Step 2: create a `FastAPI` \"instance\"",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-2-create-a-fastapi-instance",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "First Steps",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#first-steps",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "OpenAPI",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#openapi",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Import Pydantic's `BaseModel`",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#import-pydantics-basemodel",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Declare it as a parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Tutorial - User Guide",
+          "url": "https://fastapi.tiangolo.com/tutorial/#tutorial-user-guide",
+          "grounding": "weak",
+          "coverage": 0.571
+        }
+      ],
+      "exercise": null
+    }
+  },
+  "failures": {
+    "m1-s1": {
+      "stage": "exercise",
+      "reason": "exercise m1-s1: gave up after 3 attempts. Last problem: The JSON did not match the required format:\n- evaluation: Unable to extract tag using discriminator 'target'",
+      "attempts": 3,
+      "failed_at": "2026-11-07T11:27:47.987685Z"
+    }
+  }
+}

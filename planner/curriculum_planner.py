@@ -142,12 +142,26 @@ class CurriculumPlanner:
         "Validates details so there are no vague requirement or objectives in module"
         problems = []
         objectives=[step.objective for step in detail.steps]
+
         for objective in objectives:
             if objective.lower().startswith(_VAGUE_STARTS):
                 problems.append(
                     f"Objective '{objective}' is vague. Start with an action verb for something "
                     "the learner can do in code (Define, Write, Declare, Convert, Validate, Fix)."
                 )
+
+        for step in detail.steps:
+            if step.graded and step.exercise_target is None:
+                problems.append(
+                    f"Graded step '{step.objective}' must specify an exercise_target."
+                )
+
+            elif not step.graded and step.exercise_target is not None:
+                problems.append(
+                    f"Ungraded step '{step.objective}' must have exercise_target set to None."
+                )
+
+        
         if len({o.lower() for o in objectives}) != len(objectives):
             problems.append("Objectives must all be different.")
         requirements=[r.lower() for step in detail.steps for r in step.requirements]

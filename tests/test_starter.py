@@ -152,12 +152,12 @@ def test_a_print_only_exercise_is_caught_because_its_starter_already_passes():
 
 def test_project_starter_replaces_only_the_entry_file():
     reference_files = {
-        "main.py": "def add(a, b):\\n    return a + b\\n",
-        "helpers.py": "def internal_helper():\\n    return 'reference secret'\\n",
+        "main.py": "def add(a, b):\n    return a + b\n",
+        "helpers.py": "def internal_helper():\n    return 'reference secret'\n",
     }
     starter_files = {
         "main.py": "old generated entry file",
-        "helpers.py": "def internal_helper():\\n    return 'learner scaffold'\\n",
+        "helpers.py": "def internal_helper():\n    return 'learner scaffold'\n",
         "README.md": "# Add numbers",
     }
 
@@ -177,8 +177,8 @@ def test_project_starter_replaces_only_the_entry_file():
 
 
 def test_project_starter_does_not_mutate_input_mappings():
-    reference_files = {"main.py": "def add(a, b):\\n    return a + b\\n"}
-    starter_files = {"main.py": "placeholder", "helpers.py": "VALUE = 1\\n"}
+    reference_files = {"main.py": "def add(a, b):\n    return a + b\n"}
+    starter_files = {"main.py": "placeholder", "helpers.py": "VALUE = 1\n"}
 
     result = make_starter(
         reference_files,
@@ -202,7 +202,7 @@ def test_project_starter_requires_entry_file_in_both_projects():
 
     with pytest.raises(ValueError, match="starter project"):
         make_starter(
-            {"main.py": "def add(a, b):\\n    return a + b\\n"},
+            {"main.py": "def add(a, b):\n    return a + b\n"},
             {},
             entry_file="main.py",
             function_name="add",

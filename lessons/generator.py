@@ -3,7 +3,6 @@ from __future__ import annotations
 import ast
 import logging
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Literal
 
 from lessons.docs_context import StepDocs

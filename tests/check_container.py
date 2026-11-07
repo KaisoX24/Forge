@@ -339,6 +339,177 @@ def run_checks(run_script) -> list[tuple[str, bool, str]]:
     return results
 
 
+
+def run_http_checks(run_script) -> list[tuple[str, bool, str]]:
+    """Exercise the HTTP runner against a real local application in Docker."""
+    from exercises.http_runner import run_http_cases
+    from models.lesson_generation_models import (
+        HttpCaseDraft,
+        HttpExecutionConfig,
+    )
+
+    results = []
+
+    def check(name, passed, detail=""):
+        results.append((name, bool(passed), detail))
+
+    files = {
+        "app.py": (
+            "import json\n"
+            "import subprocess\n"
+            "from http.server import BaseHTTPRequestHandler, "
+            "ThreadingHTTPServer\n"
+            "from storage import items\n"
+            "\n"
+            "# A child process lets the integration test exercise process-group cleanup.\n"
+            "subprocess.Popen(['python', '-c', 'import time; time.sleep(600)'])\n"
+            "\n"
+            "class Handler(BaseHTTPRequestHandler):\n"
+            "    def _send(self, status, value, content_type='application/json'):\n"
+            "        if content_type == 'application/json':\n"
+            "            body = json.dumps(value).encode()\n"
+            "        else:\n"
+            "            body = value.encode()\n"
+            "        self.send_response(status)\n"
+            "        self.send_header('Content-Type', content_type)\n"
+            "        self.send_header('Content-Length', str(len(body)))\n"
+            "        self.end_headers()\n"
+            "        self.wfile.write(body)\n"
+            "\n"
+            "    def do_POST(self):\n"
+            "        if self.path != '/items':\n"
+            "            return self._send(404, {'detail': 'not found'})\n"
+            "        length = int(self.headers.get('Content-Length', '0'))\n"
+            "        item = json.loads(self.rfile.read(length))\n"
+            "        items.append(item)\n"
+            "        self._send(201, {'items': items})\n"
+            "\n"
+            "    def do_GET(self):\n"
+            "        if self.path == '/items':\n"
+            "            return self._send(200, {'items': items})\n"
+            "        if self.path == '/null':\n"
+            "            return self._send(200, None)\n"
+            "        if self.path == '/text':\n"
+            "            return self._send(200, 'hello from forge', 'text/plain')\n"
+            "        return self._send(404, {'detail': 'not found'})\n"
+            "\n"
+            "server = ThreadingHTTPServer(('127.0.0.1', 8765), Handler)\n"
+            "server.serve_forever()\n"
+        ),
+        "storage.py": "items = []\n",
+    }
+
+    execution = HttpExecutionConfig(
+        command=["python", "app.py"],
+        host="127.0.0.1",
+        port=8765,
+    )
+
+    cases = [
+        # Deliberately wrong expected JSON: the next case must still run.
+        HttpCaseDraft(
+            label="create item",
+            method="POST",
+            path="/items",
+            json_body={"name": "Ada"},
+            headers={"Content-Type": "application/json"},
+            expected_status=201,
+            expected_json={"items": []},
+        ),
+        HttpCaseDraft(
+            label="shared state",
+            method="GET",
+            path="/items",
+            expected_status=200,
+            expected_json={"items": [{"name": "Ada"}]},
+        ),
+        HttpCaseDraft(
+            label="explicit null",
+            method="GET",
+            path="/null",
+            expected_status=200,
+            expected_json=None,
+        ),
+        HttpCaseDraft(
+            label="plain text",
+            method="GET",
+            path="/text",
+            expected_status=200,
+            expected_text="hello from forge",
+        ),
+        HttpCaseDraft(
+            label="not found",
+            method="GET",
+            path="/missing",
+            expected_status=404,
+            expected_json={"detail": "not found"},
+        ),
+    ]
+
+    report = run_http_cases(
+        files,
+        execution,
+        cases,
+        run_script=run_script,
+    )
+
+    check(
+        "HTTP suite completes",
+        report.fatal is None,
+        str(report.fatal),
+    )
+    check(
+        "HTTP assertion failure is isolated",
+        len(report.cases) == 5
+        and not report.cases[0].passed
+        and report.cases[1].passed,
+        str([(case.label, case.passed, case.error) for case in report.cases]),
+    )
+    check(
+        "multi-file app and shared state",
+        len(report.cases) >= 2
+        and report.cases[1].response_json == {"items": [{"name": "Ada"}]},
+        str(report.cases[1] if len(report.cases) >= 2 else report.cases),
+    )
+    check(
+        "explicit JSON null",
+        len(report.cases) >= 3
+        and report.cases[2].passed
+        and report.cases[2].response_is_json
+        and report.cases[2].response_json is None,
+        str(report.cases[2] if len(report.cases) >= 3 else report.cases),
+    )
+    check(
+        "text and non-2xx responses",
+        len(report.cases) == 5
+        and report.cases[3].passed
+        and report.cases[3].response_text == "hello from forge"
+        and report.cases[4].passed
+        and report.cases[4].status_code == 404,
+        str([(case.label, case.status_code, case.response_text, case.error)
+             for case in report.cases]),
+    )
+
+    # A process that exits during startup must be surfaced as a suite failure.
+    failed_start = run_http_cases(
+        {"unused.py": "value = 1\n"},
+        HttpExecutionConfig(
+            command=["python", "missing_app.py"],
+            host="127.0.0.1",
+            port=8766,
+        ),
+        cases[:3],
+        run_script=run_script,
+    )
+    check(
+        "application startup failure is fatal",
+        bool(failed_start.fatal) and not failed_start.cases,
+        str(failed_start),
+    )
+
+    return results
+
+
 def main() -> None:
     from sandbox.container_pool import ContainerPool
     from sandbox.sandbox import SandBox
@@ -352,8 +523,16 @@ def main() -> None:
                 timeout_seconds=15,
             ).sandbox_instance()
 
+        def run_http_script(code, timeout_seconds):
+            return SandBox(
+                pool,
+                code,
+                timeout_seconds=timeout_seconds,
+            ).sandbox_instance()
+
         try:
             results = run_checks(run_script)
+            results.extend(run_http_checks(run_http_script))
         except HarnessError as exc:
             print(
                 "HARNESS ERROR (the sandbox run itself failed):",
@@ -366,7 +545,6 @@ def main() -> None:
             f"{'PASS' if passed else 'FAIL'}  "
             f"{name:<34} {detail[:90]}"
         )
-
 
 if __name__ == "__main__":
     main()

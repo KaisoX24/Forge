@@ -4,7 +4,7 @@ from importlib.metadata import version
 import docker
 import pytest
 
-from tests.check_container import run_checks
+from tests.check_container import run_checks,run_http_checks
 from models.data_models import EnvironmentSpec
 from sandbox.container_pool import ContainerPool
 from sandbox.sandbox import SandBox
@@ -380,3 +380,26 @@ def test_a_missing_module_is_reported_with_the_installed_packages(pool):
 
     assert "numpy" in str(exc.value)
     assert "pydantic" in str(exc.value)
+
+def test_http_runner_checks_pass_inside_the_custom_image(pool):
+    def run_script(code, timeout_seconds):
+        return SandBox(
+            pool,
+            code,
+            timeout_seconds=timeout_seconds,
+        ).sandbox_instance()
+
+    original_container_id = pool.queue.queue[0].id
+
+    results = run_http_checks(run_script)
+
+    failed = [
+        (name, detail)
+        for name, passed, detail in results
+        if not passed
+    ]
+
+    assert not failed, failed
+    assert pool.queue.queue[0].id == original_container_id, (
+        "HTTP driver left a process behind; the sandbox container was replaced."
+    )

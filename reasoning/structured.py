@@ -82,6 +82,24 @@ class StructuredResult:
                 return parsed if replacement is None else replacement
             
             logger.warning("%s attempt %d rejected: %s", label, attempt, problem.replace("\n", " | "))
+            logger.error(
+                "\n========== FAILED GENERATION ATTEMPT ==========\n"
+                "LABEL: %s\n"
+                "ATTEMPT: %d\n"
+                "VALIDATION ERROR:\n%s\n"
+                "RAW MODEL RESPONSE:\n%s\n"
+                "================================================",
+                label,
+                attempt,
+                problem,
+                self._text(raw),
+            )
+
+            if parsed is not None:
+                logger.error(
+                    "PARSED OUTPUT:\n%s",
+                    parsed.model_dump_json(indent=2),
+                )
             last_problem=problem
             previous = self._text(raw)
             if parsed is None and previous.strip():

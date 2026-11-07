@@ -1,13 +1,15 @@
+from __future__ import annotations
 from pydantic import BaseModel,Field,field_validator,StringConstraints
 from enum import Enum
 import re
-from typing import Annotated
+from typing import Annotated,Any,Literal
 import json
 import hashlib
+from dataclasses import dataclass
 
 
 _TITLE_PREFIX = re.compile(r"^\s*(module|lesson|unit)\s*\d+\s*[:.\-\u2013]\s*", re.I)
-
+_EXERCISE_TYPE=Literal['function','http']
 
 _NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _REQ = re.compile(r"^([A-Za-z0-9][A-Za-z0-9._-]*)(?:\[([A-Za-z0-9._,\s-]+)\])?$")
@@ -59,9 +61,19 @@ class ObjectivePlan(BaseModel):
     requirements:list[Requirement]=Field(min_length=1,max_length=2)
     graded:bool=Field(
         default=True,
-        description="True if the learner can show this objective by writing a function that returns a "
-                    "checkable value. False for setup, installation or import-only steps: read-only lessons.",
+        description=("True if the objective should be checked through an executable exercise. "
+                    "False for setup, installation or import-only steps."
+        )
     )
+    exercise_target:_EXERCISE_TYPE | None = Field(
+        default=None,
+        description=(
+            "Execution target for a graded exercise: 'function' for "
+            "return-value-based tasks or 'http' for API and endpoint tasks. "
+            "Must be null when graded is false."
+        )
+    )
+
 
 
 class CurriculumOutline(BaseModel):
@@ -165,3 +177,18 @@ class RetrievedDocument(BaseModel):
     metadata:dict
     distance:float
 
+
+@dataclass(frozen=True)
+class HttpCaseOutcome:
+    label: str
+    passed: bool
+    status_code: int | None = None
+    response_text: str | None = None
+    response_json: Any = None
+    response_is_json: bool = False
+    error: str | None = None
+
+@dataclass(frozen=True)
+class HttpRunReport:
+    fatal: str | None
+    cases: list[HttpCaseOutcome]

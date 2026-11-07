@@ -26,7 +26,10 @@ class StepGenerator:
         self.structured = StructuredResult(llm, max_attempts=max_attempts, error_cls=GenerationError)
         prompts = prompt_dir or _PROMPT_DIR
         self.lesson_prompt = (prompts / "lesson.txt").read_text(encoding="utf-8")
-        self.exercise_prompt = (prompts / "exercise.txt").read_text(encoding="utf-8")
+        self.exercise_prompts = {
+            "function": (prompts / "function_exercise.txt").read_text(encoding="utf-8"),
+            "http": (prompts / "http_exercise.txt").read_text(encoding="utf-8"),
+        }
 
     def generate_step(self, course: Course, module_index: int, step_index: int, *,
                       force: bool = False) -> StepOutcome:
@@ -60,11 +63,18 @@ class StepGenerator:
         if not step.graded:
             return StepOutcome(sid, "ready", _label_of(lesson))
 
+        exercise_target=step.exercise_target
+
+        if exercise_target is None:
+            exercise_target='function'
+
+        exercise_prompt=self.exercise_prompts.get(exercise_target)
+
         label = _label_of(lesson)
         try:
             exercise = self.structured.call(
                 ExerciseDraft,
-                [SystemMessage(content=self.exercise_prompt),
+                [SystemMessage(content=exercise_prompt),
                  HumanMessage(content=exercise_message(step.objective, lesson, self.packages))],
                 label=f"exercise {sid}", validate=self.verify)
         except GenerationError as exc:
