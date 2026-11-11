@@ -11,7 +11,8 @@ Fields (respect the length limits):
 - concept_text: the explanation, at most 600 characters, plain text.
 - key_points: 2 to 3 items, each with a short title and one sentence of text (at most 140 characters).
 - example_title: short title for the example.
-- example_code: one small, complete, valid Python example taken from the documentation, at most 900 characters. Plain code only, no markdown fences, no prose.
+- example_language: "python" for Python code, "bash" for shell commands (installing, running, uv/pip commands), "text" for config files or output. Choose the language that matches the example.
+- example_code: one small, complete example taken from the documentation, at most 900 characters. Plain code only, no markdown fences, no prose. If example_language is "python" it must be valid Python.
 - tip: one useful tip or common mistake, at most 200 characters.
 
 Reply with JSON only.

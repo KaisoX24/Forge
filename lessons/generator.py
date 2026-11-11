@@ -9,7 +9,8 @@ from lessons.docs_context import StepDocs
 from models.course import Course
 from models.data_models import ObjectivePlan
 from models.lesson_generation_models import (
-    CalloutBlock,CodeBlock,KeyPointsBlock,Label,Lesson,LessonDraft,TextBlock
+    CalloutBlock,CodeBlock,KeyPointsBlock,Label,Lesson,LessonDraft,TextBlock,
+    ReferenceDraft,StarterDraft
 )
 
 logger=logging.getLogger(__name__)
@@ -29,6 +30,13 @@ class StepOutcome:
 
 # lesson stage
 
+_SHELL_PREFIXES = ("uv ", "pip ", "pip3 ", "python ", "python3 ", "cd ", "mkdir ",
+                   "source ", "export ", "uvicorn ", "fastapi ", "curl ", "$ ", "#")
+
+def _looks_like_shell(code: str) -> bool:
+    lines = [l.strip() for l in code.splitlines() if l.strip()]
+    return bool(lines) and all(l.startswith(_SHELL_PREFIXES) for l in lines)
+
 def validate_lesson_draft(draft:LessonDraft) -> None:
     "The example is never run, but it must at least be Python the learner can read."
     code=draft.example_code
@@ -37,6 +45,9 @@ def validate_lesson_draft(draft:LessonDraft) -> None:
 
     if not code.strip():
         raise ValueError("example_code is empty. Give a small complete Python example.")
+
+    if draft.example_language == "python" and _looks_like_shell(code):
+        return draft.model_copy(update={"example_language": "bash"})
 
     if draft.example_language !='python':
         return
@@ -93,3 +104,20 @@ def exercise_message(objective: str, lesson: Lesson, packages: list[str]) -> str
     return (f"Step objective: {objective}\n\n"
             f"The lesson the learner just read:\n{lesson_brief(lesson)}\n\n"
             f"Installed packages in the grader: {installed}")
+
+def _project_text(files: dict[str, str]) -> str:
+    return "\n\n".join(f"--- {path} ---\n{code}" for path, code in files.items())
+
+def starter_message(objective: str, lesson: Lesson, packages: list[str],
+                    reference: ReferenceDraft) -> str:
+    "Stage 2 input: the usual context plus the finished reference."
+    return (exercise_message(objective, lesson, packages) + "\n\n"
+            f"Reference solution:\n{_project_text(reference.reference_files)}\n\n"
+            f"Execution settings:\n{reference.execution.model_dump_json()}")
+
+
+def cases_message(objective: str, lesson: Lesson, packages: list[str],
+                  reference: ReferenceDraft, starter: StarterDraft) -> str:
+    "Stage 3 input: the reference, plus the starter the cases must tell apart from it."
+    return (starter_message(objective, lesson, packages, reference) + "\n\n"
+            f"The learner's starter:\n{_project_text(starter.files)}")

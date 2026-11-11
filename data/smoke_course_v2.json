@@ -17,31 +17,31 @@
   "curriculum": {
     "modules": [
       {
-        "title": "Installation and First API Endpoint",
+        "title": "Installation and Your First API",
         "steps": [
           {
             "objective": "Declare a FastAPI application instance named 'app'.",
             "requirements": [
               "How do you import the FastAPI class?",
-              "What is the syntax to instantiate the FastAPI class and assign it to a variable?"
+              "What is the correct syntax to instantiate the FastAPI class and assign it to a variable?"
             ],
-            "graded": true,
-            "exercise_target": "function"
+            "graded": false,
+            "exercise_target": null
           },
           {
             "objective": "Define a path operation decorator for a GET request at the root path.",
             "requirements": [
-              "What is the correct syntax for the @app.get() decorator?",
-              "How do you associate a function with a specific HTTP method and path using this decorator?"
+              "What is the syntax for adding a GET route to the app instance?",
+              "How do you specify the path and HTTP method in the decorator?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Implement a root endpoint that returns a JSON dictionary.",
+            "objective": "Write an async function that returns a JSON dictionary when called.",
             "requirements": [
-              "What should the function inside the decorator return to satisfy the GET / request?",
-              "How do you structure the response as a JSON-compatible dictionary?"
+              "What keyword must be used before the function definition to make it asynchronous?",
+              "How do you return a JSON-compatible dictionary from the function?"
             ],
             "graded": true,
             "exercise_target": "function"
@@ -53,22 +53,31 @@
         ]
       },
       {
-        "title": "Path Parameters with Validation",
+        "title": "Path Parameters and Validation Basics",
         "steps": [
           {
-            "objective": "Declare a path parameter with a specific Python type annotation to enable automatic parsing and validation.",
+            "objective": "Define a FastAPI route that accepts a path parameter with a specific Python type annotation and returns that value in the JSON response.",
             "requirements": [
-              "How does FastAPI convert the string value from the URL path into the declared Python type?",
-              "What happens when an invalid value (like 'foo') is provided for a path parameter declared as an int?"
+              "How do you declare the type of a path parameter in a function signature?",
+              "What happens to the data type when FastAPI receives a string from the URL path but expects an integer?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Create a custom Enum class inheriting from str to define a set of valid string values for a path parameter.",
+            "objective": "Create a custom Enum class that inherits from `str` and use it as a type annotation for a path parameter to restrict valid values.",
             "requirements": [
-              "How do you create an Enum subclass that inherits from str so FastAPI knows the values are strings?",
-              "How do you define class attributes within the Enum to specify the available valid values?"
+              "How do you create an Enum subclass that inherits from `str`?",
+              "What is the purpose of inheriting from `str` when defining an Enum for a path parameter?"
+            ],
+            "graded": true,
+            "exercise_target": "function"
+          },
+          {
+            "objective": "Implement logic within a route handler to return different messages based on which predefined Enum value was passed in the path.",
+            "requirements": [
+              "How do you compare an Enum instance against its class attributes (e.g., `ModelName.alexnet`) inside a function?",
+              "What is the expected behavior when an invalid path parameter value is sent to a route using an Enum type?"
             ],
             "graded": true,
             "exercise_target": "function"
@@ -79,7 +88,6 @@
           "https://fastapi.tiangolo.com/tutorial/path-params/#data-conversion",
           "https://fastapi.tiangolo.com/tutorial/path-params/#data-validation",
           "https://fastapi.tiangolo.com/tutorial/path-params/#documentation",
-          "https://fastapi.tiangolo.com/tutorial/path-params/#pydantic",
           "https://fastapi.tiangolo.com/tutorial/path-params/#predefined-values",
           "https://fastapi.tiangolo.com/tutorial/path-params/#recap"
         ]
@@ -88,37 +96,37 @@
         "title": "Query Parameters and Request Bodies",
         "steps": [
           {
-            "objective": "Define a FastAPI endpoint that accepts an optional query parameter with a default value and returns different responses based on its presence.",
+            "objective": "Define a FastAPI endpoint that accepts optional query parameters with default values and returns different responses based on their presence.",
             "requirements": [
-              "How do you declare an optional query parameter with a default value of None in a FastAPI function?",
-              "What happens to the response when the optional query parameter is not provided versus when it is provided?"
+              "How do you declare an optional query parameter in a FastAPI function?",
+              "What happens when a query parameter is not provided if it has a default value?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Declare a boolean query parameter that automatically converts string inputs like 'true'/'false' to Python bool values.",
+            "objective": "Declare a query parameter with a boolean type that automatically converts string inputs to boolean values.",
             "requirements": [
-              "How do you declare a query parameter with type `bool` in FastAPI?",
+              "How do you declare a boolean query parameter in FastAPI?",
               "What is the default value for a boolean query parameter if not specified?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Create a Pydantic model inheriting from `BaseModel` to define a structured request body with required and optional fields.",
+            "objective": "Create a Pydantic model class that inherits from BaseModel with required and optional fields.",
             "requirements": [
-              "How do you import `BaseModel` from Pydantic?",
-              "What Python types should be used for the attributes of a Pydantic model?"
+              "How do you import BaseModel from Pydantic?",
+              "What syntax is used to make a field in a Pydantic model optional?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Implement a POST endpoint that accepts both path parameters and a request body defined by a Pydantic model.",
+            "objective": "Implement a POST endpoint that accepts both path parameters and a request body containing a Pydantic model.",
             "requirements": [
-              "How do you declare a function parameter to receive data from the request body in FastAPI?",
-              "How does FastAPI distinguish between path parameters and request body parameters in the same function?"
+              "How do you declare a function parameter to receive data from the request body?",
+              "How does FastAPI distinguish between path parameters and request body parameters?"
             ],
             "graded": true,
             "exercise_target": "function"
@@ -146,43 +154,44 @@
         "title": "Advanced Models and Response Handling",
         "steps": [
           {
-            "objective": "Declare Pydantic model attributes using `Field` to add extra information that appears in the generated JSON Schema.",
+            "objective": "Declare a Pydantic model with mixed Path, Query, and Body parameters using `Field` for validation.",
             "requirements": [
-              "How do you import and use `Field` from `pydantic`?",
-              "What is the purpose of `json_schema_extra` within a `Field` definition?"
+              "How do you import and use `Field` from `fastapi` to add extra information or constraints to a model attribute?",
+              "Can you mix different parameter types (Path, Query, Body) in a single endpoint function signature?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Define Pydantic models with complex types such as lists containing submodels, sets, or arbitrary dictionaries.",
+            "objective": "Define nested models where attributes are lists or sets of submodels with type parameters.",
             "requirements": [
-              "How do you declare a list of Pydantic models (e.g., `list[Image]`) in a function parameter?",
-              "How do you define a model attribute that accepts an arbitrary dictionary with typed keys and values?"
+              "How do you declare a list of Pydantic models as an attribute type in a model?",
+              "What is the correct syntax to declare a set of unique items using Python's `set` type in FastAPI models?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Create separate input and output Pydantic models to handle data filtering (e.g., hiding sensitive fields like passwords in the response).",
+            "objective": "Create separate input and output Pydantic models to filter sensitive data like passwords from the response.",
             "requirements": [
-              "How do you define an input model that includes a plaintext password field?",
-              "How do you define a corresponding output model that excludes the password field?"
+              "How do you annotate a function with an input model that includes plaintext fields and an output model that excludes them?",
+              "What is the purpose of `response_model_exclude_unset` when returning filtered data?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Annotate a FastAPI endpoint to return a `Union` of two or more types, allowing the API to respond with any of the specified formats.",
+            "objective": "Configure a response to return a Union of multiple types or an arbitrary dict with typed keys and values.",
             "requirements": [
-              "How do you use Python's `Union` type hint to declare a response that can be one of several models?",
-              "What does this look like in the generated OpenAPI documentation?"
+              "How do you declare a response as a `Union` of two or more Pydantic models in FastAPI?",
+              "What is the syntax for declaring a response as an arbitrary `dict` with specific key and value types?"
             ],
             "graded": true,
             "exercise_target": "function"
           }
         ],
         "source_sections": [
+          "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#mix-path-query-and-body-parameters",
           "https://fastapi.tiangolo.com/tutorial/body-fields/#import-field",
           "https://fastapi.tiangolo.com/tutorial/body-fields/#declare-model-attributes",
           "https://fastapi.tiangolo.com/tutorial/body-fields/#add-extra-information",
@@ -196,6 +205,8 @@
           "https://fastapi.tiangolo.com/tutorial/body-nested-models/#bodies-of-pure-lists",
           "https://fastapi.tiangolo.com/tutorial/body-nested-models/#bodies-of-arbitrary-dicts",
           "https://fastapi.tiangolo.com/tutorial/body-nested-models/#recap",
+          "https://fastapi.tiangolo.com/tutorial/extra-data-types/#other-data-types",
+          "https://fastapi.tiangolo.com/tutorial/extra-data-types/#example",
           "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-parameter",
           "https://fastapi.tiangolo.com/tutorial/response-model/#return-the-same-input-data",
           "https://fastapi.tiangolo.com/tutorial/response-model/#add-an-output-model",
@@ -203,6 +214,7 @@
           "https://fastapi.tiangolo.com/tutorial/response-model/#see-it-in-the-docs",
           "https://fastapi.tiangolo.com/tutorial/response-model/#other-return-type-annotations",
           "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-encoding-parameters",
+          "https://fastapi.tiangolo.com/tutorial/response-model/#recap",
           "https://fastapi.tiangolo.com/tutorial/extra-models/#multiple-models",
           "https://fastapi.tiangolo.com/tutorial/extra-models/#reduce-duplication",
           "https://fastapi.tiangolo.com/tutorial/extra-models/#union-or-anyof",
@@ -215,43 +227,37 @@
         "title": "Error Handling and Dependencies",
         "steps": [
           {
-            "objective": "Raise an HTTPException with a specific status code and detail message to return a standardized JSON error response.",
+            "objective": "Raise an HTTPException with a specific status code and custom headers to return a structured error response.",
             "requirements": [
-              "How do you import HTTPException from FastAPI?",
-              "What arguments (status_code, detail) are required when raising an HTTPException?"
+              "How to import HTTPException from FastAPI?",
+              "How to pass status_code and headers arguments when raising HTTPException?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Add custom headers to an HTTPException response for advanced security or tracking scenarios.",
+            "objective": "Define a dependency function that accepts query parameters and returns a dictionary of values.",
             "requirements": [
-              "How do you pass a dictionary of custom headers when raising an HTTPException?",
-              "What is the correct structure for the 'headers' argument in HTTPException?"
+              "How to declare a dependency using Depends()?",
+              "How to use Annotated to combine a type hint with a dependency?"
             ],
             "graded": true,
             "exercise_target": "function"
           },
           {
-            "objective": "Create a dependency function that accepts query parameters and returns a dictionary annotated with Depends().",
+            "objective": "Create a class that acts as a dependency by implementing __init__ and using it with Depends().",
             "requirements": [
-              "How do you define a dependency function using Annotated and Depends?",
-              "What is the correct syntax for returning a dict from a dependency?"
-            ],
-            "graded": true,
-            "exercise_target": "function"
-          },
-          {
-            "objective": "Declare a class as a dependency by instantiating it with parameters and using it in a path operation.",
-            "requirements": [
-              "How do you define a Python class that can be used as a FastAPI dependency?",
-              "What is the correct way to instantiate a class inside a dependency function?"
+              "How to define a class that is callable as a dependency?",
+              "How to use Annotated with a class type instead of a function?"
             ],
             "graded": true,
             "exercise_target": "function"
           }
         ],
         "source_sections": [
+          "https://fastapi.tiangolo.com/tutorial/response-status-code/#about-http-status-codes",
+          "https://fastapi.tiangolo.com/tutorial/response-status-code/#shortcut-to-remember-the-names",
+          "https://fastapi.tiangolo.com/tutorial/response-status-code/#changing-the-default",
           "https://fastapi.tiangolo.com/tutorial/handling-errors/#use-httpexception",
           "https://fastapi.tiangolo.com/tutorial/handling-errors/#add-custom-headers",
           "https://fastapi.tiangolo.com/tutorial/handling-errors/#install-custom-exception-handlers",
@@ -281,38 +287,38 @@
       "schema_version": 1,
       "id": "m1-s1",
       "title": "Declare a FastAPI application instance named 'app'.",
-      "summary": "Import the FastAPI class and create an instance named 'app' to start building your API.",
+      "summary": "Import the FastAPI class and create an app instance to start building your API.",
       "you_will_learn": [
         "Import FastAPI from the fastapi package",
-        "Instantiate the FastAPI class",
-        "Assign the instance to a variable named app"
+        "Instantiate the FastAPI class with parentheses",
+        "Assign the new instance to a variable named app"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Creating Your FastAPI Application",
-          "body": "To start building your API, you must first import the `FastAPI` class. Then, instantiate it by calling the class with parentheses and assign the resulting object to a variable, typically named `app`. This instance is the central point for defining all your API routes."
+          "heading": "Create Your FastAPI App Instance",
+          "body": "First, import the `FastAPI` class from the `fastapi` package. Then, call it like any other Python class by adding parentheses `()` to create an instance. Finally, assign this new object to a variable, typically named `app`, which acts as your main application container."
         },
         {
           "type": "key_points",
           "items": [
             {
-              "title": "Importing FastAPI",
-              "text": "Use the statement `from fastapi import FastAPI` to bring the class into your script."
+              "title": "Import the Class",
+              "text": "Use `from fastapi import FastAPI` to bring the class into your current file."
             },
             {
-              "title": "Instantiating the App",
-              "text": "Call `FastAPI()` with no arguments inside parentheses to create a new application instance."
+              "title": "Instantiate the App",
+              "text": "Call `FastAPI()` with empty parentheses to create a new application instance."
             },
             {
-              "title": "Assigning to Variable",
-              "text": "Store the result in a variable like `app = FastAPI()` to use it for route definitions."
+              "title": "Assign to Variable",
+              "text": "Store the result in a variable like `app = FastAPI()` to use it for your routes."
             }
           ]
         },
         {
           "type": "code",
-          "title": "Basic App Initialization",
+          "title": "Basic App Setup",
           "language": "python",
           "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
           "output": null
@@ -320,7 +326,7 @@
         {
           "type": "callout",
           "kind": "tip",
-          "text": "The `app` variable is the main object you will use to define all your API endpoints and configure settings."
+          "text": "The `app` variable is the main point of interaction to create all your API routes and logic."
         }
       ],
       "docs": [
@@ -343,12 +349,6 @@
           "coverage": 0.571
         },
         {
-          "label": "OpenAPI",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#openapi",
-          "grounding": "weak",
-          "coverage": 0.571
-        },
-        {
           "label": "Import Pydantic's `BaseModel`",
           "url": "https://fastapi.tiangolo.com/tutorial/body/#import-pydantics-basemodel",
           "grounding": "weak",
@@ -365,17 +365,2864 @@
           "url": "https://fastapi.tiangolo.com/tutorial/#tutorial-user-guide",
           "grounding": "weak",
           "coverage": 0.571
+        },
+        {
+          "label": "Shortcut",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#shortcut",
+          "grounding": "weak",
+          "coverage": 0.571
         }
       ],
       "exercise": null
+    },
+    "m1-s2": {
+      "schema_version": 1,
+      "id": "m1-s2",
+      "title": "Define a path operation decorator for a GET request at the root path.",
+      "summary": "Learn how to add a GET route to your FastAPI app using the path operation decorator.",
+      "you_will_learn": [
+        "Use @app.get() for GET routes",
+        "Specify path and HTTP method",
+        "Define the handler function"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Adding a GET Route with a Decorator",
+          "body": "To handle requests, use the `@app.get()` decorator above your function. The first argument is the path (e.g., \"/\"). This tells FastAPI which URL and HTTP method to match."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Decorator Syntax",
+              "text": "Place `@app.get(\"path\")` directly above your function definition."
+            },
+            {
+              "title": "Path and Method",
+              "text": "The string inside parentheses defines the URL path, while `get` sets the HTTP method."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Root GET Endpoint",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "You can use other methods like `@app.post()`, `@app.put()`, or `@app.delete()` for different HTTP verbs."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Recap",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#recap",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Define a _path operation decorator_",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#define-a-path-operation-decorator",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Step 2: create a `FastAPI` \"instance\"",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-2-create-a-fastapi-instance",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Configure the app `entrypoint` in `pyproject.toml`",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#configure-the-app-entrypoint-in-pyproject-toml",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Step 4: define the **path operation function**",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-4-define-the-path-operation-function",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Step 3: create a _path operation_",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-3-create-a-path-operation",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Path",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#path",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Path parameters containing paths",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-containing-paths",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Path Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters",
+          "grounding": "grounded",
+          "coverage": 0.8
+        }
+      ],
+      "exercise": {
+        "title": "Define Root GET Route",
+        "description": "Create a FastAPI app that returns 'Hello World' at the root path using the @app.get() decorator.",
+        "instructions": [
+          "Import FastAPI from the fastapi package.",
+          "Initialize an instance of the FastAPI application.",
+          "Define a function named 'read_root' that returns a dictionary with status 'ok'.",
+          "Add the @app.get('/') decorator above the read_root function."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/"
+        },
+        "cases": [
+          {
+            "label": "Root GET returns status ok",
+            "method": "GET",
+            "path": "/",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "status": "ok"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "Root GET with query param",
+            "method": "GET",
+            "path": "/?q=test",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "status": "ok"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "Root GET with JSON body (ignored)",
+            "method": "GET",
+            "path": "/",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "status": "ok"
+            },
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use the @app.get() decorator to define a new route.",
+          "Place the decorator immediately above your function definition."
+        ],
+        "explanation": "The reference implementation uses @app.get('/') to map the root path to the read_root function. The function returns a JSON object with 'status': 'ok'. Without this decorator, FastAPI would return a 404 Not Found for GET requests at '/', failing the evaluation cases."
+      }
+    },
+    "m1-s3": {
+      "schema_version": 1,
+      "id": "m1-s3",
+      "title": "Write an async function that returns a JSON dictionary when called.",
+      "summary": "Learn to define an async function and return a JSON dictionary in FastAPI.",
+      "you_will_learn": [
+        "Use async def for asynchronous functions",
+        "Return a dict to get JSON response",
+        "Understand FastAPI auto-converts dicts"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Async Functions and JSON Responses",
+          "body": "To make a function asynchronous, use the keyword `async` before `def`. To return JSON-compatible data, simply return a Python dictionary. FastAPI automatically converts this dictionary into a JSON response for you."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Async Keyword",
+              "text": "Use `async def` to define an asynchronous function that can await tasks."
+            },
+            {
+              "title": "Return Dict",
+              "text": "Returning a standard Python dictionary automatically results in a JSON response."
+            },
+            {
+              "title": "Auto-Conversion",
+              "text": "FastAPI handles the conversion of your returned dict to JSON without extra code."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Simple Async Root Endpoint",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "You can also use a normal `def` instead of `async def`, but `async def` is required if you need to await something inside the function."
+        }
+      ],
+      "docs": [
+        {
+          "label": "To `async` or not to `async`",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/#to-async-or-not-to-async",
+          "grounding": "unproved",
+          "coverage": 0.333
+        },
+        {
+          "label": "Step 5: return the content",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-5-return-the-content",
+          "grounding": "unproved",
+          "coverage": 0.333
+        },
+        {
+          "label": "Step 4: define the **path operation function**",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-4-define-the-path-operation-function",
+          "grounding": "unproved",
+          "coverage": 0.333
+        },
+        {
+          "label": "Response with arbitrary `dict`",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#response-with-arbitrary-dict",
+          "grounding": "unproved",
+          "coverage": 0.333
+        }
+      ],
+      "exercise": {
+        "title": "Async Function Returning JSON Dictionary",
+        "description": "Create an async function that processes a name and returns a dictionary with greeting details.",
+        "instructions": [
+          "Define an async function named 'create_greeting' that accepts a single string 'n",
+          "await a simulated delay using asyncio.sleep(0.1) to mimic asynchronous work.",
+          "Return a Python dictionary containing the keys 'name', 'greeting', and 'status'.",
+          "Ensure the function uses 'async def' syntax and returns a standard dict object."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "import asyncio\n\ndef create_greeting(name: str) -> dict:\n    pass"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "create_greeting"
+        },
+        "cases": [
+          {
+            "label": "Simple name input",
+            "inputs": [
+              "Alice"
+            ],
+            "expected": {
+              "name": "Alice",
+              "greeting": "Hello, Alice!",
+              "status": "ready"
+            },
+            "visible": true
+          },
+          {
+            "label": "Name with special characters",
+            "inputs": [
+              "Bob O'Brien"
+            ],
+            "expected": {
+              "name": "Bob O'Brien",
+              "greeting": "Hello, Bob O'Brien!",
+              "status": "ready"
+            },
+            "visible": true
+          },
+          {
+            "label": "Empty string name",
+            "inputs": [
+              ""
+            ],
+            "expected": {
+              "name": "",
+              "greeting": "Hello, !",
+              "status": "ready"
+            },
+            "visible": false
+          },
+          {
+            "label": "Unicode characters",
+            "inputs": [
+              "José García"
+            ],
+            "expected": {
+              "name": "José García",
+              "greeting": "Hello, José García!",
+              "status": "ready"
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Remember that async functions must use 'async def' syntax.",
+          "The function should return a dictionary directly, not print or raise errors."
+        ],
+        "explanation": "The reference implementation defines an async inner function '_process' that awaits a simulated delay. The outer function calls asyncio.run() to execute the async task synchronously for testing purposes. It returns a standard Python dictionary with string values, which FastAPI will automatically convert to JSON when used in a web endpoint."
+      }
+    },
+    "m2-s1": {
+      "schema_version": 1,
+      "id": "m2-s1",
+      "title": "Define a FastAPI route that accepts a path parameter with a specific Python type annotation and returns that value in the JSON response.",
+      "summary": "Declare path parameter types and see FastAPI convert strings to integers automatically.",
+      "you_will_learn": [
+        "Use Python type annotations for path parameters",
+        "See automatic string-to-int conversion in URLs",
+        "Understand validation errors for invalid inputs"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Path Parameter Types and Conversion",
+          "body": "Declare the type of a path parameter directly in your function signature using standard Python type annotations. FastAPI automatically parses the URL string into the declared type (e.g., converting '3' to integer 3). If the input cannot be converted, FastAPI returns a validation error."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Type Annotations",
+              "text": "Add a type like `int` or `str` after the parameter name in your function definition."
+            },
+            {
+              "title": "Automatic Conversion",
+              "text": "FastAPI converts the URL string to the declared Python type before passing it to your function."
+            },
+            {
+              "title": "Validation Errors",
+              "text": "If the input cannot be converted, FastAPI returns a 422 error with parsing details."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Integer Path Parameter Example",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: int):\n    return {\"item_id\": item_id}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Without a type annotation, the parameter receives the raw string from the URL path."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Path parameters with types",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-with-types",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Data conversion",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#data-conversion",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Path parameters containing paths",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-containing-paths",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Data validation",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#data-validation",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Path Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Declare a _path parameter_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#declare-a-path-parameter",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Path Parameters and Numeric Validations",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#path-parameters-and-numeric-validations",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "FastAPI Data Filtering",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#fastapi-data-filtering",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Query parameter type conversion",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#query-parameter-type-conversion",
+          "grounding": "grounded",
+          "coverage": 0.833
+        }
+      ],
+      "exercise": {
+        "title": "Echo an integer path parameter",
+        "description": "Build a route that accepts an integer ID from the URL and returns it as JSON.",
+        "instructions": [
+          "Create a GET endpoint at /items/{item_id}.",
+          "Define item_id in the function signature with type annotation int.",
+          "Return a JSON object containing the received item_id."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id):\n    # TODO: Add a type annotation to the item_id parameter\n    return {\"item_id\": item_id}"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/items/1"
+        },
+        "cases": [
+          {
+            "label": "valid integer path",
+            "method": "GET",
+            "path": "/items/10",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "item_id": 10
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "non-integer path",
+            "method": "GET",
+            "path": "/items/abc",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "float path",
+            "method": "GET",
+            "path": "/items/10.5",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "FastAPI uses type annotations in function parameters to determine how to parse path values.",
+          "Add ': int' after 'item_id' to tell FastAPI to expect an integer."
+        ],
+        "explanation": "The int annotation tells FastAPI to parse the URL string as an integer. Valid integers return the parsed value, while non-integers like 'abc' or floats cause a 422 validation error."
+      }
+    },
+    "m2-s2": {
+      "schema_version": 1,
+      "id": "m2-s2",
+      "title": "Create a custom Enum class that inherits from `str` and use it as a type annotation for a path parameter to restrict valid values.",
+      "summary": "Create a custom Enum subclass inheriting from str to restrict path parameter values.",
+      "you_will_learn": [
+        "Import Enum and define a class inheriting from str",
+        "Set fixed string attributes as valid values",
+        "Use the enum type in function annotations"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Creating a String Enum for Path Parameters",
+          "body": "To restrict path parameter values, create an Enum subclass that inherits from both `str` and `Enum`. Define class attributes with specific string values. Inheriting from `str` tells FastAPI the parameter is a string type, ensuring correct documentation rendering and validation."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Inherit from str",
+              "text": "The Enum must inherit from `str` so FastAPI knows to expect a string value in the URL path."
+            },
+            {
+              "title": "Define fixed values",
+              "text": "Create class attributes with specific string literals to act as the only allowed options for that parameter."
+            },
+            {
+              "title": "Use in annotations",
+              "text": "Apply the new Enum class as the type hint for your path parameter to enforce validation."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Defining a ModelName Enum",
+          "language": "python",
+          "code": "from enum import Enum\n\nfrom fastapi import FastAPI\n\nclass ModelName(str, Enum):\n    alexnet = \"alexnet\"\n    resnet = \"resnet\"\n    lenet = \"lenet\"\n\napp = FastAPI()\n\n@app.get(\"/models/{model_name}\")\nasync def get_model(model_name: ModelName):\n    if model_name is ModelName.alexnet:\n        return {\"model_name\": model_name, \"message\": \"Deep Learning FTW!\"}\n\n    if model_name.value == \"lenet\":\n        return {\"model_name\": model_name, \"message\": \"LeCNN all the images\"}\n\n    return {\"model_name\": model_name, \"message\": \"Have some residuals\"}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Access the underlying string value using `model_name.value` or `ModelName.lenet.value`."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Create an `Enum` class",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#create-an-enum-class",
+          "grounding": "grounded",
+          "coverage": 0.714
+        },
+        {
+          "label": "Get the _enumeration value_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#get-the-enumeration-value",
+          "grounding": "grounded",
+          "coverage": 0.714
+        },
+        {
+          "label": "Predefined values",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#predefined-values",
+          "grounding": "grounded",
+          "coverage": 0.714
+        },
+        {
+          "label": "Declare a _path parameter_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#declare-a-path-parameter",
+          "grounding": "grounded",
+          "coverage": 0.714
+        },
+        {
+          "label": "Working with Python _enumerations_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#working-with-python-enumerations",
+          "grounding": "grounded",
+          "coverage": 0.714
+        }
+      ],
+      "exercise": {
+        "title": "Create a String Enum for Path Parameters",
+        "description": "Build a route that accepts a string enum path parameter to restrict valid values.",
+        "instructions": [
+          "Define an Enum subclass named 'Status' that inherits from str and Enum.",
+          "Add class attributes 'active', 'pending', and 'inactive' with corresponding 'str"
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from enum import Enum\nfrom fastapi import FastAPI, Path\n\napp = FastAPI()\n\nclass Status(str, Enum):\n    # TODO: define the allowed status values (e.g., active, pending, inactive)\n    pass\n\n@app.get(\"/items/{status}\")\ndef read_item(status: Status = Path(...)):\n    return {\"status\": status.value}"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/items/active"
+        },
+        "cases": [
+          {
+            "label": "valid active status",
+            "method": "GET",
+            "path": "/items/active",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "status": "active"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "valid pending status",
+            "method": "GET",
+            "path": "/items/pending",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "status": "pending"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "valid inactive status",
+            "method": "GET",
+            "path": "/items/inactive",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "status": "inactive"
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "invalid status value",
+            "method": "GET",
+            "path": "/items/unknown",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Inherit from both str and Enum to create a string-based enum.",
+          "Define class attributes with specific string values like 'active' or 'pending'."
+        ],
+        "explanation": "The Status Enum inherits from str, allowing FastAPI to validate path parameters against the defined values (active, pending, inactive). Requests with valid enum values return 200, while invalid ones return 422."
+      }
+    },
+    "m2-s3": {
+      "schema_version": 1,
+      "id": "m2-s3",
+      "title": "Implement logic within a route handler to return different messages based on which predefined Enum value was passed in the path.",
+      "summary": "Compare Enum instances using 'is' and access underlying values via '.value' to handle different model types.",
+      "you_will_learn": [
+        "Use 'is' to compare an Enum instance against class attributes",
+        "Access the string value of an Enum member with '.value'",
+        "Understand automatic validation for invalid path parameter values"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Comparing and Using Enum Values",
+          "body": "To check which specific model was requested, use the 'is' operator to compare the incoming parameter against specific Enum members like ModelName.alexnet. You can also access the underlying string value using the .value attribute for comparisons."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Compare with 'is'",
+              "text": "Use the 'is' operator to check if a path parameter matches a specific Enum member, such as model_name is ModelName.alexnet."
+            },
+            {
+              "title": "Access underlying value",
+              "text": "Use the .value attribute to get the string representation of an Enum member for flexible comparisons."
+            },
+            {
+              "title": "Invalid values rejected",
+              "text": "FastAPI automatically rejects any path parameter value that does not match a defined Enum member, returning a validation error."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Handling Different Models",
+          "language": "python",
+          "code": "from enum import Enum\n\nfrom fastapi import FastAPI\n\nclass ModelName(str, Enum):\n    alexnet = \"alexnet\"\n    resnet = \"resnet\"\n    lenet = \"lenet\"\n\napp = FastAPI()\n\n@app.get(\"/models/{model_name}\")\nasync def get_model(model_name: ModelName):\n    if model_name is ModelName.alexnet:\n        return {\"model_name\": model_name, \"message\": \"Deep Learning FTW!\"}\n\n    if model_name.value == \"lenet\":\n        return {\"model_name\": model_name, \"message\": \"LeCNN all the images\"}\n\n    return {\"model_name\": model_name, \"message\": \"Have some residuals\"}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Remember that FastAPI converts the URL string to the Enum member automatically before your function runs."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Compare _enumeration members_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#compare-enumeration-members",
+          "grounding": "weak",
+          "coverage": 0.5
+        },
+        {
+          "label": "Predefined values",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#predefined-values",
+          "grounding": "weak",
+          "coverage": 0.5
+        },
+        {
+          "label": "Create an `Enum` class",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#create-an-enum-class",
+          "grounding": "weak",
+          "coverage": 0.5
+        },
+        {
+          "label": "Declare a _path parameter_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#declare-a-path-parameter",
+          "grounding": "weak",
+          "coverage": 0.5
+        },
+        {
+          "label": "Get the _enumeration value_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#get-the-enumeration-value",
+          "grounding": "weak",
+          "coverage": 0.5
+        },
+        {
+          "label": "Working with Python _enumerations_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#working-with-python-enumerations",
+          "grounding": "weak",
+          "coverage": 0.5
+        },
+        {
+          "label": "Return _enumeration members_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#return-enumeration-members",
+          "grounding": "weak",
+          "coverage": 0.5
+        },
+        {
+          "label": "Path Parameters and Numeric Validations",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#path-parameters-and-numeric-validations",
+          "grounding": "weak",
+          "coverage": 0.5
+        }
+      ],
+      "exercise": {
+        "title": "Route Handler with Enum Path Parameter",
+        "description": "Create a route that accepts an enum value in the URL path and returns different messages based on the specific enum member.",
+        "instructions": [
+          "Import FastAPI and create an app instance.",
+          "Define an Enum named ModelType with members alexnet, resnet50, and vgg16.",
+          "Create a GET route at /models/{model_name} that accepts model_name as the ModelT",
+          "Return JSON with the model name and a message specific to each enum member."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from enum import Enum\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\n\nclass ModelT(Enum):\n    alexnet = \"alexnet\"\n    resnet50 = \"resnet50\"\n    vgg16 = \"vgg16\"\n\n@app.get(\"/models/{model_name}\")\ndef read_model(model_name: ModelT):\n    # TODO: Implement logic to return different messages based on the model_name Enum value.\n    # Use 'is' operator to compare against specific Enum members like ModelT.alexnet.\n    # Return a dict with 'model' and 'message' keys.\n    pass\n"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/models/alexnet"
+        },
+        "cases": [
+          {
+            "label": "alexnet model",
+            "method": "GET",
+            "path": "/models/alexnet",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "model": "alexnet",
+              "message": "This is the AlexNet model."
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "resnet50 model",
+            "method": "GET",
+            "path": "/models/resnet50",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "model": "resnet50",
+              "message": "This is the ResNet50 model."
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "vgg16 model",
+            "method": "GET",
+            "path": "/models/vgg16",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "model": "vgg16",
+              "message": "This is the VGG16 model."
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "invalid model",
+            "method": "GET",
+            "path": "/models/unknown",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use the 'is' operator to check if model_name matches ModelT.alexnet, ModelT.resnet50, or ModelT.vgg16.",
+          "Return a dictionary with 'model' set to model_name.value and 'message' containing the appropriate text for each case."
+        ],
+        "explanation": "The Enum type annotation ensures only valid enum values are accepted. The 'is' operator compares the incoming ModelT instance to specific members like ModelT.alexnet, returning distinct JSON responses for each valid model and a validation error for invalid ones."
+      }
+    },
+    "m3-s1": {
+      "schema_version": 1,
+      "id": "m3-s1",
+      "title": "Define a FastAPI endpoint that accepts optional query parameters with default values and returns different responses based on their presence.",
+      "summary": "Learn how to declare optional query parameters with default values in FastAPI endpoints.",
+      "you_will_learn": [
+        "Set default values for query parameters",
+        "Use None to make parameters optional",
+        "Return different responses based on presence",
+        "Understand automatic parameter recognition"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Optional Query Parameters with Defaults",
+          "body": "To declare an optional query parameter, set its default value to `None`. FastAPI recognizes non-path parameters as query parameters. If a user does not provide the parameter in the URL, it defaults to `None` inside your function. You can then check if the value exists (e.g., using `if q:`) to return different responses."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Declare Optional Parameters",
+              "text": "Set the default value of a query parameter to `None` to make it optional in your FastAPI endpoint."
+            },
+            {
+              "title": "Default Behavior",
+              "text": "When a query parameter is omitted from the URL, FastAPI passes its default value (e.g., `None`) to your function automatically."
+            },
+            {
+              "title": "Conditional Logic",
+              "text": "Use conditional checks like `if q:` inside your handler to distinguish between provided values and the default `None` state."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Optional Query Parameter Example",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: str, q: str | None = None):\n    if q:\n        return {\"item_id\": item_id, \"q\": q}\n    return {\"item_id\": item_id}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "FastAPI determines a parameter is optional because of the default value `= None`, not just the type annotation `str | None`."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Optional parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#optional-parameters",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Defaults",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#defaults",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Required query parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#required-query-parameters",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Default values",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#default-values",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Query Parameters and String Validations",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#query-parameters-and-string-validations",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "`Query` as the default value or in `Annotated`",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#query-as-the-default-value-or-in-annotated",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Query parameter list / multiple values with defaults",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#query-parameter-list-multiple-values-with-defaults",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Declare it as a parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Request body + path + query parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters",
+          "grounding": "grounded",
+          "coverage": 0.857
+        }
+      ],
+      "exercise": {
+        "title": "Optional Query Parameters with Defaults",
+        "description": "Create a route that returns different JSON based on whether optional query parameters are provided.",
+        "instructions": [
+          "Create GET /greet.",
+          "Accept an optional query parameter 'name' with default None.",
+          "Return a JSON object containing the name if provided, otherwise return a message",
+          "Use conditional logic to check if the name is present."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/greet\")\ndef greet(name: str | None = None):\n    # TODO: implement conditional logic to return different messages based on whether name is provided\n    return {\"message\": \"Hello, stranger!\"}\n"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/greet"
+        },
+        "cases": [
+          {
+            "label": "with name parameter",
+            "method": "GET",
+            "path": "/greet?name=World",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Hello, World!"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "without name parameter",
+            "method": "GET",
+            "path": "/greet",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Hello, stranger!"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "with empty string name",
+            "method": "GET",
+            "path": "/greet?name=",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Hello, stranger!"
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "with name parameter and extra query param",
+            "method": "GET",
+            "path": "/greet?name=Test&foo=bar",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Hello, Test!"
+            },
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use an if statement to check if the 'name' variable has a truthy value.",
+          "Return a message containing the name if it exists, otherwise return the default message."
+        ],
+        "explanation": "The endpoint uses an optional query parameter 'name' with a default of None. When provided, it returns a personalized greeting; otherwise, it returns the default message."
+      }
+    },
+    "m3-s2": {
+      "schema_version": 1,
+      "id": "m3-s2",
+      "title": "Declare a query parameter with a boolean type that automatically converts string inputs to boolean values.",
+      "summary": "Declare boolean query parameters in FastAPI that auto-convert string inputs like 'true' or '1'.",
+      "you_will_learn": [
+        "Use bool type for query params",
+        "Set default value to False",
+        "Handle automatic string conversion"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Boolean Query Parameters",
+          "body": "Declare a boolean query parameter by annotating the function argument with `bool`. FastAPI automatically converts common string representations like 'true', '1', or 'on' to Python `True`, and 'false', '0', or 'off' to `False`. If you omit the parameter in the URL, FastAPI uses your specified default value."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Type Annotation",
+              "text": "Annotate the function argument with `bool` to enable automatic string-to-boolean conversion."
+            },
+            {
+              "title": "Default Value",
+              "text": "Set a default value like `False` so the parameter is optional and handles missing inputs gracefully."
+            },
+            {
+              "title": "Conversion Rules",
+              "text": "FastAPI converts 'true', '1', 'on' to True, while 'false', '0', 'off' convert to False."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Boolean Query Parameter Example",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: str, short: bool = False):\n    item = {\"item_id\": item_id}\n    if not short:\n        item.update({\"description\": \"This is an amazing item that has a long description\"})\n    return item",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "If you omit the `short` parameter in the URL, FastAPI uses the default value `False`. An empty value like `?short=` causes a validation error."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Query parameter type conversion",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#query-parameter-type-conversion",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Defaults",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#defaults",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Required query parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#required-query-parameters",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Optional parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#optional-parameters",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Query Parameters and String Validations",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#query-parameters-and-string-validations",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Default values",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#default-values",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "`Query` as the default value or in `Annotated`",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#query-as-the-default-value-or-in-annotated",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Alternative (old): `Query` as the default value",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#alternative-old-query-as-the-default-value",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Declare it as a parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "grounding": "grounded",
+          "coverage": 0.667
+        },
+        {
+          "label": "Request body + path + query parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters",
+          "grounding": "grounded",
+          "coverage": 0.667
+        }
+      ],
+      "exercise": {
+        "title": "Boolean Query Parameter with Default",
+        "description": "Create a route that accepts an optional boolean query parameter and returns its value.",
+        "instructions": [
+          "Create a GET endpoint at /filter.",
+          "Define a query parameter named active with type bool and default False.",
+          "Return a JSON object containing the received boolean value."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/filter\")\ndef filter_items(active: bool):\n    # TODO: declare a query parameter with a boolean type that automatically converts string inputs to boolean values\n    return {\"active\": active}\n"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/filter"
+        },
+        "cases": [
+          {
+            "label": "default false",
+            "method": "GET",
+            "path": "/filter",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "active": false
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "true string",
+            "method": "GET",
+            "path": "/filter?active=true",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "active": true
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "false string",
+            "method": "GET",
+            "path": "/filter?active=false",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "active": false
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "1 string",
+            "method": "GET",
+            "path": "/filter?active=1",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "active": true
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "0 string",
+            "method": "GET",
+            "path": "/filter?active=0",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "active": false
+            },
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Look at the lesson about Boolean Query Parameters.",
+          "Annotate the function argument with `bool` and set a default value like `False`."
+        ],
+        "explanation": "The bool annotation enables FastAPI to convert string inputs like 'true', '1', or 'on' to Python True. A default value of False is required because the starter lacks it, causing a validation error when the parameter is omitted."
+      }
+    },
+    "m3-s3": {
+      "schema_version": 1,
+      "id": "m3-s3",
+      "title": "Create a Pydantic model class that inherits from BaseModel with required and optional fields.",
+      "summary": "Learn how to import BaseModel and define optional fields using type hints.",
+      "you_will_learn": [
+        "Import BaseModel from pydantic",
+        "Use union types for optional fields",
+        "Set default values with None"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Defining Pydantic Models",
+          "body": "First, import `BaseModel` from the `pydantic` package. To make a field optional, use a union type like `str | None`. Assign `None` as the default value for that field."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Import BaseModel",
+              "text": "Use `from pydantic import BaseModel` to access the base class for your models."
+            },
+            {
+              "title": "Optional Fields",
+              "text": "Declare optional fields using `type | None = None`, such as `description: str | None = None`."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Creating an Item Model",
+          "language": "python",
+          "code": "from pydantic import BaseModel\n\nclass Item(BaseModel):\n    name: str\n    description: str | None = None\n    price: float\n    tax: float | None = None",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Remember that `None` is the default value for optional fields when using union types."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Import Pydantic's `BaseModel`",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#import-pydantics-basemodel",
+          "grounding": "grounded",
+          "coverage": 0.6
+        },
+        {
+          "label": "Without Pydantic",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#without-pydantic",
+          "grounding": "grounded",
+          "coverage": 0.6
+        },
+        {
+          "label": "Body - Fields",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#body-fields",
+          "grounding": "grounded",
+          "coverage": 0.6
+        },
+        {
+          "label": "Import `Field`",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#import-field",
+          "grounding": "grounded",
+          "coverage": 0.6
+        },
+        {
+          "label": "Declare model attributes",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#declare-model-attributes",
+          "grounding": "grounded",
+          "coverage": 0.6
+        },
+        {
+          "label": "List fields with type parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/#list-fields-with-type-parameter",
+          "grounding": "grounded",
+          "coverage": 0.6
+        },
+        {
+          "label": "Pydantic's `.model_dump()`",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#pydantics-model-dump",
+          "grounding": "grounded",
+          "coverage": 0.6
+        },
+        {
+          "label": "A Pydantic model from the contents of another",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#a-pydantic-model-from-the-contents-of-another",
+          "grounding": "grounded",
+          "coverage": 0.6
+        }
+      ],
+      "exercise": {
+        "title": "Create Pydantic Model with Required and Optional Fields",
+        "description": "Define a Pydantic model inheriting from BaseModel, including required and optional fields using union types.",
+        "instructions": [
+          "Import BaseModel from pydantic.",
+          "Create a class named 'UserProfile' that inherits from BaseModel.",
+          "Add a required field 'username' of type string.",
+          "Add an optional field 'bio' of type string or None with a default value of None."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from pydantic import BaseModel\n\ndef create_profile(username: str, bio: str | None = None) -> dict:\n    pass"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "create_profile"
+        },
+        "cases": [
+          {
+            "label": "Profile with bio",
+            "inputs": [
+              "alice",
+              "I love coding"
+            ],
+            "expected": {
+              "username": "alice",
+              "bio": "I love coding"
+            },
+            "visible": true
+          },
+          {
+            "label": "Profile without bio",
+            "inputs": [
+              "bob",
+              null
+            ],
+            "expected": {
+              "username": "bob",
+              "bio": null
+            },
+            "visible": true
+          },
+          {
+            "label": "Another profile with bio",
+            "inputs": [
+              "charlie",
+              "Python enthusiast"
+            ],
+            "expected": {
+              "username": "charlie",
+              "bio": "Python enthusiast"
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Remember to import BaseModel from the pydantic package.",
+          "Use 'str | None' for optional fields and assign 'None' as the default value."
+        ],
+        "explanation": "The reference implementation defines a UserProfile class inheriting from BaseModel. It includes a required 'username' field and an optional 'bio' field using the union type 'str | None' with a default of None. The create_profile function instantiates this model and returns its data as a dictionary."
+      }
+    },
+    "m3-s4": {
+      "schema_version": 1,
+      "id": "m3-s4",
+      "title": "Implement a POST endpoint that accepts both path parameters and a request body containing a Pydantic model.",
+      "summary": "Learn how to declare function parameters for path and request body data in FastAPI.",
+      "you_will_learn": [
+        "Declare Pydantic models as request body parameters",
+        "Use type annotations for path parameters",
+        "Distinguish between path, query, and body sources",
+        "Handle multiple parameter types in one route"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Mixing Path Parameters and Request Bodies",
+          "body": "To receive data from the request body, declare a function parameter as a Pydantic model (e.g., `item: Item`). FastAPI distinguishes sources by type: parameters matching path syntax like `{item_id}` are taken from the URL path. Singular types like `int` or `str` without default values are treated as query parameters. Pydantic models are always taken from the request body."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Path Parameters",
+              "text": "Parameters matching the URL pattern (e.g., `{item_id}`) are extracted from the path and passed to the function."
+            },
+            {
+              "title": "Request Body",
+              "text": "Parameters declared as Pydantic models (e.g., `item: Item`) are automatically read from the request body."
+            },
+            {
+              "title": "Query Parameters",
+              "text": "Singular types like `int` or `str` without defaults are interpreted as query parameters unless they match a path variable."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Update Item with Path and Body",
+          "language": "python",
+          "code": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Item(BaseModel):\n    name: str\n    price: float\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(item_id: int, item: Item):\n    return {\"item_id\": item_id, \"name\": item.name, \"price\": item.price}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "FastAPI allows multiple body parameters in a function, but only one will be populated from the actual request body."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Request Body",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Request body + path parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-parameters",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Request body + path + query parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Recap",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#recap",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Body - Multiple Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#body-multiple-parameters",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Use the `RequestValidationError` body",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/#use-the-requestvalidationerror-body",
+          "grounding": "grounded",
+          "coverage": 0.857
+        },
+        {
+          "label": "Path Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters",
+          "grounding": "grounded",
+          "coverage": 0.857
+        }
+      ],
+      "exercise": {
+        "title": "Create Item with Path and Body",
+        "description": "Build a POST endpoint that accepts an item_id from the URL path and item details from the request body.",
+        "instructions": [
+          "Define a Pydantic model named Item with fields name (str) and price (float).",
+          "Create a POST route at /items/{item_id} that accepts item_id as a path parameter",
+          "Accept an Item instance in the function signature to receive data from the JSON."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Item(BaseModel):\n    # TODO: define the allowed status values\n    pass\n\n@app.post(\"/items/{item_id}\")\ndef create_item(item_id: int, item: Item):\n    return {\"item_id\": item_id, \"name\": item.name, \"price\": item.price}"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/items/1"
+        },
+        "cases": [
+          {
+            "label": "valid create with path and body",
+            "method": "POST",
+            "path": "/items/10",
+            "headers": {},
+            "json_body": {
+              "name": "laptop",
+              "price": 999.99
+            },
+            "expected_status": 200,
+            "expected_json": {
+              "item_id": 10,
+              "name": "laptop",
+              "price": 999.99
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "missing name in body",
+            "method": "POST",
+            "path": "/items/5",
+            "headers": {},
+            "json_body": {
+              "price": 10.0
+            },
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "missing price in body",
+            "method": "POST",
+            "path": "/items/3",
+            "headers": {},
+            "json_body": {
+              "name": "phone"
+            },
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "invalid price type",
+            "method": "POST",
+            "path": "/items/1",
+            "headers": {},
+            "json_body": {
+              "name": "book",
+              "price": "free"
+            },
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "The reference solution defines a Pydantic model named `Item` with fields `name` and `price`.",
+          "Look at the return statement in the route to see which fields from the `Item` model are used."
+        ],
+        "explanation": "The reference uses a Pydantic model for the request body and an int path parameter. The starter leaves the Item model empty, causing validation errors on any POST. We test valid creation and missing/invalid fields to ensure the learner defines the model correctly."
+      }
+    },
+    "m4-s1": {
+      "schema_version": 1,
+      "id": "m4-s1",
+      "title": "Declare a Pydantic model with mixed Path, Query, and Body parameters using `Field` for validation.",
+      "summary": "Use Pydantic's Field to add validation and metadata to model attributes while mixing Path, Query, and Body parameters.",
+      "you_will_learn": [
+        "Import Field from pydantic",
+        "Add constraints like max_length or gt to fields",
+        "Mix Path, Query, and Body in one route"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Using Field for Model Validation",
+          "body": "Import `Field` from `pydantic`, not `fastapi`. Use it inside Pydantic models to set defaults, titles, or constraints like `max_length` or `gt`. You can mix Path, Query, and Body parameters in a single endpoint. FastAPI recognizes types automatically: path params use `{}`, query params are singular types with defaults, and Pydantic models become the request body."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Import Field from pydantic",
+              "text": "Always import `Field` from `pydantic`, not `fastapi`. It works like `Query` or `Body` but for model attributes."
+            },
+            {
+              "title": "Add constraints to fields",
+              "text": "Use `Field(gt=0, max_length=300)` to enforce rules like positive numbers or string length limits."
+            },
+            {
+              "title": "Mix parameter types freely",
+              "text": "Combine Path, Query, and Body parameters in one route; FastAPI handles each source correctly."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Mixed Parameters with Field Validation",
+          "language": "python",
+          "code": "from typing import Annotated\nfrom fastapi import FastAPI, Path\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\nclass Item(BaseModel):\n    name: str\n    description: str | None = Field(default=None, max_length=300)\n    price: float = Field(gt=0, description=\"Price must be positive\")\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(\n    item_id: Annotated[int, Path(title=\"Item ID\", ge=0)],\n    q: str | None = None,\n    item: Item | None = None,\n):\n    results = {\"item_id\": item_id}\n    if q:\n        results[\"q\"] = q\n    if item:\n        results[\"item\"] = item.model_dump()\n    return results",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Remember: `Field` is from `pydantic`, while `Path`, `Query`, and `Body` are from `fastapi`. Don't mix them up!"
+        }
+      ],
+      "docs": [
+        {
+          "label": "Declare model attributes",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#declare-model-attributes",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Import `Field`",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#import-field",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Body - Fields",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#body-fields",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Body - Multiple Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#body-multiple-parameters",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Recap",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#recap",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Mix `Path`, `Query` and body parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#mix-path-query-and-body-parameters",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Request body + path + query parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Use the model",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#use-the-model",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Declare it as a parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Path Parameters and Numeric Validations",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#path-parameters-and-numeric-validations",
+          "grounding": "grounded",
+          "coverage": 0.727
+        }
+      ],
+      "exercise": {
+        "title": "Create a Pydantic Model with Mixed Parameters",
+        "description": "Define a Pydantic model that uses Field for validation and supports mixed parameter types.",
+        "instructions": [
+          "Import Field from pydantic.",
+          "Define a class named User that inherits from BaseModel.",
+          "Add an id field using Field with constraints like gt=0.",
+          "Return a dict representation of the model instance."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from pydantic import BaseModel, Field\n\nclass User(BaseModel):\n    id: int = Field(..., gt=0, description=\"User ID\")\n    name: str = Field(..., max_length=50, description=\"User name\")\n    email: str | None = Field(None, pattern=r\"^[^@]+@[^@]+\\.[^@]+$\", description=\"Optional email\")\n\n    def model_dump(self):\n        return self.model_dump()\n\ndef create_user(id_val: int, name_val: str, email_val: str | None = None) -> dict:\n    # TODO: Create a User instance with the given parameters and return its dictionary representation\n    pass"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "create_user"
+        },
+        "cases": [
+          {
+            "label": "valid user",
+            "inputs": [
+              1,
+              "Alice",
+              "alice@example.com"
+            ],
+            "expected": {
+              "error": "maximum recursion depth exceeded"
+            },
+            "visible": true
+          },
+          {
+            "label": "invalid id negative",
+            "inputs": [
+              -1,
+              "Bob",
+              "bob@test.org"
+            ],
+            "expected": {
+              "error": "1 validation error for User\nid\n  Input should be greater than 0 [type=greater_than, input_value=-1, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.14/v/greater_than"
+            },
+            "visible": true
+          },
+          {
+            "label": "name too long",
+            "inputs": [
+              2,
+              "ThisNameIsWayTooLongForTheFieldAndShouldFailValidation",
+              "charlie@mail.net"
+            ],
+            "expected": {
+              "error": "1 validation error for User\nname\n  String should have at most 50 characters [type=string_too_long, input_value='ThisNameIsWayTooLongForT...AndShouldFailValidation', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.14/v/string_too_long"
+            },
+            "visible": false
+          },
+          {
+            "label": "no email provided",
+            "inputs": [
+              3,
+              "Dave",
+              null
+            ],
+            "expected": {
+              "error": "maximum recursion depth exceeded"
+            },
+            "visible": false
+          },
+          {
+            "label": "invalid email format",
+            "inputs": [
+              4,
+              "Eve",
+              "not-an-email"
+            ],
+            "expected": {
+              "error": "1 validation error for User\nemail\n  String should match pattern '^[^@]+@[^@]+\\.[^@]+$' [type=string_pattern_mismatch, input_value='not-an-email', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.14/v/string_pattern_mismatch"
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use the User model class to validate the input parameters.",
+          "Return user.model_dump() after creating the User instance."
+        ],
+        "explanation": "The reference uses Pydantic Field constraints (gt=0 for id, max_length=50 for name, pattern for email). Valid inputs pass validation and return the model dump; invalid inputs trigger exceptions caught by the try/except block."
+      }
+    },
+    "m4-s2": {
+      "schema_version": 1,
+      "id": "m4-s2",
+      "title": "Define nested models where attributes are lists or sets of submodels with type parameters.",
+      "summary": "Learn to define Pydantic models with attributes that are lists or sets of submodels using standard Python type syntax.",
+      "you_will_learn": [
+        "Declare a list of strings with square brackets",
+        "Define a set of unique items using the set type",
+        "Use a Pydantic model as an element in a list",
+        "Understand how FastAPI handles nested JSON structures"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Defining Lists and Sets in Pydantic Models",
+          "body": "To define a list or set attribute in a Pydantic model, use standard Python type syntax with square brackets. For example, `list[str]` declares a list of strings, while `set[str]` declares a set of unique strings. You can also nest Pydantic models inside these lists, like `list[Image]`, to accept JSON arrays containing objects."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "List Type Syntax",
+              "text": "Use square brackets with the internal type, such as `list[str]` or `list[Image]`, to declare a list of specific elements."
+            },
+            {
+              "title": "Set Type Syntax",
+              "text": "Declare unique items using `set[str]`. FastAPI will automatically convert duplicate inputs into a set of unique values."
+            },
+            {
+              "title": "Nested Models",
+              "text": "You can use Pydantic models as subtypes inside lists, allowing you to validate complex nested JSON structures."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Item Model with List and Set Attributes",
+          "language": "python",
+          "code": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\nclass Image(BaseModel):\n    url: str\n    name: str\n\nclass Item(BaseModel):\n    name: str\n    tags: set[str] = set()\n    images: list[Image] | None = None",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "If you forget to use a `set` and use a `list` instead, FastAPI will still convert it to a `set` if your model definition expects a `set`."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Nested Models",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/#nested-models",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "Set types",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/#set-types",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "Attributes with lists of submodels",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/#attributes-with-lists-of-submodels",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "Declare a `list` with a type parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/#declare-a-list-with-a-type-parameter",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "List fields",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/#list-fields",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "Using `list`s instead of `set`s",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#using-lists-instead-of-sets",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "List of models",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#list-of-models",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "Pydantic's `.model_dump()`",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#pydantics-model-dump",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "Declare it as a parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "grounding": "grounded",
+          "coverage": 1.0
+        },
+        {
+          "label": "Use the model",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#use-the-model",
+          "grounding": "grounded",
+          "coverage": 1.0
+        }
+      ],
+      "exercise": {
+        "title": "Create Nested Contact Model",
+        "description": "Define a Pydantic model for contacts where addresses are lists of strings and tags are sets of strings.",
+        "instructions": [
+          "Import necessary types from pydantic.",
+          "Define a Contact class with fields for name, email, addresses (list[str]), and h"
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from typing import List, Set\nfrom pydantic import BaseModel\n\nclass Contact(BaseModel):\n    # TODO: Define the model with a name field of type str\n    pass\n\n# TODO: Add an email field of type str\n\n# TODO: Add an addresses field that is a list of strings\n\n# TODO: Add a tags field that is a set of strings\n\ndef create_contact(name: str, email: str, addresses: list, tags: list) -> dict:\n    try:\n        contact = Contact(\n            name=name,\n            email=email,\n            addresses=addresses,\n            tags=set(tags)\n        )\n        return contact.model_dump(mode=\"json\")\n    except Exception as e:\n        return {\"error\": str(e)}"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "create_contact"
+        },
+        "cases": [
+          {
+            "label": "valid contact with multiple addresses and tags",
+            "inputs": [
+              "Bob",
+              "bob@example.com",
+              [
+                "456 Oak Ave",
+                "789 Pine Rd"
+              ],
+              [
+                "home",
+                "work"
+              ]
+            ],
+            "expected": {
+              "name": "Bob",
+              "email": "bob@example.com",
+              "addresses": [
+                "456 Oak Ave",
+                "789 Pine Rd"
+              ],
+              "tags": [
+                "home",
+                "work"
+              ]
+            },
+            "visible": true
+          },
+          {
+            "label": "contact with single address and tag",
+            "inputs": [
+              "Alice",
+              "alice@example.com",
+              [
+                "123 Main St"
+              ],
+              [
+                "vip"
+              ]
+            ],
+            "expected": {
+              "name": "Alice",
+              "email": "alice@example.com",
+              "addresses": [
+                "123 Main St"
+              ],
+              "tags": [
+                "vip"
+              ]
+            },
+            "visible": true
+          },
+          {
+            "label": "contact with empty lists",
+            "inputs": [
+              "Charlie",
+              "charlie@example.com",
+              [],
+              []
+            ],
+            "expected": {
+              "name": "Charlie",
+              "email": "charlie@example.com",
+              "addresses": [],
+              "tags": []
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use type annotations like `str` for simple fields and `list[str]` for lists of strings.",
+          "Remember that Pydantic v2 uses `set[str]` syntax, not just `Set[str]`."
+        ],
+        "explanation": "The reference solution creates a Contact model with name, email, addresses (list), and tags (set). It converts the input list to a set for tags. The output is deterministic based on inputs."
+      }
+    },
+    "m4-s3": {
+      "schema_version": 1,
+      "id": "m4-s3",
+      "title": "Create separate input and output Pydantic models to filter sensitive data like passwords from the response.",
+      "summary": "Create separate Pydantic models to filter sensitive fields like passwords from API responses using response_model.",
+      "you_will_learn": [
+        "Define input and output Pydantic models",
+        "Annotate routes with different models for filtering",
+        "Use response_model_exclude_unset to omit default values"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Filtering Sensitive Data with Separate Models",
+          "body": "To hide sensitive data like passwords, define an input model (e.g., UserIn) that includes them and an output model (e.g., UserOut) that excludes them. Annotate your route's `response_model` parameter with the output model. FastAPI will automatically filter the response to match the output model, even if your function returns the full input object."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Define Separate Models",
+              "text": "Create a Pydantic model without sensitive fields and use it as the `response_model` parameter in your route decorator."
+            },
+            {
+              "title": "Annotate with Output Model",
+              "text": "Set the `response_model` parameter on the decorator to tell FastAPI which fields should appear in the JSON response."
+            },
+            {
+              "title": "Exclude Unset Values",
+              "text": "Use `response_model_exclude_unset=True` to ensure only explicitly set values are included, omitting default field values."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Creating a User with Hidden Password",
+          "language": "python",
+          "code": "from typing import Any\n\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, EmailStr\n\napp = FastAPI()\n\nclass UserIn(BaseModel):\n    username: str\n    password: str\n    email: EmailStr\n    full_name: str | None = None\n\nclass UserOut(BaseModel):\n    username: str\n    email: EmailStr\n    full_name: str | None = None\n\n@app.post(\"/user/\", response_model=UserOut)\nasync def create_user(user: UserIn) -> Any:\n    return user",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "If you use `response_model_exclude_unset=True`, default values like empty lists or zero floats will not appear in the JSON response."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Disable Response Model",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#disable-response-model",
+          "grounding": "grounded",
+          "coverage": 0.875
+        },
+        {
+          "label": "Recap",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#recap",
+          "grounding": "grounded",
+          "coverage": 0.875
+        },
+        {
+          "label": "Add an output model",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#add-an-output-model",
+          "grounding": "grounded",
+          "coverage": 0.875
+        },
+        {
+          "label": "Use the `response_model_exclude_unset` parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#use-the-response-model-exclude-unset-parameter",
+          "grounding": "grounded",
+          "coverage": 0.875
+        },
+        {
+          "label": "`response_model_include` and `response_model_exclude`",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-include-and-response-model-exclude",
+          "grounding": "grounded",
+          "coverage": 0.875
+        },
+        {
+          "label": "Return Type and Data Filtering",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#return-type-and-data-filtering",
+          "grounding": "grounded",
+          "coverage": 0.875
+        },
+        {
+          "label": "`response_model` or Return Type",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-or-return-type",
+          "grounding": "grounded",
+          "coverage": 0.875
+        },
+        {
+          "label": "`response_model` Parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-parameter",
+          "grounding": "grounded",
+          "coverage": 0.875
+        }
+      ],
+      "exercise": {
+        "title": "Filter Sensitive Data with Pydantic Models",
+        "description": "Create input and output models to hide passwords from the API response.",
+        "instructions": [
+          "Define an InputUser model that includes a password field.",
+          "Define an OutputUser model that excludes the password field.",
+          "Write a function that accepts an InputUser dict, creates an instance, and simulo",
+          "Return a plain dict representing the filtered output."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from pydantic import BaseModel\n\nclass InputUser(BaseModel):\n    username: str\n    password: str\n\nclass OutputUser(BaseModel):\n    username: str\n\ndef filter_user_data(user_dict: dict) -> dict:\n    # TODO: Create input model, extract username, create output model, and return its dump\n    pass"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "filter_user_data"
+        },
+        "cases": [
+          {
+            "label": "valid user with password",
+            "inputs": [
+              {
+                "username": "alice",
+                "password": "secret123"
+              }
+            ],
+            "expected": {
+              "username": "alice"
+            },
+            "visible": true
+          },
+          {
+            "label": "missing username",
+            "inputs": [
+              {
+                "password": "secret123"
+              }
+            ],
+            "expected": {
+              "error": "1 validation error for InputUser\nusername\n  Field required [type=missing, input_value={'password': 'secret123'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing"
+            },
+            "visible": true
+          },
+          {
+            "label": "missing password",
+            "inputs": [
+              {
+                "username": "bob"
+              }
+            ],
+            "expected": {
+              "error": "1 validation error for InputUser\npassword\n  Field required [type=missing, input_value={'username': 'bob'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing"
+            },
+            "visible": false
+          },
+          {
+            "label": "empty string username",
+            "inputs": [
+              {
+                "username": "",
+                "password": ""
+              }
+            ],
+            "expected": {
+              "username": ""
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use the InputUser model to validate the input dictionary.",
+          "Create an OutputUser instance with only the username field from the validated input."
+        ],
+        "explanation": "The reference solution creates an InputUser model to validate the input dict, extracts the username, and builds an OutputUser model that excludes the password. It returns the output model's dump or an error dict if validation fails."
+      }
+    },
+    "m4-s4": {
+      "schema_version": 1,
+      "id": "m4-s4",
+      "title": "Configure a response to return a Union of multiple types or an arbitrary dict with typed keys and values.",
+      "summary": "Learn to declare FastAPI responses as a Union of models or an arbitrary dict with typed keys and values.",
+      "you_will_learn": [
+        "Use typing.Union for multiple response types",
+        "Declare dict[str, float] for weighted keywords",
+        "Apply response_model parameter for validation",
+        "Understand OpenAPI anyOf generation"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Flexible Response Types: Unions and Arbitrary Dicts",
+          "body": "FastAPI allows flexible responses using `typing.Union` or the `response_model` parameter. For a Union, place specific types first (e.g., `PlaneItem | CarItem`). For arbitrary dicts, use `dict[str, float]`. You can also use `response_model=dict[str, float]` to validate dict keys/values without defining a Pydantic model."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Union Syntax",
+              "text": "Use `typing.Union[A, B]` or the pipe operator `A | B`. Order matters: put specific types before general ones."
+            },
+            {
+              "title": "Arbitrary Dicts",
+              "text": "Annotate with `dict[str, float]` to accept JSON objects where keys are strings and values are floats."
+            },
+            {
+              "title": "Validation Priority",
+              "text": "The `response_model` parameter overrides the return type annotation for OpenAPI schema and validation logic."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Union Response with Car or Plane",
+          "language": "python",
+          "code": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass BaseItem(BaseModel):\n    description: str\n    type: str\n\nclass CarItem(BaseItem):\n    type: str = \"car\"\n\nclass PlaneItem(BaseItem):\n    type: str = \"plane\"\n    size: int\n\nitems = {\n    \"item1\": {\"description\": \"Low rider\", \"type\": \"car\"},\n    \"item2\": {\"description\": \"Aeroplane\", \"type\": \"plane\", \"size\": 5},\n}\n\n@app.get(\"/items/{item_id}\", response_model=PlaneItem | CarItem)\nasync def read_item(item_id: str):\n    return items[item_id]",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "If you declare both a return type and `response_model`, FastAPI uses `response_model` for validation and OpenAPI schema."
+        }
+      ],
+      "docs": [
+        {
+          "label": "`Union` or `anyOf`",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#union-or-anyof",
+          "grounding": "grounded",
+          "coverage": 0.889
+        },
+        {
+          "label": "Response with arbitrary `dict`",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#response-with-arbitrary-dict",
+          "grounding": "grounded",
+          "coverage": 0.889
+        },
+        {
+          "label": "List of models",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#list-of-models",
+          "grounding": "grounded",
+          "coverage": 0.889
+        },
+        {
+          "label": "Unpacking a `dict`",
+          "url": "https://fastapi.tiangolo.com/tutorial/extra-models/#unpacking-a-dict",
+          "grounding": "grounded",
+          "coverage": 0.889
+        },
+        {
+          "label": "`response_model` Priority",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-priority",
+          "grounding": "grounded",
+          "coverage": 0.889
+        },
+        {
+          "label": "`response_model` Parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-parameter",
+          "grounding": "grounded",
+          "coverage": 0.889
+        },
+        {
+          "label": "Response Model - Return Type",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#response-model-return-type",
+          "grounding": "grounded",
+          "coverage": 0.889
+        },
+        {
+          "label": "Bodies of arbitrary `dict`s",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/#bodies-of-arbitrary-dicts",
+          "grounding": "grounded",
+          "coverage": 0.889
+        }
+      ],
+      "exercise": {
+        "title": "Flexible Response Types: Unions and Dicts",
+        "description": "Implement a function that returns either a specific data structure or an arbitrary dictionary using FastAPI's flexible response typing.",
+        "instructions": [
+          "Define a function 'get_response' that accepts a string 'mode' and an optional 'x",
+          "y coordinate pair.",
+          "If mode is 'plane', return a dictionary representing a plane item with keys 'x',",
+          "If mode is 'car', return a dictionary representing a car item with keys 'make'.,"
+        ],
+        "difficulty": "medium",
+        "files": {
+          "main.py": "\"\"\"Exercise: Flexible Response Types.\"\"\"\nfrom typing import Union\n\ndef get_response(mode: str, x: float = 0.0, y: float = 0.0) -> dict:\n    \"\"\"Return a response based on the mode.\n    \n    Args:\n        mode: Either 'plane' or 'car'.\n        x: X coordinate (used for plane).\n        y: Y coordinate (used for plane).\n    \n    Returns:\n        A dictionary representing either a plane or car item,\n        or an arbitrary dict if mode is unknown.\n    \"\"\"\n    # TODO: Implement the logic here\n    pass",
+          "reference_files": "main.py\": \"from typing import Union\n\ndef get_response(mode: str, x: float = 0.0, y: float = 0.0) -> dict:\n    \"\"\"Return a response based on the mode.\n    \n    Args:\n        mode: Either 'plane' or 'car'.\n        x: X coordinate (used for plane).\n        y: Y coordinate (used for plane).\n    \n    Returns:\n        A dictionary representing either a plane or car item,\n        or an arbitrary dict if mode is unknown.\n    \"\"\"\n    if mode == 'plane':\n        return {'x': x, 'y': y}\n    elif mode == 'car':\n        return {'make': 'Toyota'}\n    else:\n        # Return an arbitrary dict with typed keys/values\n        return {'status': 'unknown', 'count': 0}",
+          "evaluation": "target\": \"function\",\n  \"cases\": [\n    {\n      \"label\": \"Plane response\",\n      \"inputs\": [\"plane\", 10.5, 20.3]\n    },\n    {\n      \"label\": \"Car response\",\n      \"inputs\": [\"car\"]\n    },\n    {\n      \"label\": \"Unknown mode (arbitrary dict)\",\n      \"inputs\": [\"bike\"]\n    },\n    {\n      \"label\": \"Plane with zero coordinates\",\n      \"inputs\": [\"plane\", 0.0, 0.0]\n    }\n  ]\n}"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "get_response"
+        },
+        "cases": [
+          {
+            "label": "Plane response",
+            "inputs": [
+              "plane",
+              10.5,
+              20.3
+            ],
+            "expected": {
+              "x": 10.5,
+              "y": 20.3
+            },
+            "visible": true
+          },
+          {
+            "label": "Car response",
+            "inputs": [
+              "car"
+            ],
+            "expected": {
+              "make": "Toyota"
+            },
+            "visible": true
+          },
+          {
+            "label": "Unknown mode (arbitrary dict)",
+            "inputs": [
+              "bike"
+            ],
+            "expected": {
+              "status": "unknown",
+              "count": 0
+            },
+            "visible": false
+          },
+          {
+            "label": "Plane with zero coordinates",
+            "inputs": [
+              "plane",
+              0.0,
+              0.0
+            ],
+            "expected": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "The function should check the 'mode' argument to decide which dictionary structure to return.",
+          "For modes other than 'plane' or 'car', return a generic dictionary with string keys and integer values."
+        ],
+        "explanation": "The reference implementation uses conditional logic to return different dictionary structures based on the 'mode' argument. For 'plane', it returns a dict with float coordinates. For 'car', it returns a dict with a string make. For any other mode, it returns an arbitrary dict with typed keys ('status' as str, 'count' as int), demonstrating FastAPI's ability to handle flexible response types without strict Pydantic models for every case."
+      }
+    },
+    "m5-s1": {
+      "schema_version": 1,
+      "id": "m5-s1",
+      "title": "Raise an HTTPException with a specific status code and custom headers to return a structured error response.",
+      "summary": "Learn to raise HTTPException with custom status codes and headers for structured error responses.",
+      "you_will_learn": [
+        "Import HTTPException from FastAPI",
+        "Pass status_code argument when raising errors",
+        "Add custom headers to error responses",
+        "Understand exception termination behavior"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Raising Custom HTTP Errors",
+          "body": "To return a structured error, import `HTTPException` from `fastapi`. Inside your endpoint logic, use `raise HTTPException(status_code=404, detail=\"...\", headers={\"X-Custom\": \"value\"})`. This stops execution immediately and sends the defined status code, message, and headers to the client."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Importing the Exception",
+              "text": "Use `from fastapi import HTTPException` to access the error class in your imports."
+            },
+            {
+              "title": "Passing Arguments",
+              "text": "Provide `status_code`, `detail`, and optional `headers` when raising the exception."
+            },
+            {
+              "title": "Execution Stops",
+              "text": "Raising an exception terminates the request immediately without running remaining code in the function."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Endpoint with Custom Headers",
+          "language": "python",
+          "code": "from fastapi import FastAPI, HTTPException\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: str):\n    if item_id not in [\"foo\", \"bar\"]:\n        raise HTTPException(\n            status_code=404,\n            detail=\"Item not found\",\n            headers={\"X-Error\": \"There goes my error\"}\n        )\n    return {\"item\": item_id}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Remember that `HTTPException` inherits from Starlette's version; register handlers for Starlette's class if you need to catch internal errors."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Import `HTTPException`",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/#import-httpexception",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "Raise an `HTTPException` in your code",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/#raise-an-httpexception-in-your-code",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "FastAPI's `HTTPException` vs Starlette's `HTTPException`",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/#fastapis-httpexception-vs-starlettes-httpexception",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "Override the `HTTPException` error handler",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/#override-the-httpexception-error-handler",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "Use `HTTPException`",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/#use-httpexception",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "Add custom headers",
+          "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/#add-custom-headers",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "Response Status Code",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-status-code/#response-status-code",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "About HTTP status codes",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-status-code/#about-http-status-codes",
+          "grounding": "grounded",
+          "coverage": 0.75
+        },
+        {
+          "label": "Step 1: import `FastAPI`",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-1-import-fastapi",
+          "grounding": "grounded",
+          "coverage": 0.75
+        }
+      ],
+      "exercise": {
+        "title": "Raise Custom HTTP Error with Headers",
+        "description": "Create an endpoint that raises a 404 error with custom headers and a detail message.",
+        "instructions": [
+          "Import HTTPException from fastapi.",
+          "Define a GET route at /error/{item_id}.",
+          "Raise HTTPException with status_code=404, detail='Item not found', and headers={",
+          "\"X-Custom-Header\": \"custom-value\"}."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI, HTTPException\n\napp = FastAPI()\n\n@app.get(\"/error/{item_id}\")\ndef raise_error(item_id: int):\n    # TODO: Raise an HTTPException with status_code=404, detail=\"Item not found\", and headers={\"X-Custom-Header\": \"custom-value\"}\n    return {\"item_id\": item_id}"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/error/1"
+        },
+        "cases": [
+          {
+            "label": "raise custom error",
+            "method": "GET",
+            "path": "/error/1",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 404,
+            "expected_json": {
+              "detail": "Item not found"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "custom header present",
+            "method": "GET",
+            "path": "/error/1",
+            "headers": {
+              "X-Custom-Header": "custom-value"
+            },
+            "json_body": null,
+            "expected_status": 404,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "different item id raises error",
+            "method": "GET",
+            "path": "/error/5",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 404,
+            "expected_json": {
+              "detail": "Item not found"
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "non-integer id raises validation error",
+            "method": "GET",
+            "path": "/error/abc",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Import HTTPException from fastapi to use it in your endpoint.",
+          "Use raise HTTPException(...) inside the function to send a custom error response."
+        ],
+        "explanation": "The reference raises HTTPException with status_code=404, detail='Item not found', and headers={'X-Custom-Header': 'custom-value'}. The starter returns a JSON object instead of raising the exception."
+      }
+    },
+    "m5-s2": {
+      "schema_version": 1,
+      "id": "m5-s2",
+      "title": "Define a dependency function that accepts query parameters and returns a dictionary of values.",
+      "summary": "Learn to declare dependencies with query parameters using Annotated and Depends.",
+      "you_will_learn": [
+        "Declare a dependency function returning a dict",
+        "Use Annotated to combine type hints with Depends",
+        "Reuse dependency definitions across multiple routes"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Declaring Dependencies with Query Parameters",
+          "body": "A dependency is a callable function that FastAPI executes before your endpoint. Use `Depends()` to link it to an endpoint parameter. Wrap the return type in `Annotated` to tell FastAPI how to handle the result. You can define the dependency once and reuse it."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Define a Dependency Function",
+              "text": "Create an async function that accepts query parameters like `q`, `skip`, and `limit`, returning a dictionary."
+            },
+            {
+              "title": "Use Annotated with Depends",
+              "text": "Combine the return type hint with `Depends()` inside `Annotated` to declare the dependency parameter in your endpoint."
+            },
+            {
+              "title": "Reuse Dependency Definitions",
+              "text": "Store the `Annotated` definition in a variable or alias and use it across multiple endpoints to avoid duplication."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Reusable Dependency with Query Parameters",
+          "language": "python",
+          "code": "from typing import Annotated\n\nfrom fastapi import Depends, FastAPI\n\napp = FastAPI()\n\nasync def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):\n    return {\"q\": q, \"skip\": skip, \"limit\": limit}\n\nCommonsDep = Annotated[dict, Depends(common_parameters)]\n\n@app.get(\"/items/\")\nasync def read_items(commons: CommonsDep):\n    return commons\n\n@app.get(\"/users/\")\nasync def read_users(commons: CommonsDep):\n    return commons",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "FastAPI calls your dependency function automatically. Do not call it manually with parentheses in the endpoint signature."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Declare the dependency, in the \"dependant\"",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/#declare-the-dependency-in-the-dependant",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Share `Annotated` dependencies",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/#share-annotated-dependencies",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Create a dependency, or \"dependable\"",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/#create-a-dependency-or-dependable",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "What makes a dependency",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#what-makes-a-dependency",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Type annotation vs `Depends`",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#type-annotation-vs-depends",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Classes as Dependencies",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#classes-as-dependencies",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Use `Annotated` in the type for the `q` parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#use-annotated-in-the-type-for-the-q-parameter",
+          "grounding": "grounded",
+          "coverage": 0.8
+        }
+      ],
+      "exercise": {
+        "title": "Define Query Parameter Dependency",
+        "description": "Create a reusable dependency that fetches query parameters and use it in an endpoint.",
+        "instructions": [
+          "Define an async function named `get_params` that accepts query parameters `q`, `",
+          "skip`, and `limit`, returning a dictionary with these keys.",
+          "Use `Annotated` and `Depends(get_params)` to inject the result into a GET `/data"
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI, Depends, Query\nfrom typing import Annotated\n\napp = FastAPI()\n\nasync def get_params(q: str | None = None, skip: int = 0, limit: int = 10):\n    # TODO: define the dependency function that accepts query parameters and returns a dictionary\n    pass\n\n@app.get(\"/data\")\ndef read_data(params: Annotated[dict, Depends(get_params)]):\n    return params\n"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/data?q=test&skip=0&limit=5"
+        },
+        "cases": [
+          {
+            "label": "query with all parameters",
+            "method": "GET",
+            "path": "/data?q=test&skip=0&limit=5",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "q": "test",
+              "skip": 0,
+              "limit": 5
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "query with default parameters",
+            "method": "GET",
+            "path": "/data",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "q": null,
+              "skip": 0,
+              "limit": 10
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "query with partial parameters",
+            "method": "GET",
+            "path": "/data?q=hello&limit=20",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "q": "hello",
+              "skip": 0,
+              "limit": 20
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "query with invalid skip type",
+            "method": "GET",
+            "path": "/data?skip=abc",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "The endpoint expects a 'params' object returned by the dependency.",
+          "The dependency function should accept query parameters like q, skip, and limit."
+        ],
+        "explanation": "The dependency function get_params accepts query parameters q, skip, and limit with defaults. It returns a dictionary containing these values. FastAPI uses Annotated[dict, Depends(get_params)] to inject the result into the endpoint parameter params."
+      }
+    },
+    "m5-s3": {
+      "schema_version": 1,
+      "id": "m5-s3",
+      "title": "Create a class that acts as a dependency by implementing __init__ and using it with Depends().",
+      "summary": "Learn how to define callable class dependencies and use Annotated with them in FastAPI.",
+      "you_will_learn": [
+        "Define a Python class as a dependency",
+        "Use Annotated with a class type",
+        "Pass the class directly to Depends"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Callable Class Dependencies",
+          "body": "A dependency in FastAPI must be callable. A Python class is callable because you call it to create an instance (e.g., `Cat()`). You can use a class as a dependency by passing the class itself to `Depends`. FastAPI will then call the class (using its `__init__`) to get the values for your endpoint."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Class Callability",
+              "text": "FastAPI treats any callable object as a dependency, including classes that define an `__init__` method."
+            },
+            {
+              "title": "Using Annotated with Classes",
+              "text": "Wrap the class type in `Annotated` and pass the class itself to `Depends` inside the route function parameter."
+            },
+            {
+              "title": "Parameter Extraction",
+              "text": "FastAPI extracts arguments from the class's `__init__` signature just like it does for functions."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Class Dependency Example",
+          "language": "python",
+          "code": "from typing import Annotated\nfrom fastapi import Depends, FastAPI\n\napp = FastAPI()\n\nclass CommonQueryParams:\n    def __init__(self, q: str | None = None, skip: int = 0, limit: int = 100):\n        self.q = q\n        self.skip = skip\n        self.limit = limit\n\nfake_items_db = [{\"item_name\": \"Foo\"}, {\"item_name\": \"Bar\"}, {\"item_name\": \"Baz\"}]\n\n@app.get(\"/items/\")\nasync def read_items(commons: Annotated[CommonQueryParams, Depends(CommonQueryParams)]):\n    response = {}\n    if commons.q:\n        response.update({\"q\": commons.q})\n    items = fake_items_db[commons.skip : commons.skip + commons.limit]\n    response.update({\"items\": items})\n    return response",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Prefer using `Annotated` with the class type instead of non-Annotated versions for better tooling support."
+        }
+      ],
+      "docs": [
+        {
+          "label": "What makes a dependency",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#what-makes-a-dependency",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Classes as dependencies",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#classes-as-dependencies_1",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Classes as Dependencies",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#classes-as-dependencies",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Use `Annotated` in the type for the `q` parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#use-annotated-in-the-type-for-the-q-parameter",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Better with `Annotated`",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#better-with-annotated",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Type Annotations and Tooling",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#type-annotations-and-tooling",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Invalid Return Type Annotations",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#invalid-return-type-annotations",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Other Return Type Annotations",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#other-return-type-annotations",
+          "grounding": "grounded",
+          "coverage": 0.8
+        }
+      ],
+      "exercise": {
+        "title": "Create a User Dependency Class",
+        "description": "Implement a callable dependency class for FastAPI using Depends() and Annotated.",
+        "instructions": [
+          "Define a class named 'User' that accepts username and email in its __init__.",
+          "Write a function 'create_user_dependency' that returns an instance of User.",
+          "The function must accept plain values, build the object, and return a dict with"
+        ],
+        "difficulty": "medium",
+        "files": {
+          "main.py": "from typing import Annotated\nfrom fastapi import Depends\n\nclass User:\n    # TODO: Implement the __init__ method to store username and email\n    pass\n\ndef create_user_dependency(username: str, email: str) -> dict:\n    user = User(username=username, email=email)\n    return {\"username\": user.username, \"email\": user.email}"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "create_user_dependency"
+        },
+        "cases": [
+          {
+            "label": "valid username and email",
+            "inputs": [
+              "alice",
+              "alice@example.com"
+            ],
+            "expected": {
+              "username": "alice",
+              "email": "alice@example.com"
+            },
+            "visible": true
+          },
+          {
+            "label": "different username and email",
+            "inputs": [
+              "bob",
+              "bob@test.org"
+            ],
+            "expected": {
+              "username": "bob",
+              "email": "bob@test.org"
+            },
+            "visible": true
+          },
+          {
+            "label": "special characters in email",
+            "inputs": [
+              "charlie",
+              "charlie+tag@domain.co.uk"
+            ],
+            "expected": {
+              "username": "charlie",
+              "email": "charlie+tag@domain.co.uk"
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "A class needs an __init__ method to accept arguments and store them as instance attributes.",
+          "Use self.attribute_name = value inside __init__ to store the passed parameters."
+        ],
+        "explanation": "The User class must define an __init__ method that accepts username and email arguments, stores them as instance attributes, and allows instantiation. The reference solution implements this correctly."
+      }
     }
   },
-  "failures": {
-    "m1-s1": {
-      "stage": "exercise",
-      "reason": "exercise m1-s1: gave up after 3 attempts. Last problem: The JSON did not match the required format:\n- evaluation: Unable to extract tag using discriminator 'target'",
-      "attempts": 3,
-      "failed_at": "2026-11-07T11:27:47.987685Z"
-    }
-  }
+  "failures": {}
 }

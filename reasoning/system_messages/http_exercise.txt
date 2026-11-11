@@ -30,4 +30,25 @@ Exercise content (respect the length limits):
 - hints: exactly 2, from gentle to more specific. Never give the complete solution.
 - explanation: why the reference implementation satisfies the objective, at most 500 characters.
 
+Output structure requirements:
+
+- execution must include:
+  - target: "http"
+  - command: the command and arguments that start the app, as a list, e.g. ["python", "main.py"]
+  - host, port and readiness_path only if they differ from the defaults (127.0.0.1, 8000, "/")
+
+- evaluation must include:
+  - target: "http"
+  - cases: 3 to 6 test cases, each with label, method, path and expected_status
+
+- files and reference_files must both be dictionaries mapping relative file paths to their complete Python source code.
+  Example:
+  "files": {
+    "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n"
+  }
+
+- Never use labels such as "starter" or "reference" as dictionary keys in files.
+- Never return filenames instead of source code.
+- Do not omit the target discriminator from execution or evaluation.
+
 Reply with JSON only, matching the ExerciseDraft schema. Do not include markdown fences, commentary, or additional fields.

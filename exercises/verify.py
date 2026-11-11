@@ -175,6 +175,8 @@ def _verify_http(
     failures = [
         f"- {outcome.label!r}: "
         f"{outcome.error or 'response did not match expectations'}"
+        + (f" Actual response: {outcome.response_text[:300]}"
+        if outcome.response_text else "")
         for outcome in reference.cases
         if not outcome.passed
     ]

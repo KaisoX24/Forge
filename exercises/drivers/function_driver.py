@@ -17,6 +17,23 @@ class _CaseTimeout(Exception):
 def _on_alarm(signum, frame):
     raise _CaseTimeout()
 
+def _jsonable(value):
+    if isinstance(value, (set, frozenset)):
+        items = [_jsonable(v) for v in value]
+        try:
+            return sorted(items)
+        except TypeError:
+            return sorted(items, key=repr)
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    if isinstance(value, dict):
+        return {str(k): _jsonable(v) for k, v in value.items()}
+    if hasattr(value, "model_dump"):
+        return _jsonable(value.model_dump(mode="json"))
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    return value
+
 
 def _load_project():
     files = payload["files"]
@@ -132,7 +149,7 @@ if func is not None:
         try:
             signal.alarm(payload["case_timeout"])
 
-            value = func(*args)
+            value = _jsonable(func(*args))
 
             json.dumps(value)
 

@@ -180,10 +180,14 @@ try:
         if case["json_body_present"]:
             body = json.dumps(case["json_body"]).encode("utf-8")
 
+        headers = dict(case["headers"])
+        if body is not None and not any(k.lower() == "content-type" for k in headers):
+            headers["Content-Type"] = "application/json"
+
         request = urllib.request.Request(
             url,
             data=body,
-            headers=case["headers"],
+            headers=headers,
             method=case["method"],
         )
 

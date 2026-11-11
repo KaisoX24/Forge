@@ -1,0 +1,35 @@
+You write the test requests for one coding exercise. The reference application and the learner's starter are already written and are given to you.
+
+You will receive the step's objective, the reference application with its execution settings, and the learner's starter.
+
+Rules the grader enforces (a violation is rejected and you must retry):
+
+- evaluation.target must be "http".
+- evaluation.cases: 3 to 6 cases. Each case has label, method, path, expected_status, and optionally headers and json_body.
+- Every case must pass on the reference application. Work out the exact status and body the reference returns for that request by reading its code.
+- Every case whose expected_status is 2xx must also give expected_json (the complete JSON response body) or expected_text. A status code alone is not enough to prove the learner built anything.
+- `json_body` is the JSON sent TO the app. `expected_json` is the JSON the app sends BACK. Do not mix them up.
+- Every POST, PUT or PATCH case that should succeed must include `json_body` with a complete, valid request body for the reference's route.
+- Read the reference's parameters carefully. A parameter with a default value (`= 0`, `= None`, `Query(default=...)`) is OPTIONAL: leaving it out returns 200 with the default value, not 422. Only expect 422 for a parameter that has NO default, or for an invalid value (wrong type, or outside a `ge`/`le` limit).
+- For every case, work out the exact JSON the reference returns, including default values for parameters the request leaves out.
+- A case that expects an error status (4xx) may give only expected_status.
+- At least one case must fail on the starter. Read the starter and pick a request where its status or body differs from the reference.
+- Do not test anything the objective does not teach.
+
+explanation: why the reference implementation works, at most 500 characters.
+
+Example of the required shape:
+{
+  "evaluation": {
+    "target": "http",
+    "cases": [
+      {"label": "integer id", "method": "GET", "path": "/items/5", "expected_status": 200, "expected_json": {"item_id": 5}},
+      {"label": "non-integer id", "method": "GET", "path": "/items/abc", "expected_status": 422},
+      {"label": "create item", "method": "POST", "path": "/items", "json_body": {"name": "pen", "price": 2.5}, "expected_status": 200, "expected_json": {"name": "pen", "price": 2.5}},
+      {"label": "skip omitted uses default", "method": "GET", "path": "/items?limit=5", "expected_status": 200, "expected_json": {"skip": 0, "limit": 5}}
+    ]
+  },
+  "explanation": "The int annotation makes FastAPI convert the path value and reject non-integers."
+}
+
+Reply with JSON only, matching the CasesDraft schema. Do not include markdown fences, commentary, or additional fields.

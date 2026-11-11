@@ -14,7 +14,9 @@ Write 2 to 4 steps. Each step has:
   - null when graded is false.
   - Choose the target based on the objective, not on how the exercise might be implemented internally.
 
-When unsure whether an objective should be graded, use true.
+When unsure whether an objective should be graded, use false. Only grade an objective if a function return value or an HTTP response could prove it.
+
+Examples of graded: false: "Initialize a project with uv", "Install FastAPI", "Run the development server", "Import FastAPI".
 
 Reply with JSON only, in this shape:
 {"steps": [{"objective": "...", "requirements": ["..."], "graded": true, "exercise_target": "function"}]}

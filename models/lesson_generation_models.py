@@ -11,12 +11,12 @@ class ExecutionTarget(str,Enum):
     HTTP='http'
 
 class FunctionExecutionConfig(BaseModel):
-    target: Literal["function"] = "function"
+    target: Literal["function"]
     entry_file: str = "main.py"
     function_name: str
 
 class HttpExecutionConfig(BaseModel):
-    target: Literal["http"] = "http"
+    target: Literal["http"]
     command: list[str] = Field(
         description="Command used to start the application, e.g. python main.py"
     )
@@ -44,11 +44,11 @@ class HttpCaseDraft(BaseModel):
     expected_text: str | None = None
 
 class FunctionEvaluationConfig(BaseModel):
-    target:Literal['function']='function'
+    target:Literal['function']
     cases:list[FunctionCaseDraft]=Field(min_length=3,max_length=6)
 
 class HttpEvaluationConfig(BaseModel):
-    target: Literal["http"] = "http"
+    target: Literal["http"]
     cases: list[HttpCaseDraft] = Field(min_length=3, max_length=6)
 
 EvaluationConfig = Annotated[
@@ -148,6 +148,32 @@ class ExerciseDraft(ExerciseSpec):
 
         return self
 
+class ReferenceDraft(ExerciseSpec):
+    reference_files: dict[str,str] = Field(
+        description="Complete reference implementation, retained internally.",
+    )
+    execution: ExecutionConfig
+
+    @field_validator('reference_files')
+    @classmethod
+    def validate_reference_files(cls,value:dict[str,str]) -> dict[str,str]:
+        return _validate_project_files(value)
+
+class StarterDraft(BaseModel):
+    files: dict[str, str] = Field(
+        description="Files provided to the learner as the starter project."
+    )
+    hints: list[str] = Field(min_length=2, max_length=2)
+
+    @field_validator("files")
+    @classmethod
+    def validate_files(cls, value: dict[str, str]) -> dict[str, str]:
+        return _validate_project_files(value)
+
+class CasesDraft(BaseModel):
+    evaluation:EvaluationConfig
+    explanation: str = Field(max_length=500)
+
 class FunctionCase(FunctionCaseDraft):
     expected: Any
     visible: bool = True
@@ -155,10 +181,6 @@ class FunctionCase(FunctionCaseDraft):
 class HttpCase(HttpCaseDraft):
     visible: bool = True
 
-VerifiedCase = Annotated[
-    Union[FunctionCase, HttpCase],
-    Field(discriminator="target"),
-]
 
 
 # Blocks
