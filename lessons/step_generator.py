@@ -35,6 +35,14 @@ def _top_names(source: str) -> set[str]:
 
 def _check_reference(ref:ReferenceDraft) ->None:
     "Function exercises: function_name must be a real top-level `def` in the entry file."
+
+    for path, code in ref.reference_files.items():
+        if path.endswith(".py"):
+            try:
+                compile(code, path, "exec")
+            except SyntaxError as exc:
+                raise ValueError(f"{path} is not valid Python: {exc.msg} (line {exc.lineno}). Fix it.")
+
     ex=ref.execution
     if ex.target!='function':
         return

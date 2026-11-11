@@ -13,6 +13,7 @@ Rules the grader enforces (a violation is rejected and you must retry):
 - The function takes positional arguments and RETURNS its result. No async, input(), or printing.
 - Parameters and return values must use only built-in, JSON-compatible types (str, int, float, bool, list, dict, None). Never annotate a parameter or return value with a class you define yourself.
 - If the objective is about a class (for example a Pydantic model), define the class in the file and have the function accept plain values or a dict, build the object inside the function, and return `obj.model_dump(mode="json")`. The mode="json" argument converts sets, dates and other special types into plain JSON values.
+- The function must take at least one parameter, so that different test cases can use different inputs. A function with no parameters cannot be tested properly.
 - The return value must contain only str, int, float, bool, list, dict and None. Never return a set, tuple, datetime or model object. Convert a set with sorted(...).
 - The function must never raise for normal inputs. If an input can be invalid, catch the error and return a dict such as {"error": "..."}.
 - Use only the standard library and the installed packages. No files, network, randomness or current time.

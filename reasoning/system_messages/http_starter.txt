@@ -7,8 +7,9 @@ Rules the grader enforces (a violation is rejected and you must retry):
 - files: a dictionary mapping relative file paths to complete Python source code.
 - Use the same file paths as the reference.
 - main.py must define a module-level FastAPI instance named `app` and must start successfully with the same command as the reference.
-- Keep the imports, the app instance and the route decorators, so the learner sees where to work.
+- Keep the imports and the app instance. Keep a route decorator only if the objective is not about decorators. If the objective is about the decorator or path operation itself, remove the decorator line and leave the function with a TODO.
 - Remove the behaviour the objective teaches from the route bodies and parameters. Examples: return a fixed placeholder, ignore the parameter, drop the type annotation, skip the validation, return the wrong status. Leave a short TODO comment.
+- The starter's CODE must differ from the reference, not only its comments. A TODO comment never counts as removing something. Example: for the objective "declare a boolean query parameter", the reference has `def read_status(active: bool = False):` and a correct starter has `def read_status(active):` with the comment `# TODO: make active a boolean query parameter`. Writing the finished `active: bool = False` with a comment is WRONG.
 - Work out what the objective asks the learner to CREATE or CHANGE, and remove exactly that from the starter. If the objective says "create/define a class" (an Enum, a model, a dependency), the starter must not contain the finished class: keep the class name and leave its body as `pass` with a short TODO, and keep the route that uses it. The route must still use the class (for example `status: Status`), so the starter fails because the class is empty and not because something else was removed.
 - TODO comments say what the learner should achieve, never the exact code to write. Bad: "# TODO: Change the type annotation to Status". Good: "# TODO: define the allowed status values".
 - The difference from the reference must be visible in an HTTP response (status code or body), not only in the source code.

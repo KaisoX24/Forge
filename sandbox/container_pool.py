@@ -39,7 +39,7 @@ class ContainerPool:
                 cap_drop=['all'],
                 read_only=True,
                 tmpfs={"/tmp": "size=16m,mode=1777,noexec"},
-                environment={"HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1"}
+                environment={"HOME": "/tmp", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONHASHSEED": "0"}
             )
 
             self.queue.put(container)
