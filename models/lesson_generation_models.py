@@ -43,6 +43,11 @@ class HttpCaseDraft(BaseModel):
     expected_json: Any | None = None
     expected_text: str | None = None
 
+    @field_validator("expected_text")
+    @classmethod
+    def blank_means_unchecked(cls, value: str | None) -> str | None:
+        return None if value is not None and not value.strip() else value
+
 class FunctionEvaluationConfig(BaseModel):
     target:Literal['function']
     cases:list[FunctionCaseDraft]=Field(min_length=3,max_length=6)

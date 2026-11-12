@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import Callable
+import logging
+
 from exercises.case_runner import RunReport, grade, run_cases
 from exercises.checks import check_starter_fails,reference_outputs,verify_reference_run
 from exercises.starter import make_starter
@@ -17,10 +19,14 @@ from models.lesson_generation_models import (
     HttpCase
 )
 
+logger=logging.getLogger(__name__)
+
+
 Runner = Callable[[dict[str, str], str, str, list[list]],RunReport]
 HttpRunner = Callable[[dict[str, str], HttpExecutionConfig, list],HttpRunReport]
 
 RUN_TIMEOUT_SECONDS = 20
+MIN_KEPT_CASES = 3
 
 def _sandbox_runner(pool) -> Runner:
     from sandbox.sandbox import SandBox
@@ -54,6 +60,26 @@ def _sandbox_http_runner(pool) -> HttpRunner:
 
     return runner
 
+def _prune_crashing_cases(run:Runner,draft:ExerciseDraft,labels:list[str],
+                          inputs:list[list],first:RunReport) -> tuple[list[str], list[list], RunReport]:
+    "Drop cases the reference crashes on, if enough good ones remain."
+    if first.fatal or len(first.cases) != len(inputs):
+        return labels,inputs,first
+
+    keep=[i for i,outcome in enumerate(first.cases) if outcome.ok]
+    if len(keep)==len(inputs) or len(keep) < MIN_KEPT_CASES:
+        return labels,inputs,first
+
+    logging.warning("Dropped cases the reference crashes on: %s",
+                    [labels[i] for i in range(len(inputs)) if i not in keep])
+
+    labels=[labels[i] for i in keep]
+    inputs=[inputs[i] for i in keep]
+
+    execution=draft.execution
+    first=run(draft.reference_files,execution.entry_file,execution.function_name,inputs)
+    return labels,inputs,first
+
 
 def _verify_function(draft: ExerciseDraft,run: Runner,packages: list[str],visible_cases: int) -> Exercise:
 
@@ -84,6 +110,8 @@ def _verify_function(draft: ExerciseDraft,run: Runner,packages: list[str],visibl
     )
 
     first = run(draft.reference_files,entry_file,function_name,inputs)
+
+    labels,inputs,first=_prune_crashing_cases(run,draft,labels,inputs,first)
 
     reference_outputs(first, labels, inputs, packages)
 
@@ -182,10 +210,17 @@ def _verify_http(
     ]
 
     if failures:
-        raise ValueError(
-            "The reference application failed its own HTTP cases:\n"
-            + "\n".join(failures)
-        )
+        failed = {o.label for o in reference.cases if not o.passed}
+        good = [c for c in evaluation.cases if c.label not in failed]
+        if len(good) < MIN_KEPT_CASES:
+            raise ValueError(
+                "The reference application failed its own HTTP cases:\n"
+                + "\n".join(failures)
+            )
+        logger.warning("Dropped cases the reference fails: %s", sorted(failed))
+        evaluation = evaluation.model_copy(update={"cases": good})
+        draft = draft.model_copy(update={"evaluation": evaluation})
+        expected_labels = [c.label for c in good]
 
     starter = run(
         draft.files,

@@ -30,7 +30,7 @@ class StructuredResult:
         self,
         llm,
         *,
-        max_attempts:int=3,
+        max_attempts:int=5,
         error_cls:type[Exception]
     ):
         self.ERROR=error_cls
@@ -54,12 +54,14 @@ class StructuredResult:
         validate: Callable[[T], Any] | None = None,
     ) -> Any:
             
-        structured = self.llm.with_structured_output(schema, include_raw=True)
         feedback:list[BaseMessage]=[]
         last_problem = "no attempt was made"
         for attempt in range(1, self.max_attempts + 1):
+            llm = self.llm if attempt <= 2 else self.llm.model_copy(
+                update={"temperature": min(0.2 + 0.2 * (attempt - 2), 0.8)})
+            structured=llm.with_structured_output(schema,include_raw=True)
             try:
-            # Runs for max 3 iterations if any error occurs store the detail and pass it to llm for retry
+            # Runs for max 5 iterations if any error occurs store the detail and pass it to llm for retry
                 result = structured.invoke(list(messages)+feedback)
             except Exception as exc:
                 last_problem = f"model call failed: {type(exc).__name__}: {exc}"

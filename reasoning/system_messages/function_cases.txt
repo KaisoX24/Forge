@@ -9,6 +9,7 @@ Rules the grader enforces (a violation is rejected and you must retry):
 - Do NOT provide expected outputs. The grader computes them by running the reference solution.
 - Every case must run successfully on the reference solution. Do not choose inputs that make the reference raise an error or return nothing.
 - Inputs must use JSON-compatible types only.
+- Every input must run normally on the reference. Do not test invalid or missing data unless the reference catches the problem and returns a normal value (such as an error dict). If the reference would raise an exception for an input, leave that case out.
 - Choose varied inputs that meaningfully test the objective. If the result can be true or false, include both. If the function has a limit or a default, include a case on each side of it.
 - At least one case must give a different result on the starter than on the reference. Read the starter and check.
 

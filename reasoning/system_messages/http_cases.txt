@@ -13,6 +13,8 @@ Rules the grader enforces (a violation is rejected and you must retry):
 - Read the reference's parameters carefully. A parameter with a default value (`= 0`, `= None`, `Query(default=...)`) is OPTIONAL: leaving it out returns 200 with the default value, not 422. Only expect 422 for a parameter that has NO default, or for an invalid value (wrong type, or outside a `ge`/`le` limit).
 - For every case, work out the exact JSON the reference returns, including default values for parameters the request leaves out.
 - A case that expects an error status (4xx) may give only expected_status.
+- Each case describes what the CORRECT reference app returns. Never write a case about what a broken, incomplete or missing implementation would return. Wrong: "missing decorator fails" expecting 404 for a path that the reference serves. A 404 or 422 case is valid only if the reference itself answers that request that way, for example a path the reference does not define, or an invalid parameter value.
+- The starter is checked against your cases automatically: it fails the ones the reference passes. Do not write cases about the starter.
 - At least one case must fail on the starter. Read the starter and pick a request where its status or body differs from the reference.
 - Do not test anything the objective does not teach.
 

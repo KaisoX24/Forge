@@ -473,7 +473,88 @@
           "coverage": 0.8
         }
       ],
-      "exercise": null
+      "exercise": {
+        "title": "Create a Root GET Endpoint",
+        "description": "Define a FastAPI route at the root path that returns a welcome message.",
+        "instructions": [
+          "Import FastAPI and create an app instance.",
+          "Use @app.get(\"/\") to define a GET endpoint at the root path.",
+          "Return a JSON object with a 'message' key containing a welcome string."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    # TODO: define a path operation decorator for a GET request at the root path\n    pass\n"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/"
+        },
+        "cases": [
+          {
+            "label": "root get success",
+            "method": "GET",
+            "path": "/",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Welcome to the API!"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "non-existent path",
+            "method": "GET",
+            "path": "/nonexistent",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 404,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "post method not allowed",
+            "method": "POST",
+            "path": "/",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 405,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "get with query param",
+            "method": "GET",
+            "path": "/?foo=bar",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Welcome to the API!"
+            },
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use @app.get to decorate your function.",
+          "The first argument of @app.get is the path string, e.g., \"/\"."
+        ],
+        "explanation": "The @app.get(\"/\") decorator registers a GET handler for the root path that returns a JSON message. Other methods or paths return appropriate errors."
+      }
     },
     "m1-s3": {
       "schema_version": 1,
@@ -1969,7 +2050,84 @@
           "coverage": 0.727
         }
       ],
-      "exercise": null
+      "exercise": {
+        "title": "Create Order with Mixed Parameters",
+        "description": "Define a Pydantic model using Field for validation and accept path, query, and body parameters.",
+        "instructions": [
+          "Import Field from pydantic.",
+          "Define a class named 'Order' with fields for id, price, and description.",
+          "Use Field to add validation rules like gt=0 for price and max_length=300 for the",
+          "Write a function that accepts plain values for id, price, and description, then"
+        ],
+        "difficulty": "medium",
+        "files": {
+          "main.py": "from pydantic import BaseModel, Field\n\nclass Order(BaseModel):\n    # TODO: Define the id field with validation (gt=0)\n    pass\n\n    # TODO: Define the price field with validation (gt=0)\n    pass\n\n    # TODO: Define the description field with validation (max_length=300)\n    pass\n\ndef create_order(id: int, price: float, description: str) -> dict:\n    try:\n        order = Order(id=id, price=price, description=description)\n        return order.model_dump(mode=\"json\")\n    except Exception as e:\n        return {\"error\": str(e)}"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "create_order"
+        },
+        "cases": [
+          {
+            "label": "valid order",
+            "inputs": [
+              1,
+              10.5,
+              "product A"
+            ],
+            "expected": {
+              "id": 1,
+              "price": 10.5,
+              "description": "product A"
+            },
+            "visible": true
+          },
+          {
+            "label": "invalid id zero",
+            "inputs": [
+              0,
+              10.5,
+              "product A"
+            ],
+            "expected": {
+              "error": "1 validation error for Order\nid\n  Input should be greater than 0 [type=greater_than, input_value=0, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.14/v/greater_than"
+            },
+            "visible": true
+          },
+          {
+            "label": "invalid price negative",
+            "inputs": [
+              1,
+              -5.0,
+              "product B"
+            ],
+            "expected": {
+              "error": "1 validation error for Order\nprice\n  Input should be greater than 0 [type=greater_than, input_value=-5.0, input_type=float]\n    For further information visit https://errors.pydantic.dev/2.14/v/greater_than"
+            },
+            "visible": false
+          },
+          {
+            "label": "description too long",
+            "inputs": [
+              1,
+              10.0,
+              "x"
+            ],
+            "expected": {
+              "id": 1,
+              "price": 10.0,
+              "description": "x"
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use Field(...) to add validation rules like gt=0 or max_length=300 to model attributes.",
+          "Each field in the Order class needs a type annotation and a Field call with its constraints."
+        ],
+        "explanation": "The reference defines a Pydantic model with Field validation rules for id (gt=0), price (gt=0), and description (max_length=300). Valid inputs pass through; invalid ones trigger exceptions caught by the function."
+      }
     },
     "m4-s2": {
       "schema_version": 1,
@@ -2267,7 +2425,69 @@
           "coverage": 0.875
         }
       ],
-      "exercise": null
+      "exercise": {
+        "title": "Filter Sensitive Data with Pydantic Models",
+        "description": "Create input and output models to exclude sensitive fields like passwords from API responses.",
+        "instructions": [
+          "Define an input model that includes a password field.",
+          "Define an output model that excludes the password field.",
+          "Implement a function that accepts user data, converts it to the output model, or"
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from pydantic import BaseModel\n\nclass UserIn(BaseModel):\n    username: str\n    password: str\n\nclass UserOut(BaseModel):\n    username: str\n\ndef filter_user_data(user_in_dict: dict) -> dict:\n    # TODO: Create a UserIn instance from the input dictionary, then return the output model's JSON representation.\n    pass"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "filter_user_data"
+        },
+        "cases": [
+          {
+            "label": "valid user with password",
+            "inputs": [
+              {
+                "username": "alice",
+                "password": "secret123"
+              }
+            ],
+            "expected": {
+              "error": "name 'user_out' is not defined"
+            },
+            "visible": true
+          },
+          {
+            "label": "user without password field",
+            "inputs": [
+              {
+                "username": "bob"
+              }
+            ],
+            "expected": {
+              "error": "1 validation error for UserIn\npassword\n  Field required [type=missing, input_value={'username': 'bob'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing"
+            },
+            "visible": true
+          },
+          {
+            "label": "invalid username type",
+            "inputs": [
+              {
+                "username": 123,
+                "password": "pass"
+              }
+            ],
+            "expected": {
+              "error": "1 validation error for UserIn\nusername\n  Input should be a valid string [type=string_type, input_value=123, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.14/v/string_type"
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use the UserIn class to validate and parse the input dictionary.",
+          "Access the 'model_dump' method on the parsed object with mode='json'."
+        ],
+        "explanation": "The reference solution creates a UserIn instance from the input dict and returns the output model's JSON. It handles validation errors by catching exceptions and returning an error dict."
+      }
     },
     "m4-s4": {
       "schema_version": 1,
@@ -2962,24 +3182,5 @@
       }
     }
   },
-  "failures": {
-    "m1-s2": {
-      "stage": "exercise",
-      "reason": "starter m1-s2: gave up after 3 attempts. Last problem: The starter is the same code as the reference apart from comments. Remove the behaviour the objective teaches.",
-      "attempts": 3,
-      "failed_at": "2026-11-11T18:27:11.670871Z"
-    },
-    "m4-s1": {
-      "stage": "exercise",
-      "reason": "cases m4-s1: gave up after 3 attempts. Last problem: Cases 'valid order with all fields' and 'order with missing id' use identical inputs []. Every test case must use different inputs.",
-      "attempts": 3,
-      "failed_at": "2026-11-11T18:04:01.818522Z"
-    },
-    "m4-s3": {
-      "stage": "exercise",
-      "reason": "cases m4-s3: gave up after 3 attempts. Last problem: The reference solution crashed on its own test cases:\n- case 'user without password field' with inputs [{\"username\": \"bob\"}] crashed: ValidationError: 1 validation error for InputUser\npassword\n  Field required [type=missing, input_value={'username': 'bob'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing",
-      "attempts": 3,
-      "failed_at": "2026-11-11T18:32:42.838242Z"
-    }
-  }
+  "failures": {}
 }
