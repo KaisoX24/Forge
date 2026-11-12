@@ -231,6 +231,8 @@ class Exercise(ExerciseSpec):
     hints: list[str]
     explanation: str
 
+    reference_files: dict[str,str]=Field(default_factory=dict)
+
     @classmethod
     def from_draft(
         cls,
@@ -240,7 +242,7 @@ class Exercise(ExerciseSpec):
     ) -> "Exercise":
         return cls(
             **draft.model_dump(
-                exclude={"reference_files", "evaluation"}
+                exclude={"evaluation"}
             ),
             cases=cases,
         )

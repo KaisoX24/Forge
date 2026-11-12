@@ -94,3 +94,14 @@ def test_http_cases_can_be_used_in_finished_exercise_and_round_trip():
     assert exercise.execution.target == "http" and exercise.cases == cases
     assert Exercise.model_validate_json(exercise.model_dump_json()) == exercise
 
+def test_exercise_from_draft_keeps_reference_files_but_drops_evaluation():
+    draft=make_draft()
+    cases=[FunctionCase(label=c.label, inputs=c.inputs, expected=v, visible=i<2)
+           for i,(c,v) in enumerate(zip(draft.evaluation.cases,[5,-5,0]))]
+    exercise=Exercise.from_draft(draft,cases=cases)
+    assert exercise.files == draft.files and exercise.execution == draft.execution
+    assert exercise.cases == cases and exercise.hints == draft.hints
+    assert exercise.explanation == draft.explanation
+    assert exercise.reference_files == draft.reference_files
+    assert not hasattr(exercise,"evaluation")
+
