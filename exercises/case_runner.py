@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from models.data_models import ExecutionResult
+from models.data_models import ExecutionResult,ExecutionError
 from exercises.drivers.function_driver import _DRIVER
 _MARKER = "__FORGE_RESULT__"
 
@@ -23,7 +23,17 @@ class RunReport:
 
 
 class HarnessError(RuntimeError):
-    """The sandbox run itself failed (timeout, daemon down, crash outside the driver)."""
+    """The sandbox run itself failed (timeout, daemon down, crash outside the driver).
+    error_type says whose fault it was; learner_fault is the summary."""
+
+    def __init__(self, message: str, error_type: ExecutionError | None = None):
+        super().__init__(message)
+        self.error_type = error_type
+
+    @property
+    def learner_fault(self) -> bool:
+        "exit() or a crash before reporting (None), a timeout, or a crash in their code."
+        return self.error_type in (None, ExecutionError.TIMEOUT, ExecutionError.RUNTIME_ERROR)
 
 
 def build_script(
@@ -81,10 +91,23 @@ def run_cases(
 
     if not result.success:
         raise HarnessError(
-            f"Sandbox run failed: {result.error_type} {result.stderr}"
+            f"Sandbox run failed: {result.error_type} {result.stderr}",
+            result.error_type,
         )
 
     return parse_report(result.stdout)
+
+def json_equal(actual: Any, expected: Any) -> bool:
+    "bool is not a number; 1 and 1.0 are equal; lists and dicts compare recursively."
+    if isinstance(actual, bool) or isinstance(expected, bool):
+        return isinstance(actual, bool) and isinstance(expected, bool) and actual == expected
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        return actual.keys() == expected.keys() and all(
+            json_equal(actual[key], expected[key]) for key in actual)
+    if isinstance(actual, (list, tuple)) and isinstance(expected, (list, tuple)):
+        return len(actual) == len(expected) and all(
+            json_equal(a, b) for a, b in zip(actual, expected))
+    return actual == expected
 
 
 def grade(report: RunReport, expected: list[Any]) -> list[dict]:
@@ -105,7 +128,7 @@ def grade(report: RunReport, expected: list[Any]) -> list[dict]:
                 "reason": "error",
                 "detail": outcome.error,
             })
-        elif outcome.value == want:
+        elif json_equal(outcome.value,want):
             graded.append({"passed": True})
         else:
             graded.append({

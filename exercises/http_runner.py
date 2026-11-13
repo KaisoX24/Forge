@@ -40,12 +40,8 @@ def build_http_script(
         case_data = case.model_dump()
 
         # Preserve the distinction between omitted fields and explicit null.
-        case_data["json_body_present"] = (
-            "json_body" in case.model_fields_set
-        )
-        case_data["expected_json_present"] = (
-            "expected_json" in case.model_fields_set
-        )
+        case_data["json_body_present"] = case.json_body is not None
+        case_data["expected_json_present"] = case.expected_json is not None
 
         serialized_cases.append(case_data)
 
