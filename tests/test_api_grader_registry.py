@@ -71,3 +71,9 @@ def test_close_shuts_every_pool():
     reg.for_course("a", "env-a"); reg.for_course("b", "env-b")
     reg.close()
     assert not any(p.open for p in FakePool.created)
+
+def test_pool_for_returns_the_pool_the_grader_was_built_from():
+    reg = registry()
+    pool = reg.pool_for("a", "env-a")
+    assert reg.for_course("a", "env-a") == ("grader", pool)
+    assert len(FakePool.created) == 1

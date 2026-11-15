@@ -95,6 +95,7 @@ class Course(BaseModel):
         "Writes atomically: a crash mid-write leaves the previous file intact."
 
         path=Path(path)
+        path.parent.mkdir(parents=True,exist_ok=True)
         tmp=path.with_name(path.name+".tmp")
         try:
             with tmp.open('w',encoding='utf-8')as f:

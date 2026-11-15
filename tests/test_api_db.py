@@ -43,3 +43,15 @@ def test_status_values_are_constrained(factory):
     with pytest.raises(IntegrityError):
         with session_scope(factory) as s:
             s.add(StepState(course_id="c", step_id="s1", status="banana"))
+
+def test_job_defaults_and_status_constraint(factory):
+    from api.storage.models import Job
+    with session_scope(factory) as s:
+        s.add(Job(id="j1", course_id="c", kind="module", module_index=0))
+    with session_scope(factory) as s:
+        job = s.get(Job, "j1")
+        assert (job.status, job.total_steps, job.done_steps, job.results_json, job.regenerate) == ("queued", 0, 0, "[]", False)
+        assert job.step_id is None and job.current_stage is None and job.error is None
+    with pytest.raises(IntegrityError):
+        with session_scope(factory) as s:
+            s.add(Job(id="j2", course_id="c", kind="step", status="paused"))

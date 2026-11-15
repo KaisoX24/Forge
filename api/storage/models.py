@@ -51,3 +51,28 @@ class Draft(Base):
     step_id: Mapped[str] = mapped_column(primary_key=True)
     files_json: Mapped[str] = mapped_column(Text)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+class Job(Base):
+    "A background generation task. The worker updates it"
+    __tablename__ = "jobs"
+    __table_args__ = (
+        CheckConstraint("status IN ('queued', 'running', 'done', 'failed')",
+                        name="job_status_valid"),
+        Index("jobs_by_course", "course_id"),
+    )
+
+    id: Mapped[str] = mapped_column(primary_key=True)
+    course_id: Mapped[str]
+    kind: Mapped[str]
+    module_index: Mapped[int | None]
+    step_id: Mapped[str | None]
+    regenerate: Mapped[bool] = mapped_column(default=False)
+    status: Mapped[str] = mapped_column(default="queued")
+    total_steps: Mapped[int] = mapped_column(default=0)
+    done_steps: Mapped[int] = mapped_column(default=0)
+    current_step: Mapped[str | None]
+    current_stage: Mapped[str | None]
+    results_json: Mapped[str] = mapped_column(Text, default="[]")
+    error: Mapped[str | None]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)

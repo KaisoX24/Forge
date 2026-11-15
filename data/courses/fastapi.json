@@ -553,7 +553,8 @@
           "Use @app.get to decorate your function.",
           "The first argument of @app.get is the path string, e.g., \"/\"."
         ],
-        "explanation": "The @app.get(\"/\") decorator registers a GET handler for the root path that returns a JSON message. Other methods or paths return appropriate errors."
+        "explanation": "The @app.get(\"/\") decorator registers a GET handler for the root path that returns a JSON message. Other methods or paths return appropriate errors.",
+        "reference_files": {}
       }
     },
     "m1-s3": {
@@ -682,7 +683,8 @@
           "Use the 'async def' keyword to define an asynchronous function.",
           "Return a Python dictionary with a key 'result' and the value multiplied by 2."
         ],
-        "explanation": "The reference solution returns a dictionary with the input value doubled. The async keyword is not strictly required for this simple case, but the function must return a dict to be converted to JSON by FastAPI."
+        "explanation": "The reference solution returns a dictionary with the input value doubled. The async keyword is not strictly required for this simple case, but the function must return a dict to be converted to JSON by FastAPI.",
+        "reference_files": {}
       }
     },
     "m2-s1": {
@@ -854,7 +856,8 @@
           "Use a type annotation on the path parameter to tell FastAPI what type it expects.",
           "Return a dictionary with the 'number_id' key and the value from the parameter."
         ],
-        "explanation": "The int type annotation tells FastAPI to convert the path string to an integer. Valid integers return 200 with the number in JSON, while non-integers like 'abc' or floats cause a 422 validation error."
+        "explanation": "The int type annotation tells FastAPI to convert the path string to an integer. Valid integers return 200 with the number in JSON, while non-integers like 'abc' or floats cause a 422 validation error.",
+        "reference_files": {}
       }
     },
     "m2-s2": {
@@ -999,7 +1002,8 @@
           "Use `str` as the first base class before `Enum` to ensure FastAPI treats the values as strings.",
           "Assign string literals like `sedan = \"sedan\"` and `suv = \"suv\"` as attributes of your Enum class."
         ],
-        "explanation": "The Enum class inherits from str, so FastAPI treats the path parameter as a string. Only 'sedan' and 'suv' are allowed; other strings cause a 422 validation error."
+        "explanation": "The Enum class inherits from str, so FastAPI treats the path parameter as a string. Only 'sedan' and 'suv' are allowed; other strings cause a 422 validation error.",
+        "reference_files": {}
       }
     },
     "m2-s3": {
@@ -1184,7 +1188,8 @@
           "Create a dictionary that maps each Enum member to its specific message.",
           "Use the 'is' operator to check which Enum member was passed in the path parameter."
         ],
-        "explanation": "The Enum type annotation validates the path parameter. Valid enum members return their string value and corresponding message, while invalid values trigger a 422 error."
+        "explanation": "The Enum type annotation validates the path parameter. Valid enum members return their string value and corresponding message, while invalid values trigger a 422 error.",
+        "reference_files": {}
       }
     },
     "m3-s1": {
@@ -1378,7 +1383,8 @@
           "Set the parameter's default value to None to make it optional.",
           "Use if statements to check if a parameter is None and assign a default value."
         ],
-        "explanation": "The endpoint uses optional query parameters with default values of None. The function checks if each parameter is None and assigns a default value ('Guest' or 'default') before returning the dictionary."
+        "explanation": "The endpoint uses optional query parameters with default values of None. The function checks if each parameter is None and assigns a default value ('Guest' or 'default') before returning the dictionary.",
+        "reference_files": {}
       }
     },
     "m3-s2": {
@@ -1571,7 +1577,8 @@
           "Look at the function signature in the reference solution.",
           "Annotate the 'active' parameter with bool and provide a default value."
         ],
-        "explanation": "The bool annotation enables FastAPI to parse truthy/falsy strings like 'true' or 'false'. A default value of False is required so that omitting the parameter returns 200 instead of 422."
+        "explanation": "The bool annotation enables FastAPI to parse truthy/falsy strings like 'true' or 'false'. A default value of False is required so that omitting the parameter returns 200 instead of 422.",
+        "reference_files": {}
       }
     },
     "m3-s3": {
@@ -1741,7 +1748,8 @@
           "Remember that required fields in Pydantic don't need a default value or Field call.",
           "Use the syntax 'str | None = Field(None, description=\"...\")' for optional fields with metadata."
         ],
-        "explanation": "The reference solution defines a Pydantic model with a required 'name' field and an optional 'email' field using str | None. It uses Field to add metadata. The function creates the model instance and returns its JSON dump or an error message if validation fails."
+        "explanation": "The reference solution defines a Pydantic model with a required 'name' field and an optional 'email' field using str | None. It uses Field to add metadata. The function creates the model instance and returns its JSON dump or an error message if validation fails.",
+        "reference_files": {}
       }
     },
     "m3-s4": {
@@ -1939,7 +1947,8 @@
           "Create a Pydantic model class named 'Item' with fields 'name' (str) and 'value' (int).",
           "In the route handler, return a dictionary containing 'item_id', 'name', and 'value' from the arguments."
         ],
-        "explanation": "The Item model requires name and value fields. FastAPI validates path item_id as int and body against Item schema."
+        "explanation": "The Item model requires name and value fields. FastAPI validates path item_id as int and body against Item schema.",
+        "reference_files": {}
       }
     },
     "m4-s1": {
@@ -2126,7 +2135,8 @@
           "Use Field(...) to add validation rules like gt=0 or max_length=300 to model attributes.",
           "Each field in the Order class needs a type annotation and a Field call with its constraints."
         ],
-        "explanation": "The reference defines a Pydantic model with Field validation rules for id (gt=0), price (gt=0), and description (max_length=300). Valid inputs pass through; invalid ones trigger exceptions caught by the function."
+        "explanation": "The reference defines a Pydantic model with Field validation rules for id (gt=0), price (gt=0), and description (max_length=300). Valid inputs pass through; invalid ones trigger exceptions caught by the function.",
+        "reference_files": {}
       }
     },
     "m4-s2": {
@@ -2326,7 +2336,8 @@
           "Use 'int' for the value attribute in SubModel.",
           "Use List[SubModel] for sub_items and Set[str] for tags in Container."
         ],
-        "explanation": "The reference defines SubModel with an integer 'value' and Container with a list of SubModels and a set of strings. The function creates instances and returns the JSON dump."
+        "explanation": "The reference defines SubModel with an integer 'value' and Container with a list of SubModels and a set of strings. The function creates instances and returns the JSON dump.",
+        "reference_files": {}
       }
     },
     "m4-s3": {
@@ -2486,7 +2497,8 @@
           "Use the UserIn class to validate and parse the input dictionary.",
           "Access the 'model_dump' method on the parsed object with mode='json'."
         ],
-        "explanation": "The reference solution creates a UserIn instance from the input dict and returns the output model's JSON. It handles validation errors by catching exceptions and returning an error dict."
+        "explanation": "The reference solution creates a UserIn instance from the input dict and returns the output model's JSON. It handles validation errors by catching exceptions and returning an error dict.",
+        "reference_files": {}
       }
     },
     "m4-s4": {
@@ -2660,7 +2672,8 @@
           "Check if type_indicator is 'plane' or 'car' to return specific dicts.",
           "For other cases, use data.get() to create an arbitrary dict with typed keys and values."
         ],
-        "explanation": "The function returns a Union of two typed dicts: one with int values and one with float values. Order matters in the Union declaration; specific types like PlaneItem should come before less specific ones like CarItem. For arbitrary dicts, declare keys and values explicitly using dict[key_type, value_type]."
+        "explanation": "The function returns a Union of two typed dicts: one with int values and one with float values. Order matters in the Union declaration; specific types like PlaneItem should come before less specific ones like CarItem. For arbitrary dicts, declare keys and values explicitly using dict[key_type, value_type].",
+        "reference_files": {}
       }
     },
     "m5-s1": {
@@ -2849,7 +2862,8 @@
           "Import HTTPException from fastapi to raise custom errors.",
           "Pass status_code, detail, and headers arguments to the HTTPException constructor."
         ],
-        "explanation": "The reference implementation raises HTTPException with specific status codes and custom headers. The learner's starter needs to implement the logic to raise these exceptions based on the input status_code parameter."
+        "explanation": "The reference implementation raises HTTPException with specific status codes and custom headers. The learner's starter needs to implement the logic to raise these exceptions based on the input status_code parameter.",
+        "reference_files": {}
       }
     },
     "m5-s2": {
@@ -3019,7 +3033,8 @@
           "The function should accept q, skip, and limit as query parameters.",
           "Return a dictionary containing the processed values of these parameters."
         ],
-        "explanation": "The reference implementation processes query parameters: q length if present else 0, skip and limit as integers. The learner's starter has a pass statement which returns None, causing a 500 error instead of the expected JSON."
+        "explanation": "The reference implementation processes query parameters: q length if present else 0, skip and limit as integers. The learner's starter has a pass statement which returns None, causing a 500 error instead of the expected JSON.",
+        "reference_files": {}
       }
     },
     "m5-s3": {
@@ -3178,7 +3193,8 @@
           "A class is callable, so FastAPI can treat it like a function. Define your class with an __init__ method.",
           "Use Annotated to wrap the class type in your endpoint parameter and pass the class itself to Depends()."
         ],
-        "explanation": "The reference defines a Config class with __init__ taking host and port, then returns a dict. The test cases provide valid strings and integers for these parameters."
+        "explanation": "The reference defines a Config class with __init__ taking host and port, then returns a dict. The test cases provide valid strings and integers for these parameters.",
+        "reference_files": {}
       }
     }
   },

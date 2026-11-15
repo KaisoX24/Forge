@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable
+from collections.abc import Callable
+import ast
+import logging
+
 from langchain.messages import HumanMessage,SystemMessage
 
 from lessons.docs_context import docs_budget,prepare_step_docs
@@ -14,11 +17,10 @@ from models.lesson_generation_models import (
     Exercise,ExerciseDraft,Label,
     Lesson,LessonDraft,ReferenceDraft,StarterDraft,CasesDraft)
 from reasoning.structured import StructuredResult
-import ast
-
 
 Verify = Callable[[ExerciseDraft], Exercise]
 Retrieve = Callable[[str], list[RetrievedDocument]]
+logger=logging.getLogger(__name__)
 _PROMPT_DIR=Path(__file__).parent.parent/'reasoning'/'system_messages'
 _HTTP_HINTS = ("endpoint", "route", "path operation", "get request", "post request",
                "httpexception", "status code", "query parameter", "path parameter")
@@ -86,8 +88,8 @@ def _check_starter(ref: ReferenceDraft, starter: StarterDraft) -> None:
 
 class StepGenerator:
     def __init__(self, llm, *, retrieve: Retrieve, verify: Verify, packages: list[str] | None = None,
-                 num_ctx: int = 8192, num_predict: int = 2048, max_attempts: int = 3,
-                 prompt_dir: Path | None = None):
+                 num_ctx: int = 8192, num_predict: int = 2048, max_attempts: int = 5,
+                 on_stage:Callable[[str,str],None]|None=None,prompt_dir: Path | None = None):
         self.retrieve = retrieve
         self.verify = verify
         self.packages = list(packages or [])
@@ -101,14 +103,26 @@ class StepGenerator:
                     for stage in ("reference", "starter", "cases")}
             for target in ("function", "http")
         }
+        self._on_stage=on_stage
+
+
 
     @staticmethod
     def _merge(ref: ReferenceDraft, starter: StarterDraft, cases: CasesDraft) -> ExerciseDraft:
         return ExerciseDraft.model_validate(
             {**ref.model_dump(), **starter.model_dump(), **cases.model_dump(exclude_unset=True)})
 
+    def _stage(self, sid: str, stage: str) -> None:
+        "Tell whoever is watching which stage a step is in. A bad callback never breaks generation."
+        if self._on_stage is not None:
+            try:
+                self._on_stage(sid, stage)
+            except Exception:
+                logger.exception("on_stage callback failed") 
+
     def _generate_exercise(self, sid: str, target: str, objective: str, lesson: Lesson) -> Exercise:
         prompts = self.stage_prompts[target]
+        self._stage(sid,"reference")
         ref = self.structured.call(
             ReferenceDraft,
             [SystemMessage(content=prompts["reference"]),
@@ -119,6 +133,7 @@ class StepGenerator:
         problem = None
         for _ in range(2):
             note = ""
+            self._stage(sid, "starter")
             if problem:
                 note = ("\n\nYour previous starter was rejected:\n" + problem[:600] +
                         "\nFix that problem. Keep every def and class name from the reference.")
@@ -130,6 +145,7 @@ class StepGenerator:
                 validate=lambda s: _check_starter(ref, s))
             
             try:
+                self._stage(sid, "cases")
                 return self.structured.call(
                     CasesDraft,
                     [SystemMessage(content=prompts["cases"]),
@@ -161,6 +177,7 @@ class StepGenerator:
 
         if not resume_exercise:
             docs = prepare_step_docs(step, self.retrieve, budget_tokens=self.budget)
+            self._stage(sid,"lesson")
             try:
                 draft = self.structured.call(
                     LessonDraft,

@@ -11,6 +11,7 @@ from sandbox import ContainerPool
 @dataclass
 class _Entry:
     stack:ExitStack
+    pool:object
     grader:Grader
 
 class GraderRegistry:
@@ -28,28 +29,31 @@ class GraderRegistry:
         self._entries:OrderedDict[str,_Entry]=OrderedDict()
         self._lock=threading.Lock()
 
-    def for_course(self,course_key:str,env:EnvironmentSpec) ->Grader:
+    def _entry(self, course_key: str, env: EnvironmentSpec) -> _Entry:
         with self._lock:
-            entry=self._entries.get(course_key)
+            entry = self._entries.get(course_key)
             if entry is not None:
                 self._entries.move_to_end(course_key)
-                return entry.grader
-
-            while len(self._entries)>=self._max_pools:
-                _,oldest=self._entries.popitem(last=False)
+                return entry
+            while len(self._entries) >= self._max_pools:
+                _, oldest = self._entries.popitem(last=False)
                 oldest.stack.close()
-
-            stack=ExitStack()
-
+            stack = ExitStack()
             try:
-                pool=stack.enter_context(self._max_pools(env,self._pool_size))
-                grader=self._make_grader(pool)
+                pool = stack.enter_context(self._make_pool(env, self._pool_size))
+                grader = self._make_grader(pool)
             except BaseException:
                 stack.close()
                 raise
+            entry = _Entry(stack, pool, grader)
+            self._entries[course_key] = entry
+            return entry
 
-            self._entries[course_key]=_Entry(stack,grader)
-            return grader
+    def for_course(self,course_key:str,env:EnvironmentSpec) ->Grader:
+        return self._entry(course_key,env).grader
+
+    def pool_for(self, course_key: str, env: EnvironmentSpec) -> object:
+        return self._entry(course_key, env).pool
 
     def close(self) -> None:
         with self._lock:

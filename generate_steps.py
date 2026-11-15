@@ -18,9 +18,10 @@ from retrieval.retriever import Retriever
 from retrieval.retrieval_tool import RetrievalTool
 from sandbox import ContainerPool
 from sandbox.resolver import docs_as_of, spec_from_docs
+from config import COURSES_DIR
 
 
-COURSE_PATH = Path("data/smoke_course.json")
+COURSE_PATH = COURSES_DIR/"fastapi.json"
 
 
 def load_or_plan(args) -> Course:

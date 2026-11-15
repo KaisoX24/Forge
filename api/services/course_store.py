@@ -18,7 +18,7 @@ class CourseStore:
     The file name is the key the API uses; Course.id inside is not consulted."""
 
     def __init__(self,directory:str|Path):
-        self.directory=directory
+        self.directory=Path(directory)
         self._locks:defaultdict[str,threading.Lock]=defaultdict(threading.Lock)
         self._guard=threading.Lock()
 

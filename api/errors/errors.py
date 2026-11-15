@@ -16,6 +16,9 @@ class ApiError(Exception):
 class NotFound(ApiError):
     status_code=status.HTTP_404_NOT_FOUND
 
+class Invalid(ApiError):
+    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT
+
 class Locked(ApiError):
     status_code=status.HTTP_403_FORBIDDEN
 
@@ -29,8 +32,8 @@ class Unavailable(ApiError):
 _RUNNER_DOWN = "The code runner is unavailable right now. Please try again."
 
 def registry_error_handlers(app:FastAPI) ->None:
-    def respond(status: int, message: str) -> JSONResponse:
-        return JSONResponse({"detail": message}, status_code=status)
+    def respond(code: int, message: str) -> JSONResponse:
+        return JSONResponse({"detail": message}, status_code=code)
 
     @app.exception_handler(ApiError)
     def _api_error(_:Request,exc:ApiError):
