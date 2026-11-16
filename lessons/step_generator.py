@@ -23,7 +23,29 @@ Retrieve = Callable[[str], list[RetrievedDocument]]
 logger=logging.getLogger(__name__)
 _PROMPT_DIR=Path(__file__).parent.parent/'reasoning'/'system_messages'
 _HTTP_HINTS = ("endpoint", "route", "path operation", "get request", "post request",
-               "httpexception", "status code", "query parameter", "path parameter")
+               "httpexception", "status code", "query parameter", "path parameter",
+               "depends", "dependenc")
+_REFERENCE_FAULTS = (
+    "The reference application could not be evaluated",
+    "The reference solution could not be loaded",
+    "The reference solution gave different results",
+)
+
+def _is_reference_fault(error_text: str) -> bool:
+    return any(marker in error_text for marker in _REFERENCE_FAULTS)
+
+def retry_on_reference_fault(attempt, rounds: int = 2):
+    """attempt(previous_problem) -> result. If it fails because the reference itself is broken,
+    try again (up to `rounds` in total), telling the next attempt what went wrong."""
+    problem = None
+    for _ in range(rounds):
+        try:
+            return attempt(problem)
+        except GenerationError as exc:
+            if not _is_reference_fault(str(exc)):
+                raise
+            problem = str(exc)
+    raise GenerationError(problem)
 
 def _pick_target(objective: str, planned: str | None) -> str:
     "Endpoint-style objectives can only be proven over HTTP, whatever the planner said."
@@ -35,9 +57,8 @@ def _top_names(source: str) -> set[str]:
     return {n.name for n in ast.parse(source).body
             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
 
-def _check_reference(ref:ReferenceDraft) ->None:
-    "Function exercises: function_name must be a real top-level `def` in the entry file."
-
+def _check_reference(ref: ReferenceDraft, check_imports=None) -> None:
+    "Syntax for every file, the entry function for function exercises, and imports for all."
     for path, code in ref.reference_files.items():
         if path.endswith(".py"):
             try:
@@ -45,26 +66,27 @@ def _check_reference(ref:ReferenceDraft) ->None:
             except SyntaxError as exc:
                 raise ValueError(f"{path} is not valid Python: {exc.msg} (line {exc.lineno}). Fix it.")
 
-    ex=ref.execution
-    if ex.target!='function':
-        return
+    ex = ref.execution
+    if ex.target == 'function':
+        source = ref.reference_files.get(ex.entry_file)
+        if source is None:
+            raise ValueError(f"entry_file {ex.entry_file!r} is not one of the reference files.")
+        try:
+            tree = ast.parse(source)
+        except SyntaxError as exc:
+            raise ValueError(f"The reference is not valid Python: {exc}")
+        defs = [n.name for n in tree.body if isinstance(n, ast.FunctionDef)]
+        if ex.function_name not in defs:
+            raise ValueError(
+                f"function_name {ex.function_name!r} is not a top-level regular `def` in "
+                f"{ex.entry_file}. It defines these functions: {defs}. Add a function with that "
+                "name that takes plain values, builds the class inside, and returns a dict.")
 
-    source=ref.reference_files.get(ex.entry_file)
-    if source is None:
-        raise ValueError(f"entry_file {ex.entry_file!r} is not one of the reference files.")
-
-    try:
-        tree=ast.parse(source)
-    except SyntaxError as exc:
-        raise ValueError(f"The reference is not valid Python: {exc}")
-
-    defs=[n.name for n in tree.body if isinstance(n,ast.FunctionDef)]
-    if ex.function_name not in defs:
-        raise ValueError(
-            f"function_name {ex.function_name!r} is not a top-level regular `def` in "
-            f"{ex.entry_file}. It defines these functions: {defs}. Add a function with that "
-            "name that takes plain values, builds the class inside, and returns a dict.")
-
+    if check_imports is not None:
+        problems = check_imports(ref.reference_files)
+        if problems:
+            raise ValueError("The reference imports names that do not exist in this environment:\n"
+                             + "\n".join(f"- {p}" for p in problems) + "\nFix these imports.")
 
 def _check_starter(ref: ReferenceDraft, starter: StarterDraft) -> None:
     same = starter.files.keys() == ref.reference_files.keys()
@@ -89,10 +111,12 @@ def _check_starter(ref: ReferenceDraft, starter: StarterDraft) -> None:
 class StepGenerator:
     def __init__(self, llm, *, retrieve: Retrieve, verify: Verify, packages: list[str] | None = None,
                  num_ctx: int = 8192, num_predict: int = 2048, max_attempts: int = 5,
-                 on_stage:Callable[[str,str],None]|None=None,prompt_dir: Path | None = None):
+                 on_stage:Callable[[str,str],None]|None=None,prompt_dir: Path | None = None,
+                 check_imports: Callable[[dict[str, str]], list[str]] | None = None):
         self.retrieve = retrieve
         self.verify = verify
         self.packages = list(packages or [])
+        self._check_imports=check_imports
         self.max_attempts = max_attempts
         self.budget = docs_budget(num_ctx=num_ctx, num_predict=num_predict)
         self.structured = StructuredResult(llm, max_attempts=max_attempts, error_cls=GenerationError)
@@ -120,16 +144,23 @@ class StepGenerator:
             except Exception:
                 logger.exception("on_stage callback failed") 
 
-    def _generate_exercise(self, sid: str, target: str, objective: str, lesson: Lesson) -> Exercise:
+    def _generate_reference(self, sid: str, target: str, objective: str, lesson: Lesson,
+                            previous_problem: str | None) -> ReferenceDraft:
         prompts = self.stage_prompts[target]
-        self._stage(sid,"reference")
-        ref = self.structured.call(
+        self._stage(sid, "reference")
+        message = exercise_message(objective, lesson, self.packages)
+        if previous_problem:
+            message += ("\n\nYour previous reference solution failed when it was run:\n"
+                        + previous_problem[-600:]
+                        + "\nWrite a corrected reference that fixes this error.")
+        return self.structured.call(
             ReferenceDraft,
-            [SystemMessage(content=prompts["reference"]),
-            HumanMessage(content=exercise_message(objective, lesson, self.packages))],
+            [SystemMessage(content=prompts["reference"]), HumanMessage(content=message)],
             label=f"reference {sid}",
-            validate=lambda r:_check_reference(r))
+            validate=lambda r: _check_reference(r, self._check_imports))
 
+    def _starter_and_cases(self, sid: str, target: str, objective: str, lesson: Lesson,ref:ReferenceDraft) -> Exercise:
+        prompts = self.stage_prompts[target]
         problem = None
         for _ in range(2):
             note = ""
@@ -159,6 +190,12 @@ class StepGenerator:
                     raise
                 problem = text
         raise GenerationError(problem)
+
+    def _generate_exercise(self, sid: str, target: str, objective: str, lesson: Lesson) -> Exercise:
+        def attempt(previous_problem: str | None) -> Exercise:
+            ref = self._generate_reference(sid, target, objective, lesson, previous_problem)
+            return self._starter_and_cases(sid, target, objective, lesson, ref)
+        return retry_on_reference_fault(attempt)
 
     def generate_step(self, course: Course, module_index: int, step_index: int, *,
                       force: bool = False) -> StepOutcome:

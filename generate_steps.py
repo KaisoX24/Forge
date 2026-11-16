@@ -4,6 +4,7 @@ from pathlib import Path
 
 from lessons.step_generator import StepGenerator
 from exercises.verify import make_verifier
+from exercises.import_check import make_import_checker
 from models.course import Course
 from models.lesson_generation_models import (
     FunctionCase,
@@ -13,7 +14,7 @@ from models.lesson_generation_models import (
 )
 from planner.curriculum_planner import CurriculumPlanner
 from planner.doc_outline import DocOutline
-from reasoning.model import get_llm
+from reasoning.model import get_llm,get_online_llm
 from retrieval.retriever import Retriever
 from retrieval.retrieval_tool import RetrievalTool
 from sandbox import ContainerPool
@@ -143,6 +144,7 @@ def main() -> None:
             retrieve=retrieval.retrieve,
             verify=make_verifier(pool, course.env),
             packages=list(course.env.packages),
+            check_imports=make_import_checker(pool,list(course.env.packages))
         )
 
         for step_index in step_indices:

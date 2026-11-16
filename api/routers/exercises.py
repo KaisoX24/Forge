@@ -50,7 +50,7 @@ def complete(course_key:str,step_id:str,store:Store,session:DbSession) -> StepSt
         raise Conflict("The lesson is not ready yet.")
     if lesson.exercise is not None:
         raise Conflict("This step has an exercise to solve.")
-    P.mark_completed(session, course_key, step_id)
+    P.mark_completed(session, course_key, step_id, has_exercise=False)
     return StepStatus(status=P.get_state(session, course_key, step_id).status)
 
 @router.post("/give-up", response_model=StepStatus)
