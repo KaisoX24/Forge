@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import { Check, CircleCheck, Copy, ExternalLink, Info, Lightbulb, Target, TriangleAlert } from "lucide-react";
 import type { useStep } from "../api/queries";
+import HighlightedCode from "./HighlightedCode";
 
 type Step = NonNullable<ReturnType<typeof useStep>["data"]>;
 type Lesson = NonNullable<Step["lesson"]>;
@@ -71,9 +72,7 @@ function CodeBlock({
           </button>
         </span>
       </figcaption>
-      <pre className="overflow-x-auto bg-white p-4 font-mono text-sm leading-6 text-slate-800">
-        {code}
-      </pre>
+      <HighlightedCode code={code} language={language} />
       {output && (
         <div className="border-t border-slate-200 bg-slate-50 px-4 py-3">
           <div className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">

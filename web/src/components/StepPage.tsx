@@ -1,19 +1,20 @@
 import type { ReactNode } from "react";
 import { Link, useParams } from "react-router";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCourse, useStep } from "../api/queries";
 import { useComplete } from "../api/mutations";
 import LessonView from "../components/LessonView";
 import ExercisePanel from "./ExercisePanel";
+import ErrorScreen from "./ErrorScreen";
 
 export default function StepPage() {
   const { courseKey = "", stepId = "" } = useParams();
-  const { data: step, isPending, error } = useStep(courseKey, stepId);
+  const { data: step, isPending, error, refetch } = useStep(courseKey, stepId);
   const { data: course } = useCourse(courseKey); // already cached by the layout
   const complete = useComplete(courseKey, stepId);
 
   if (isPending) return <p className="p-8 text-slate-500">Loading step…</p>;
-  if (error) return <p className="p-8 text-red-600">{error.message}</p>;
+  if (error) return <ErrorScreen error={error} onRetry={() => refetch()} />;
 
   const hasExercise = step.exercise != null;
   const done = step.progress.status !== "open";
@@ -85,6 +86,10 @@ export default function StepPage() {
             exercise={step.exercise}
             progress={step.progress}
           />
+          <div className="mt-6 flex gap-3">
+            <NavButton to={link(step.previous_step_id)} direction="prev" />
+            <NavButton to={link(step.next_step_id)} direction="next" />
+          </div>
         </aside>
       )}
     </div>
@@ -109,5 +114,44 @@ function Arrow({
     <span aria-label={label} className={`${base} cursor-not-allowed text-slate-300`}>
       {children}
     </span>
+  );
+}
+
+function NavButton({ to, direction }: { to: string | null; direction: "prev" | "next" }) {
+  const isNext = direction === "next";
+  const label = isNext ? "Next Lesson" : "Previous Lesson";
+  const Icon = isNext ? ArrowRight : ArrowLeft;
+  const content = isNext ? (
+    <>
+      {label}
+      <Icon className="h-4 w-4" />
+    </>
+  ) : (
+    <>
+      <Icon className="h-4 w-4" />
+      {label}
+    </>
+  );
+  const base =
+    "flex flex-1 items-center justify-center gap-2 rounded-xl border px-5 py-2.5 font-semibold shadow-sm";
+
+  if (!to) {
+    return (
+      <span className={`${base} cursor-not-allowed border-slate-200 bg-slate-50 text-slate-300`}>
+        {content}
+      </span>
+    );
+  }
+  return (
+    <Link
+      to={to}
+      className={`${base} ${
+        isNext
+          ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
+          : "border-blue-200 bg-white text-blue-700 hover:bg-blue-50"
+      }`}
+    >
+      {content}
+    </Link>
   );
 }

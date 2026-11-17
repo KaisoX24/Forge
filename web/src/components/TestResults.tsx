@@ -27,9 +27,9 @@ function CaseRow({ c }: { c: CaseResult }) {
     <li className="px-4 py-2.5">
       <div className="flex items-center gap-3">
         {c.passed ? (
-          <CircleCheck className="h-5 w-5 shrink-0 text-emerald-500" />
+          <CircleCheck className="h-5 w-5 shrink-0 fill-emerald-500 text-white" />
         ) : (
-          <CircleX className="h-5 w-5 shrink-0 text-red-500" />
+          <CircleX className="h-5 w-5 shrink-0 fill-red-500 text-white" />
         )}
         <span className="flex-1 text-sm text-slate-800">{c.label}</span>
         {!c.visible && (
@@ -112,15 +112,19 @@ export default function TestResults({ result, pending, error }: Props) {
   return (
     <div
       aria-live="polite"
-      className="overflow-hidden rounded-lg border border-slate-200 bg-white"
+      className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
     >
       <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-sm">
-        <span className="border-b-2 border-blue-600 pb-1 font-medium text-blue-700">
+        <span className="border-b-2 border-blue-600 pb-2.5 font-semibold text-blue-700">
           Test Results
         </span>
         {result && (
-          <span className="font-medium text-slate-600">
-            {result.passed_count} / {result.total} tests
+          <span className={`mb-2 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+              result.passed_count === result.total
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-slate-100 text-slate-600"
+            }`}>
+              {result.passed_count} / {result.total} tests
           </span>
         )}
       </div>

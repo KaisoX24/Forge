@@ -3,13 +3,14 @@ import { useCourse } from "./api/queries";
 import Sidebar from "./components/Sidebar";
 import StepPage from "./components/StepPage";
 import ModuleCelebration from "./components/ModuleCelebration";
+import ErrorScreen from "./components/ErrorScreen";
 
 function CourseLayout() {
   const { courseKey = "" } = useParams();
-  const { data: course, isPending, error } = useCourse(courseKey);
+  const { data: course, isPending, error, refetch } = useCourse(courseKey);
 
   if (isPending) return <p className="p-8 text-slate-500">Loading course…</p>;
-  if (error) return <p className="p-8 text-red-600">{error.message}</p>;
+  if (error) return <ErrorScreen error={error} onRetry={() => refetch()} />;
 
   return (
     <div className="flex h-screen bg-[#F3F9FE] text-slate-900">
