@@ -13,6 +13,7 @@ class PublicExercise(BaseModel):
     difficulty:str
     target:_TARGETS
     files:dict[str,str]
+    starter_files:dict[str,str]
     hint_count:int
     hints:list[str]
     explanation:str | None
@@ -27,6 +28,7 @@ class PublicExercise(BaseModel):
             difficulty=exercise.difficulty,
             target=exercise.execution.target,
             files=files if files is not None else exercise.files,
+            starter_files=exercise.files,
             hint_count=len(exercise.hints),
             hints=exercise.hints[:hints_revealed],
             explanation=exercise.explanation if solved else None,

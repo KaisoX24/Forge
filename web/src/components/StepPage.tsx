@@ -27,14 +27,18 @@ export default function StepPage() {
   const number = `${step.module_index + 1}.${step.step_index + 1}`;
 
   return (
-    <div className="flex h-full">
-      <article className="min-w-0 flex-1 overflow-y-auto px-8 py-6">
-        <div className="mb-4 text-sm text-slate-500">
-          {course?.title} › Module {step.module_index + 1} › {number}
+    <div className="flex h-full gap-4 overflow-y-auto lg:flex-row lg:overflow-hidden">
+      <article className="min-w-0 shrink-0 rounded-2xl border border-slate-200 bg-white px-8 py-6 shadow-sm lg:flex-1 lg:shrink lg:overflow-y-auto">
+        <div className="mb-3 flex items-center gap-1.5 text-sm text-slate-400">
+          <span className="text-blue-500">{course?.title}</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-blue-500">Module {step.module_index + 1}</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="font-medium text-slate-800">{number}</span>
         </div>
 
         <div className="mb-6 flex items-start justify-between gap-4">
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold leading-tight tracking-tight text-slate-900">
             {number} {step.lesson?.title ?? step.objective}
           </h1>
           <div className="flex shrink-0 gap-2">
@@ -48,7 +52,7 @@ export default function StepPage() {
         </div>
 
         {step.lesson ? (
-          <LessonView lesson={step.lesson} />
+          <LessonView lesson={step.lesson}/>
         ) : (
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-slate-600">
             This lesson is not ready yet (status: {step.lesson_status}).
@@ -73,7 +77,7 @@ export default function StepPage() {
       </article>
 
       {step.exercise && (
-        <aside className="hidden w-[44%] shrink-0 overflow-y-auto border-l border-slate-200 bg-slate-50 p-6 lg:block">
+        <aside className="w-full shrink-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:w-[44%] lg:min-w-[380px] lg:max-w-[760px] lg:overflow-y-auto">
           <ExercisePanel
             key={step.step_id}
             courseKey={courseKey}
@@ -96,7 +100,7 @@ function Arrow({
   label: string;
   children: ReactNode;
 }) {
-  const base = "flex h-9 w-9 items-center justify-center rounded-md border border-slate-200";
+  const base = "flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white shadow-sm";
   return to ? (
     <Link to={to} aria-label={label} className={`${base} hover:bg-slate-100`}>
       {children}

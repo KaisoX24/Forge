@@ -486,6 +486,10 @@ export interface components {
             files: {
                 [key: string]: string;
             };
+            /** Starter Files */
+            starter_files: {
+                [key: string]: string;
+            };
             /** Hint Count */
             hint_count: number;
             /** Hints */

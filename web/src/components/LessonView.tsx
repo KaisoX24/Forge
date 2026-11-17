@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import Markdown from "react-markdown";
-import { Check, Copy, ExternalLink, Info, Lightbulb, TriangleAlert } from "lucide-react";
+import { Check, CircleCheck, Copy, ExternalLink, Info, Lightbulb, Target, TriangleAlert } from "lucide-react";
 import type { useStep } from "../api/queries";
 
 type Step = NonNullable<ReturnType<typeof useStep>["data"]>;
@@ -10,7 +10,7 @@ function Prose({ children }: { children: string }) {
   return (
     <Markdown
       components={{
-        p: ({ children }) => <p className="leading-7 text-slate-700">{children}</p>,
+        p: ({ children }) => <p className="leading-7 text-slate-600">{children}</p>,
         code: ({ children }) => (
           <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.85em] text-slate-800">
             {children}
@@ -112,29 +112,32 @@ function Callout({ kind, text }: { kind: string; text: string }) {
 // Doc labels come with Markdown marks like `FastAPI` or _path operation_.
 const plain = (s: string) => s.replace(/[`*_]/g, "");
 
-export default function LessonView({ lesson }: { lesson: Lesson }) {
+export default function LessonView({ lesson }: { lesson: Lesson;}) {
   return (
-    <div className="max-w-3xl space-y-6">
-      <p className="text-slate-600">{lesson.summary}</p>
+    <div className="max-w-6xl space-y-6">
+      <p className="text-lg text-slate-600">{lesson.summary}</p>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-        <h2 className="mb-3 font-bold">What you'll learn</h2>
-        <ul className="space-y-2">
-          {lesson.you_will_learn.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-slate-700">
-              <Check className="mt-1 h-4 w-4 shrink-0 text-blue-600" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-5">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-slate-900">
+            <Target className="h-6 w-6 text-blue-600" />
+            What you'll learn
+          </h2>
+          <ul className="space-y-2.5">
+            {lesson.you_will_learn.map((item) => (
+              <li key={item} className="flex items-start gap-2.5 text-slate-800">
+                <CircleCheck className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
 
       {lesson.blocks.map((block, i) => {
         switch (block.type) {
           case "text":
             return (
               <section key={i} className="space-y-2">
-                {block.heading && <h2 className="text-xl font-bold">{block.heading}</h2>}
+                {block.heading && <h2 className="text-2xl font-bold text-slate-900">{block.heading}</h2>}
                 <Prose>{block.body}</Prose>
               </section>
             );
@@ -144,9 +147,9 @@ export default function LessonView({ lesson }: { lesson: Lesson }) {
                 {block.items.map((item) => (
                   <div
                     key={item.title}
-                    className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                    className="rounded-xl border border-l-4 border-blue-100 border-l-blue-500 bg-blue-50/60 p-4"
                   >
-                    <div className="mb-1 font-semibold">{item.title}</div>
+                    <div className="mb-1 font-semibold text-slate-900">{item.title}</div>
                     <Prose>{item.text}</Prose>
                   </div>
                 ))}

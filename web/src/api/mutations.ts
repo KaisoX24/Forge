@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, unwrap } from "./client";
+import type { useStep } from "./queries";
+type Step = NonNullable<ReturnType<typeof useStep>["data"]>;
 
 type Files=Record<string,string>;
 
@@ -40,6 +42,24 @@ export function useSubmit(courseKey: string, stepId: string) {
         }),
       ),
     onSuccess: refresh,
+  });
+}
+
+export function useSaveDraft(courseKey: string, stepId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (files: Files) =>
+      unwrap(
+        await api.PUT("/api/courses/{course_key}/steps/{step_id}/draft", {
+          ...path(courseKey, stepId),
+          body: { files },
+        }),
+      ),
+    onSuccess: (_data, files) => {
+      qc.setQueryData<Step>(["step", courseKey, stepId], (old) =>
+        old?.exercise ? { ...old, exercise: { ...old.exercise, files } } : old,
+      );
+    },
   });
 }
 

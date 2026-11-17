@@ -12,10 +12,10 @@ function CourseLayout() {
   if (error) return <p className="p-8 text-red-600">{error.message}</p>;
 
   return (
-    <div className="flex h-screen bg-white text-slate-900">
+    <div className="flex h-screen bg-[#F3F9FE] text-slate-900">
       <Sidebar course={course} />
       <ModuleCelebration key={course.key} course={course} />
-      <main className="min-w-0 flex-1 overflow-hidden">
+      <main className="min-w-0 flex-1 overflow-hidden p-5">
         <Outlet />
       </main>
     </div>

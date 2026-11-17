@@ -1,7 +1,7 @@
-import { Suspense, useState } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { Play, RotateCcw, Send } from "lucide-react";
 import type { useStep } from "../api/queries";
-import { useRun, useSubmit } from "../api/mutations";
+import { useRun, useSubmit, useSaveDraft } from "../api/mutations";
 import TestResults from "./TestResults";
 import { CodeEditor, FileTabs, HintsTab, SolutionTab } from "./ExerciseTabs";
 
@@ -31,7 +31,30 @@ export default function ExercisePanel({ courseKey, stepId, exercise, progress }:
   const [active, setActive] = useState(names[0]);
   const run = useRun(courseKey, stepId);
   const submit = useSubmit(courseKey, stepId);
-  // Show whichever of the two was started last.
+  const saveDraft = useSaveDraft(courseKey, stepId);
+  const lastSaved = useRef(exercise.files);
+
+  useEffect(() => {
+    if (files === lastSaved.current) return;
+    const timer = setTimeout(() => {
+      lastSaved.current = files;
+      saveDraft.mutate(files);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [files, saveDraft.mutate]);
+
+  const filesRef = useRef(files);
+  filesRef.current = files;
+
+  useEffect(() => {
+    return () => {
+      if (filesRef.current !== lastSaved.current) {
+        lastSaved.current = filesRef.current;
+        saveDraft.mutate(filesRef.current);
+      }
+    };
+  }, []);
+
   const latest = submit.submittedAt > run.submittedAt ? submit : run;
   const busy = run.isPending || submit.isPending;
 
@@ -63,7 +86,7 @@ export default function ExercisePanel({ courseKey, stepId, exercise, progress }:
           ))}
         </div>
         <span
-          className={`mb-1 rounded-full px-3 py-0.5 text-sm font-medium ${
+          className={`mb-1 rounded-full capitalize px-3 py-0.5 text-sm font-medium ${
             difficultyStyle[exercise.difficulty] ?? "bg-slate-100 text-slate-600"
           }`}
         >
@@ -92,7 +115,7 @@ export default function ExercisePanel({ courseKey, stepId, exercise, progress }:
             <FileTabs names={names} active={active} onSelect={setActive} />
             <button
               type="button"
-              onClick={() => setFiles(exercise.files)}
+              onClick={() => setFiles(exercise.starter_files)}
               className="flex items-center gap-1 px-2 text-sm text-blue-700 hover:underline"
             >
               <RotateCcw className="h-3.5 w-3.5" />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
-import { ChevronRight, CircleCheck, Circle, Flame, Lock } from "lucide-react";
+import { BookOpen, ChevronRight, CircleCheck, Circle, Flame, Lock, Layers } from "lucide-react";
 import type { useCourse } from "../api/queries";
 
 type Course = NonNullable<ReturnType<typeof useCourse>["data"]>;
@@ -19,7 +19,7 @@ export default function Sidebar({ course }: { course: Course }) {
   const [overrides, setOverrides] = useState<Record<number, boolean>>({});
 
   return (
-    <aside className="flex h-full w-80 shrink-0 flex-col border-r border-slate-200 bg-slate-50">
+    <aside className="flex h-full w-80 shrink-0 flex-col border-r border-slate-200 bg-[#F3F9FE]">
       <div className="flex items-center gap-2 px-5 py-4">
         <Flame className="h-7 w-7 text-orange-500" />
         <div>
@@ -28,21 +28,29 @@ export default function Sidebar({ course }: { course: Course }) {
         </div>
       </div>
 
-      <div className="border-y border-slate-200 px-5 py-4">
-        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          Current course
-        </div>
-        <div className="mt-1 font-semibold">{course.title}</div>
-        <div className="mt-2 flex items-center gap-3">
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
-            <div
-              className="h-full rounded-full bg-blue-600 transition-all duration-500"
-              style={{ width: `${course.progress_percent}%` }}
-            />
+      <div className="px-4 py-3">
+        <div className="mb-2 px-1 text-xs font-medium text-slate-500">Current course</div>
+        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+              <Layers className="h-5 w-5 text-blue-600" />
+            </div>
+            <div className="min-w-0">
+              <div className="truncate font-semibold text-slate-900">{course.title}</div>
+              <div className="truncate text-xs text-slate-500">{course.framework}</div>
+            </div>
           </div>
-          <span className="text-xs font-medium text-slate-600">
-            {course.progress_percent}%
-          </span>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+              <div
+                className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                style={{ width: `${course.progress_percent}%` }}
+              />
+            </div>
+            <span className="text-xs font-semibold text-slate-600">
+              {course.progress_percent}%
+            </span>
+          </div>
         </div>
       </div>
 
@@ -60,21 +68,31 @@ export default function Sidebar({ course }: { course: Course }) {
                   onClick={() =>
                     setOverrides((prev) => ({ ...prev, [module.index]: !open }))
                   }
-                  className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-sm font-semibold text-slate-900 hover:bg-slate-100"
+                  className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-slate-100"
                 >
+                  <BookOpen className="h-6 w-6 shrink-0 text-blue-600" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-bold text-slate-900">
+                      Module {module.index + 1}
+                    </span>
+                    <span className="line-clamp-2 block text-sm text-slate-600">{module.title}</span>
+                  </span>
                   <ChevronRight
-                    className={`mt-0.5 h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${
-                      open ? "rotate-90" : ""
+                    className={`h-5 w-5 shrink-0 text-slate-600 transition-transform duration-200 ${
+                      open ? "-rotate-90" : ""
                     }`}
                   />
-                  <span>{title}</span>
                 </button>
               ) : (
-                <div className="flex items-start gap-2 px-2 py-1.5 text-sm font-semibold text-slate-400">
-                  <Lock className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>{title}</span>
+                <div className="flex items-center gap-3 px-2 py-2 text-slate-400">
+                  <Lock className="h-5 w-5 shrink-0" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold">Module {module.index + 1}</span>
+                    <span className="line-clamp-2 block text-xs">{module.title}</span>
+                  </span>
                 </div>
               )}
+              
 
               {module.unlocked && (
                 // Animating height: a grid row goes from 0fr to 1fr.
@@ -83,16 +101,16 @@ export default function Sidebar({ course }: { course: Course }) {
                     open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                   }`}
                 >
-                  <ul className="min-h-0 space-y-0.5 overflow-hidden">
+                  <ul className="ml-5 min-h-0 space-y-1 overflow-hidden border-l border-slate-200">
                     {module.steps.map((step, i) => (
                       <li key={step.id}>
                         <NavLink
                           to={`/course/${course.key}/step/${step.id}`}
                           className={({ isActive }) =>
-                            `flex items-start gap-2 rounded-md py-1.5 pl-8 pr-2 text-sm ${
-                              isActive
-                                ? "bg-blue-100 text-blue-800"
-                                : "text-slate-700 hover:bg-slate-100"
+                            `-ml-px flex items-start gap-2 rounded-r-lg border-l-2 py-2 pl-4 pr-2 text-[15px] ${
+                                isActive
+                                  ? "border-blue-600 bg-blue-100 font-semibold text-blue-700"
+                                  : "border-transparent font-medium text-slate-700 hover:bg-slate-100"
                             }`
                           }
                         >
@@ -100,7 +118,7 @@ export default function Sidebar({ course }: { course: Course }) {
                             <StepIcon progress={step.progress} />
                           </span>
                           <span className="line-clamp-2 flex-1">
-                            <span className="mr-1.5 text-slate-400">
+                            <span className="mr-1.5 inline-block w-7 text-slate-400 tabular-nums">
                               {module.index + 1}.{i + 1}
                             </span>
                             {step.title}
