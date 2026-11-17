@@ -27,7 +27,7 @@ export default function StepPage() {
   const number = `${step.module_index + 1}.${step.step_index + 1}`;
 
   return (
-    <div className="flex h-full gap-4 overflow-y-auto lg:flex-row lg:overflow-hidden">
+    <div className="flex h-full flex-col gap-4 overflow-y-auto lg:flex-row lg:overflow-hidden">
       <article className="min-w-0 shrink-0 rounded-2xl border border-slate-200 bg-white px-8 py-6 shadow-sm lg:flex-1 lg:shrink lg:overflow-y-auto">
         <div className="mb-3 flex items-center gap-1.5 text-sm text-slate-400">
           <span className="text-blue-500">{course?.title}</span>

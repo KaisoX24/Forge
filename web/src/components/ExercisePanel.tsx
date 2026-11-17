@@ -135,6 +135,19 @@ export default function ExercisePanel({ courseKey, stepId, exercise, progress }:
         </div>
 
         <div className="flex justify-end gap-3">
+          <span
+            className={`mr-auto self-center text-xs ${
+              saveDraft.isError ? "text-red-600" : "text-slate-400"
+            }`}
+          >
+            {saveDraft.isPending
+              ? "Saving…"
+              : saveDraft.isError
+                ? `Couldn't save: ${saveDraft.error.message}`
+                : saveDraft.isSuccess
+                  ? "Draft saved"
+                  : ""}
+          </span>
           <button
             type="button"
             disabled={busy}
