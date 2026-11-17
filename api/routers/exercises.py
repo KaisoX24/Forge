@@ -22,6 +22,15 @@ def _load_exercise(course_key:str,step_id:str,store:Store,
         raise NotFound("This step has no exercise.")
     return course, lesson.exercise
 
+def _save_draft_now(session:DbSession,course_key:str,step_id:str,files:dict[str, str]) -> None:
+    """Save the learner's code and COMMIT"""
+    try:
+        P.save_draft(session, course_key, step_id, files)
+    except ValueError as exc:
+        raise Invalid(str(exc))
+    session.commit()
+
+
 
 def _open_exercise(course_key:str,step_id:str,store:Store,session:DbSession) -> Exercise:
     return _load_exercise(course_key,step_id,store,session)[1]
@@ -29,16 +38,15 @@ def _open_exercise(course_key:str,step_id:str,store:Store,session:DbSession) -> 
 @router.put('/draft',status_code=204)
 def put_draft(course_key:str,step_id:str,body:FilesRequest,store:Store,session:DbSession) -> None:
     _open_exercise(course_key,step_id,store,session)
-    try:
-        P.save_draft(session,course_key,step_id,body.files)
-    except ValueError as exc:
-        raise Invalid(str(exc))
+    _save_draft_now(session, course_key, step_id, body.files)
 
 @router.post('/hints/next',response_model=HintsResponse)
 def next_hint(course_key:str,step_id:str,store:Store,session:DbSession) -> HintsResponse:
     exercise= _open_exercise(course_key,step_id,store,session)
     revealed=P.reveal_next_hint(session,course_key,step_id,len(exercise.hints))
-    return HintsResponse(hint_count=len(exercise.hints), hints=exercise.hints[:revealed])
+    hints=HintsResponse(hint_count=len(exercise.hints), hints=exercise.hints[:revealed])
+    session.commit()
+    return hints
 
 @router.post("/complete", response_model=StepStatus)
 def complete(course_key:str,step_id:str,store:Store,session:DbSession) -> StepStatus:
@@ -51,6 +59,7 @@ def complete(course_key:str,step_id:str,store:Store,session:DbSession) -> StepSt
     if lesson.exercise is not None:
         raise Conflict("This step has an exercise to solve.")
     P.mark_completed(session, course_key, step_id, has_exercise=False)
+    session.commit()
     return StepStatus(status=P.get_state(session, course_key, step_id).status)
 
 @router.post("/give-up", response_model=StepStatus)
@@ -58,6 +67,7 @@ def give_up(course_key: str, step_id: str, store: Store, session: DbSession) ->S
     _open_exercise(course_key, step_id, store, session)
     if not P.give_up(session, course_key, step_id):
         raise Conflict("Giving up is not available yet.")
+    session.commit()
     return StepStatus(status="gave_up")
 
 
@@ -71,13 +81,6 @@ def get_solution(course_key: str, step_id: str, store: Store, session: DbSession
         raise NotFound("No solution is stored for this exercise.")
     return SolutionResponse(files=exercise.reference_files)
 
-def _save_draft_now(session:DbSession,course_key:str,step_id:str,files:dict[str, str]) -> None:
-    """Save the learner's code and COMMIT"""
-    try:
-        P.save_draft(session, course_key, step_id, files)
-    except ValueError as exc:
-        raise Invalid(str(exc))
-    session.commit()
 
 
 @router.post("/run", response_model=RunResult)
@@ -99,4 +102,6 @@ def submit(course_key: str, step_id: str, body: FilesRequest,
     _save_draft_now(session, course_key, step_id, body.files)
     grader = registry.for_course(course_key, course.env)
     result = grader.grade(exercise, body.files, visible_only=False)
-    return P.record_submit(session, course_key, step_id, result)
+    submitted = P.record_submit(session, course_key, step_id, result)
+    session.commit()
+    return submitted

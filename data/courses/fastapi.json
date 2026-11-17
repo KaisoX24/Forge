@@ -287,32 +287,32 @@
       "schema_version": 1,
       "id": "m1-s1",
       "title": "Declare a FastAPI application instance named 'app'.",
-      "summary": "Import the FastAPI class and create an application instance named 'app' to start building your API.",
+      "summary": "Import the FastAPI class and create an app instance to start building your API.",
       "you_will_learn": [
-        "Import the FastAPI class from the fastapi package",
-        "Instantiate the FastAPI class with parentheses",
-        "Assign the new instance to a variable named app"
+        "Import FastAPI from the fastapi package",
+        "Instantiate the FastAPI class as a variable",
+        "Understand that app is an instance of FastAPI"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Creating Your FastAPI Application",
-          "body": "To start building your API, you must first import the `FastAPI` class. Then, create an instance of this class by calling it with parentheses and assign that instance to a variable, typically named `app`. This `app` object is the central point for defining all your API routes."
+          "heading": "Creating Your FastAPI App",
+          "body": "To start building your API, you must first import the `FastAPI` class from the `fastapi` package. Then, instantiate this class and assign it to a variable, typically named `app`. This `app` variable is an instance of the `FastAPI` class and serves as the main point of interaction for creating all your API endpoints."
         },
         {
           "type": "key_points",
           "items": [
             {
               "title": "Importing FastAPI",
-              "text": "Use the statement `from fastapi import FastAPI` to bring the class into your current script."
+              "text": "Use `from fastapi import FastAPI` to bring the class into your current Python file."
             },
             {
               "title": "Instantiating the App",
-              "text": "Call `FastAPI()` with no arguments inside parentheses to create a new application instance."
+              "text": "Call `FastAPI()` with no arguments and assign the result to a variable like `app`."
             },
             {
-              "title": "Assigning to app",
-              "text": "Store the result in a variable named `app` so you can attach routes to it later."
+              "title": "The App Instance",
+              "text": "The `app` variable is now an instance of the `FastAPI` class, ready for decorators."
             }
           ]
         },
@@ -326,7 +326,7 @@
         {
           "type": "callout",
           "kind": "tip",
-          "text": "The `app` variable is the main object you will use to define endpoints. Do not forget to assign the result of `FastAPI()` to it."
+          "text": "Always define `app` before adding route handlers like `@app.get`. The order matters for the code to work correctly."
         }
       ],
       "docs": [
