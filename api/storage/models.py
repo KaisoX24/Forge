@@ -76,3 +76,10 @@ class Job(Base):
     error: Mapped[str | None]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+class CourseProgress(Base):
+    "Furthest module the learner has ever unlocked, so regenerating never re-locks one."
+    __tablename__ = "course_progress"
+
+    course_id: Mapped[str] = mapped_column(primary_key=True)
+    max_unlocked: Mapped[int] = mapped_column(default=0)

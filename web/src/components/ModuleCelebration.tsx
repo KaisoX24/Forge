@@ -9,6 +9,17 @@ type Module = Course["modules"][number];
 const isDone = (m: Module) =>
   m.steps.length > 0 && m.steps.every((s) => s.progress !== "open");
 
+function popperBurst() {
+  const base = { zIndex: 100 };
+  // The pop in the middle...
+  confetti({ ...base, particleCount: 120, spread: 360, startVelocity: 35, ticks: 120, origin: { x: 0.5, y: 0.5 } });
+  // ...then two cannons from the lower corners, aimed at the middle.
+  setTimeout(() => {
+    confetti({ ...base, particleCount: 80, angle: 60, spread: 70, startVelocity: 60, origin: { x: 0, y: 0.9 } });
+    confetti({ ...base, particleCount: 80, angle: 120, spread: 70, startVelocity: 60, origin: { x: 1, y: 0.9 } });
+  }, 300);
+}
+
 export default function ModuleCelebration({ course }: { course: Course }) {
   // Modules that were already done the last time we looked. null = first load.
   const before = useRef<Set<number> | null>(null);
@@ -28,12 +39,7 @@ export default function ModuleCelebration({ course }: { course: Course }) {
       title: `Module ${fresh.index + 1} complete!`,
       next: next ? `Module ${next.index + 1} is unlocked.` : "You finished the course.",
     });
-    confetti({
-      particleCount: 90,
-      spread: 70,
-      origin: { y: 0.25 },
-      disableForReducedMotion: true,
-    });
+    popperBurst();
   }, [course]);
 
   useEffect(() => {
@@ -44,15 +50,25 @@ export default function ModuleCelebration({ course }: { course: Course }) {
 
   if (!toast) return null;
   return (
-    <div
-      role="status"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-emerald-200 bg-white px-5 py-4 shadow-lg transition duration-300 starting:translate-y-3 starting:opacity-0"
-    >
-      <PartyPopper className="h-6 w-6 text-emerald-600" />
-      <div>
-        <div className="font-semibold text-slate-900">{toast.title}</div>
-        <div className="text-sm text-slate-600">{toast.next}</div>
+  <div
+    role="status"
+    onClick={() => setToast(null)}
+    className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-[2px] transition duration-300 starting:opacity-0"
+  >
+    <div className="flex flex-col items-center rounded-3xl bg-white px-12 py-10 text-center shadow-2xl transition duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] starting:scale-50 starting:opacity-0">
+      <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50">
+        <PartyPopper className="h-10 w-10 text-emerald-600" />
       </div>
+      <div className="text-3xl font-bold text-slate-900">{toast.title}</div>
+      <div className="mt-2 text-lg text-slate-600">{toast.next}</div>
+      <button
+        type="button"
+        onClick={() => setToast(null)}
+        className="mt-6 rounded-xl bg-blue-600 px-6 py-2.5 font-semibold text-white shadow-sm hover:bg-blue-700"
+      >
+        Continue
+      </button>
     </div>
+  </div>
   );
 }

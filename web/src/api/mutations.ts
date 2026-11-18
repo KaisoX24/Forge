@@ -95,3 +95,25 @@ export function useComplete(courseKey: string, stepId: string) {
     onSuccess: refresh,
   });
 }
+
+export function useGenerateModule(courseKey: string) {
+  return useMutation({
+    mutationFn: async (moduleIndex: number) =>
+      unwrap(
+        await api.POST("/api/courses/{course_key}/modules/{module_index}/generate", {
+          params: { path: { course_key: courseKey, module_index: moduleIndex } },
+        }),
+      ),
+  });
+}
+
+export function useRegenerateStep(courseKey: string, stepId: string) {
+  return useMutation({
+    mutationFn: async () =>
+      unwrap(
+        await api.POST("/api/courses/{course_key}/steps/{step_id}/regenerate", {
+          ...path(courseKey, stepId),
+        }),
+      ),
+  });
+}

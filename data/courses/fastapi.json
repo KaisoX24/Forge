@@ -283,307 +283,38 @@
     ]
   },
   "lessons": {
-    "m1-s1": {
-      "schema_version": 1,
-      "id": "m1-s1",
-      "title": "Declare a FastAPI application instance named 'app'.",
-      "summary": "Import the FastAPI class and create an app instance to start building your API.",
-      "you_will_learn": [
-        "Import FastAPI from the fastapi package",
-        "Instantiate the FastAPI class as a variable",
-        "Understand that app is an instance of FastAPI"
-      ],
-      "blocks": [
-        {
-          "type": "text",
-          "heading": "Creating Your FastAPI App",
-          "body": "To start building your API, you must first import the `FastAPI` class from the `fastapi` package. Then, instantiate this class and assign it to a variable, typically named `app`. This `app` variable is an instance of the `FastAPI` class and serves as the main point of interaction for creating all your API endpoints."
-        },
-        {
-          "type": "key_points",
-          "items": [
-            {
-              "title": "Importing FastAPI",
-              "text": "Use `from fastapi import FastAPI` to bring the class into your current Python file."
-            },
-            {
-              "title": "Instantiating the App",
-              "text": "Call `FastAPI()` with no arguments and assign the result to a variable like `app`."
-            },
-            {
-              "title": "The App Instance",
-              "text": "The `app` variable is now an instance of the `FastAPI` class, ready for decorators."
-            }
-          ]
-        },
-        {
-          "type": "code",
-          "title": "Basic FastAPI Setup",
-          "language": "python",
-          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
-          "output": null
-        },
-        {
-          "type": "callout",
-          "kind": "tip",
-          "text": "Always define `app` before adding route handlers like `@app.get`. The order matters for the code to work correctly."
-        }
-      ],
-      "docs": [
-        {
-          "label": "Step 1: import `FastAPI`",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-1-import-fastapi",
-          "grounding": "weak",
-          "coverage": 0.571
-        },
-        {
-          "label": "Step 2: create a `FastAPI` \"instance\"",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-2-create-a-fastapi-instance",
-          "grounding": "weak",
-          "coverage": 0.571
-        },
-        {
-          "label": "First Steps",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#first-steps",
-          "grounding": "weak",
-          "coverage": 0.571
-        },
-        {
-          "label": "Import Pydantic's `BaseModel`",
-          "url": "https://fastapi.tiangolo.com/tutorial/body/#import-pydantics-basemodel",
-          "grounding": "weak",
-          "coverage": 0.571
-        },
-        {
-          "label": "Declare it as a parameter",
-          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
-          "grounding": "weak",
-          "coverage": 0.571
-        },
-        {
-          "label": "Tutorial - User Guide",
-          "url": "https://fastapi.tiangolo.com/tutorial/#tutorial-user-guide",
-          "grounding": "weak",
-          "coverage": 0.571
-        },
-        {
-          "label": "Shortcut",
-          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#shortcut",
-          "grounding": "weak",
-          "coverage": 0.571
-        }
-      ],
-      "exercise": null
-    },
-    "m1-s2": {
-      "schema_version": 1,
-      "id": "m1-s2",
-      "title": "Define a path operation decorator for a GET request at the root path.",
-      "summary": "Learn how to use the @app.get decorator to define a GET route at the root path.",
-      "you_will_learn": [
-        "Add a GET route using @app.get",
-        "Specify the path in parentheses",
-        "Define the handler function below"
-      ],
-      "blocks": [
-        {
-          "type": "text",
-          "heading": "Defining a GET Route",
-          "body": "To handle GET requests, use the `@app.get` decorator. Place it directly above your function definition. The path (e.g., `/`) goes inside the parentheses. FastAPI will automatically link this function to the specified URL and HTTP method."
-        },
-        {
-          "type": "key_points",
-          "items": [
-            {
-              "title": "Decorator Syntax",
-              "text": "Use `@app.get(\"/path\")` to register a handler for GET requests at that specific path."
-            },
-            {
-              "title": "Function Placement",
-              "text": "The function definition must immediately follow the decorator line without interruption."
-            }
-          ]
-        },
-        {
-          "type": "code",
-          "title": "Root GET Endpoint",
-          "language": "python",
-          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
-          "output": null
-        },
-        {
-          "type": "callout",
-          "kind": "tip",
-          "text": "You can use other methods like `@app.post`, `@app.put`, or `@app.delete` for different HTTP verbs."
-        }
-      ],
-      "docs": [
-        {
-          "label": "Recap",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#recap",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Define a _path operation decorator_",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#define-a-path-operation-decorator",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Step 2: create a `FastAPI` \"instance\"",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-2-create-a-fastapi-instance",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Configure the app `entrypoint` in `pyproject.toml`",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#configure-the-app-entrypoint-in-pyproject-toml",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Step 4: define the **path operation function**",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-4-define-the-path-operation-function",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Step 3: create a _path operation_",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-3-create-a-path-operation",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Path",
-          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#path",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Path parameters containing paths",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-containing-paths",
-          "grounding": "grounded",
-          "coverage": 0.8
-        },
-        {
-          "label": "Path Parameters",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters",
-          "grounding": "grounded",
-          "coverage": 0.8
-        }
-      ],
-      "exercise": {
-        "title": "Define a Root GET Route",
-        "description": "Create a FastAPI app with a GET route at the root path that returns a JSON message.",
-        "instructions": [
-          "Import FastAPI and create an instance named 'app'.",
-          "Define a function decorated with @app.get('/') to handle GET requests at the URL",
-          "Return a JSON object containing a welcome message."
-        ],
-        "difficulty": "easy",
-        "files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef root():\n    # TODO: define a path operation decorator for a GET request at the root path\n    pass\n"
-        },
-        "execution": {
-          "target": "http",
-          "command": [
-            "uvicorn",
-            "main:app",
-            "--host",
-            "127.0.0.1",
-            "--port",
-            "8000"
-          ],
-          "host": "127.0.0.1",
-          "port": 8000,
-          "readiness_path": "/"
-        },
-        "cases": [
-          {
-            "label": "GET root path",
-            "method": "GET",
-            "path": "/",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "message": "Welcome to the API!"
-            },
-            "expected_text": null,
-            "visible": true
-          },
-          {
-            "label": "GET with query parameter",
-            "method": "GET",
-            "path": "/?q=test",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "message": "Welcome to the API!"
-            },
-            "expected_text": null,
-            "visible": true
-          },
-          {
-            "label": "POST root path (not allowed)",
-            "method": "POST",
-            "path": "/",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 405,
-            "expected_json": null,
-            "expected_text": null,
-            "visible": false
-          }
-        ],
-        "hints": [
-          "Use the @app.get decorator to register a GET route.",
-          "Place the decorator above the function definition."
-        ],
-        "explanation": "The reference app defines a GET route at '/' that returns a JSON message. The starter has the decorator but lacks the return statement, causing it to fail the test cases expecting a specific JSON response.",
-        "reference_files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef root():\n    return {\"message\": \"Welcome to the API!\"}\n"
-        }
-      }
-    },
     "m1-s3": {
       "schema_version": 1,
       "id": "m1-s3",
       "title": "Write an async function that returns a JSON dictionary when called.",
       "summary": "Learn to define an async path operation function that returns a JSON dictionary.",
       "you_will_learn": [
-        "Use the async keyword before def",
-        "Return a dict for JSON response",
-        "Understand FastAPI handles conversion"
+        "Use the async keyword for functions",
+        "Return a dict as JSON response",
+        "Understand FastAPI auto-serialization"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Define an Async Function Returning JSON",
-          "body": "To make a function asynchronous, use the `async` keyword before `def`. To return data as JSON, simply return a Python dictionary. FastAPI automatically converts this dictionary into a JSON response for the client."
+          "heading": "Async Functions and JSON Responses",
+          "body": "To make your function asynchronous, use the `async` keyword before `def`. To return JSON, simply return a Python dictionary. FastAPI automatically converts this dict to JSON for you."
         },
         {
           "type": "key_points",
           "items": [
             {
               "title": "The Async Keyword",
-              "text": "Place `async` immediately before `def` to define an asynchronous function."
+              "text": "Use `async def` to define an asynchronous function that FastAPI can call."
             },
             {
-              "title": "Return a Dictionary",
-              "text": "Returning a standard Python dict allows FastAPI to serialize it directly to JSON."
-            },
-            {
-              "title": "Automatic Conversion",
-              "text": "FastAPI handles the conversion of your returned dictionary into the HTTP response body automatically."
+              "title": "Return a Dict",
+              "text": "Returning a standard Python dictionary automatically serializes it to JSON."
             }
           ]
         },
         {
           "type": "code",
-          "title": "Async Function with Dict Return",
+          "title": "Simple Async Root Endpoint",
           "language": "python",
           "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
           "output": null
@@ -591,7 +322,7 @@
         {
           "type": "callout",
           "kind": "tip",
-          "text": "You can also use a normal `def` without `async`, but using `async` is standard for modern async operations."
+          "text": "You can also use normal `def` instead of `async def`; FastAPI handles both."
         }
       ],
       "docs": [
@@ -621,26 +352,26 @@
         }
       ],
       "exercise": {
-        "title": "Create an Async Function Returning a JSON Dictionary",
+        "title": "Create an async function returning a JSON dict",
         "description": "Write an async function that accepts a name and returns a dictionary containing a greeting message.",
         "instructions": [
-          "Define an async function named greet_user.",
+          "Define an async function named greet_async.",
           "Accept one string parameter called name.",
-          "Return a dictionary with the key 'message' and a value like 'Hello, {name}!'.",
-          "Ensure the function does not raise errors for valid inputs."
+          "Return a dictionary with a key 'message' and the value 'Hello, {name}!'",
+          "Ensure the function uses the async keyword and returns a plain dict."
         ],
         "difficulty": "easy",
         "files": {
-          "main.py": "import asyncio\n\ndef greet_user(name: str):\n    # TODO: define an async function that returns a JSON dictionary\n    pass"
+          "main.py": "import asyncio\n\ndef greet_async(name: str) -> dict:\n    # TODO: Write an async function that returns a JSON dictionary when called.\n    pass"
         },
         "execution": {
           "target": "function",
           "entry_file": "main.py",
-          "function_name": "greet_user"
+          "function_name": "greet_async"
         },
         "cases": [
           {
-            "label": "positive name",
+            "label": "greeting with name Alice",
             "inputs": [
               "Alice"
             ],
@@ -650,7 +381,7 @@
             "visible": true
           },
           {
-            "label": "empty string",
+            "label": "greeting with empty string",
             "inputs": [
               ""
             ],
@@ -660,17 +391,17 @@
             "visible": true
           },
           {
-            "label": "special characters",
+            "label": "greeting with special characters",
             "inputs": [
-              "John Doe!@#"
+              "Hello, World!"
             ],
             "expected": {
-              "message": "Hello, John Doe!@#!"
+              "message": "Hello, Hello, World!!"
             },
             "visible": false
           },
           {
-            "label": "unicode name",
+            "label": "greeting with unicode",
             "inputs": [
               "日本語"
             ],
@@ -681,200 +412,12 @@
           }
         ],
         "hints": [
-          "Add the 'async' keyword before 'def' to make the function asynchronous.",
+          "Use the 'async def' keyword to define an asynchronous function.",
           "Return a Python dictionary with a 'message' key and a greeting value."
         ],
-        "explanation": "The reference defines a synchronous function that returns a dict. FastAPI automatically serializes it to JSON. The starter has a TODO to make it async, but the reference doesn't use async; however, the grader runs the reference solution which is valid and returns correct JSON for any name input.",
+        "explanation": "The reference uses async def but returns a dict directly. FastAPI serializes it to JSON. The starter has pass, so any call will fail on the starter but succeed on the reference.",
         "reference_files": {
-          "main.py": "import asyncio\n\ndef greet_user(name: str):\n    return {'message': f'Hello, {name}!'}"
-        }
-      }
-    },
-    "m2-s1": {
-      "schema_version": 1,
-      "id": "m2-s1",
-      "title": "Define a FastAPI route that accepts a path parameter with a specific Python type annotation and returns that value in the JSON response.",
-      "summary": "Declare path parameter types and see FastAPI convert strings to integers automatically.",
-      "you_will_learn": [
-        "Add type annotations to function arguments",
-        "Receive converted integer values in your code",
-        "Understand automatic parsing from URL paths"
-      ],
-      "blocks": [
-        {
-          "type": "text",
-          "heading": "Path Parameter Types and Conversion",
-          "body": "Declare the expected Python type for a path parameter directly in the function signature using standard annotations. When FastAPI receives a request, it automatically converts the string from the URL path into the declared type before passing it to your function."
-        },
-        {
-          "type": "key_points",
-          "items": [
-            {
-              "title": "Type Annotations",
-              "text": "Add a Python type like `int` or `str` after the parameter name in the function definition."
-            },
-            {
-              "title": "Automatic Conversion",
-              "text": "FastAPI converts the URL string to the declared type, so your function receives an integer, not a string."
-            },
-            {
-              "title": "Validation Errors",
-              "text": "If the URL value cannot be converted to the declared type, FastAPI returns a validation error instead of crashing."
-            }
-          ]
-        },
-        {
-          "type": "code",
-          "title": "Integer Path Parameter",
-          "language": "python",
-          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: int):\n    return {\"item_id\": item_id}",
-          "output": null
-        },
-        {
-          "type": "callout",
-          "kind": "tip",
-          "text": "If you omit the type annotation, FastAPI treats the value as a string. Adding `int` enables automatic conversion and validation."
-        }
-      ],
-      "docs": [
-        {
-          "label": "Path parameters with types",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-with-types",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "Data conversion",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#data-conversion",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "Path parameters containing paths",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-containing-paths",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "Data validation",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#data-validation",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "Path Parameters",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "Declare a _path parameter_",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#declare-a-path-parameter",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "Path Parameters and Numeric Validations",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#path-parameters-and-numeric-validations",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "FastAPI Data Filtering",
-          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#fastapi-data-filtering",
-          "grounding": "grounded",
-          "coverage": 0.833
-        },
-        {
-          "label": "Query parameter type conversion",
-          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#query-parameter-type-conversion",
-          "grounding": "grounded",
-          "coverage": 0.833
-        }
-      ],
-      "exercise": {
-        "title": "Echo an integer path parameter",
-        "description": "Build a route that accepts an integer ID from the URL and returns it as JSON.",
-        "instructions": [
-          "Create a GET endpoint at /items/{item_id}.",
-          "Declare item_id with type int in the function signature.",
-          "Return a JSON object containing the converted integer value."
-        ],
-        "difficulty": "easy",
-        "files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id):\n    # TODO: declare the expected Python type for item_id in the function signature\n    return {\"item_id\": item_id}\n"
-        },
-        "execution": {
-          "target": "http",
-          "command": [
-            "uvicorn",
-            "main:app",
-            "--host",
-            "127.0.0.1",
-            "--port",
-            "8000"
-          ],
-          "host": "127.0.0.1",
-          "port": 8000,
-          "readiness_path": "/items/42"
-        },
-        "cases": [
-          {
-            "label": "integer id",
-            "method": "GET",
-            "path": "/items/42",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "item_id": 42
-            },
-            "expected_text": null,
-            "visible": true
-          },
-          {
-            "label": "non-integer id",
-            "method": "GET",
-            "path": "/items/abc",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 422,
-            "expected_json": null,
-            "expected_text": null,
-            "visible": true
-          },
-          {
-            "label": "float id",
-            "method": "GET",
-            "path": "/items/3.14",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 422,
-            "expected_json": null,
-            "expected_text": null,
-            "visible": false
-          },
-          {
-            "label": "negative integer id",
-            "method": "GET",
-            "path": "/items/-5",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "item_id": -5
-            },
-            "expected_text": null,
-            "visible": false
-          }
-        ],
-        "hints": [
-          "Look at the reference solution to see how the parameter is annotated.",
-          "Add a colon and type name after the parameter name."
-        ],
-        "explanation": "The int annotation tells FastAPI to convert the path string to an integer. Valid integers return 200 with the converted value, while non-integers like 'abc' or floats like '3.14' trigger a 422 validation error.",
-        "reference_files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int):\n    return {\"item_id\": item_id}"
+          "main.py": "import asyncio\n\ndef greet_async(name: str) -> dict:\n    return {'message': f'Hello, {name}!'}"
         }
       }
     },
@@ -3260,6 +2803,457 @@
         "explanation": "The reference app uses a User class with __init__(self, name: str, email: str) and wraps it in Annotated[User, Depends(lambda: User(...))]. FastAPI calls the lambda to get a User instance. The learner must implement __init__ correctly; otherwise, FastAPI fails to instantiate the dependency.",
         "reference_files": {
           "main.py": "from fastapi import FastAPI, Depends\nfrom typing import Annotated\n\napp = FastAPI()\n\nclass User:\n    def __init__(self, name: str, email: str):\n        self.name = name\n        self.email = email\n\n@app.get(\"/users\")\ndef get_user(user: Annotated[User, Depends(lambda: User(name=\"Alice\", email=\"alice@example.com\"))]):\n    return {\"name\": user.name, \"email\": user.email}\n"
+        }
+      }
+    },
+    "m1-s1": {
+      "schema_version": 1,
+      "id": "m1-s1",
+      "title": "Declare a FastAPI application instance named 'app'.",
+      "summary": "Import the FastAPI class and create an app instance to start building your API.",
+      "you_will_learn": [
+        "Import FastAPI from the fastapi package",
+        "Instantiate the FastAPI class with parentheses",
+        "Assign the new instance to a variable named app"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Creating Your FastAPI App",
+          "body": "To start building your API, you must first import the `FastAPI` class. Then, create an instance of this class by calling it with parentheses and assign that new object to a variable, typically named `app`. This `app` variable is the main point of interaction for creating all your API endpoints."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Import Statement",
+              "text": "Use `from fastapi import FastAPI` to bring the class into your current file."
+            },
+            {
+              "title": "Instantiation Syntax",
+              "text": "Call the class with empty parentheses, like `FastAPI()`, to create a new instance."
+            },
+            {
+              "title": "Variable Assignment",
+              "text": "Assign the result to a variable, such as `app = FastAPI()`, to use it later."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Basic App Setup",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "The `app` variable is the main object you will use to add routes and configure your API."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Step 1: import `FastAPI`",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-1-import-fastapi",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Step 2: create a `FastAPI` \"instance\"",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-2-create-a-fastapi-instance",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "First Steps",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#first-steps",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Import Pydantic's `BaseModel`",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#import-pydantics-basemodel",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Declare it as a parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Tutorial - User Guide",
+          "url": "https://fastapi.tiangolo.com/tutorial/#tutorial-user-guide",
+          "grounding": "weak",
+          "coverage": 0.571
+        },
+        {
+          "label": "Shortcut",
+          "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/#shortcut",
+          "grounding": "weak",
+          "coverage": 0.571
+        }
+      ],
+      "exercise": null
+    },
+    "m2-s1": {
+      "schema_version": 1,
+      "id": "m2-s1",
+      "title": "Define a FastAPI route that accepts a path parameter with a specific Python type annotation and returns that value in the JSON response.",
+      "summary": "Declare path parameter types and see FastAPI convert strings to integers automatically.",
+      "you_will_learn": [
+        "Add type annotations to function arguments",
+        "Understand automatic string-to-int conversion",
+        "See validation errors for invalid inputs"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Path Parameter Types and Conversion",
+          "body": "Declare the type of a path parameter using standard Python type annotations in your function signature. FastAPI automatically converts the URL string to the expected type, like an integer. If the input cannot be converted, FastAPI returns a validation error."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Type Annotations",
+              "text": "Add a Python type like `int` after your parameter name in the function definition."
+            },
+            {
+              "title": "Automatic Conversion",
+              "text": "FastAPI converts the URL string to the declared type before passing it to your function."
+            },
+            {
+              "title": "Validation Errors",
+              "text": "If the input cannot be converted, FastAPI returns a 422 error with parsing details."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Integer Path Parameter Example",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: int):\n    return {\"item_id\": item_id}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "If you pass a non-integer string like 'foo', you will get a validation error instead of the value being treated as text."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Path parameters with types",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-with-types",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Data conversion",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#data-conversion",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Path parameters containing paths",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-containing-paths",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Data validation",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#data-validation",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Path Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Declare a _path parameter_",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#declare-a-path-parameter",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Path Parameters and Numeric Validations",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#path-parameters-and-numeric-validations",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "FastAPI Data Filtering",
+          "url": "https://fastapi.tiangolo.com/tutorial/response-model/#fastapi-data-filtering",
+          "grounding": "grounded",
+          "coverage": 0.833
+        },
+        {
+          "label": "Query parameter type conversion",
+          "url": "https://fastapi.tiangolo.com/tutorial/query-params/#query-parameter-type-conversion",
+          "grounding": "grounded",
+          "coverage": 0.833
+        }
+      ],
+      "exercise": {
+        "title": "Echo an integer path parameter",
+        "description": "Build a route that accepts an integer from the URL path and returns it as JSON.",
+        "instructions": [
+          "Create a GET endpoint at /echo/{value}.",
+          "Accept value as an int in the function signature.",
+          "Return a JSON object containing the echoed value."
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/echo/{value}\")\ndef echo_value(value):\n    # TODO: add a type annotation to the value parameter and return it in the response\n    return {\"value\": value}\n"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/echo/42"
+        },
+        "cases": [
+          {
+            "label": "integer path parameter",
+            "method": "GET",
+            "path": "/echo/42",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "value": 42
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "non-integer path parameter",
+            "method": "GET",
+            "path": "/echo/abc",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "float path parameter",
+            "method": "GET",
+            "path": "/echo/3.14",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "string path parameter",
+            "method": "GET",
+            "path": "/echo/test",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 422,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Look at the reference solution's function signature.",
+          "Use int as the type annotation for the path parameter."
+        ],
+        "explanation": "The int annotation forces FastAPI to convert the path string to an integer. Valid integers succeed, while non-integers like 'abc', '3.14', or 'test' trigger a 422 validation error.",
+        "reference_files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/echo/{value}\")\ndef echo_value(value: int):\n    return {\"value\": value}\n"
+        }
+      }
+    },
+    "m1-s2": {
+      "schema_version": 1,
+      "id": "m1-s2",
+      "title": "Define a path operation decorator for a GET request at the root path.",
+      "summary": "Learn how to define a GET route at the root path using the @app.get decorator.",
+      "you_will_learn": [
+        "Add a GET route to your app instance",
+        "Specify the path and HTTP method in the decorator",
+        "Understand the structure of a path operation"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Defining a GET Path Operation",
+          "body": "To handle requests at the root path, use the `@app.get(\"/\")` decorator. The string inside the parentheses defines the URL path (e.g., \"/\"). The method name before the dot specifies the HTTP verb, such as \"get\" for GET requests."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Decorator Syntax",
+              "text": "Place `@app.get(\"path\")` directly above your function definition to register it as a route."
+            },
+            {
+              "title": "Path and Method",
+              "text": "The first argument is the path string, and the method name (like 'get') defines the HTTP operation."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Root GET Route Example",
+          "language": "python",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "You can use other methods like `@app.post()`, `@app.put()`, or `@app.delete()` for different HTTP verbs."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Recap",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#recap",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Define a _path operation decorator_",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#define-a-path-operation-decorator",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Step 2: create a `FastAPI` \"instance\"",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-2-create-a-fastapi-instance",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Configure the app `entrypoint` in `pyproject.toml`",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#configure-the-app-entrypoint-in-pyproject-toml",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Step 4: define the **path operation function**",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-4-define-the-path-operation-function",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Step 3: create a _path operation_",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#step-3-create-a-path-operation",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Path",
+          "url": "https://fastapi.tiangolo.com/tutorial/first-steps/#path",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Path parameters containing paths",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters-containing-paths",
+          "grounding": "grounded",
+          "coverage": 0.8
+        },
+        {
+          "label": "Path Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params/#path-parameters",
+          "grounding": "grounded",
+          "coverage": 0.8
+        }
+      ],
+      "exercise": {
+        "title": "Define a Root GET Route",
+        "description": "Create a FastAPI app with a GET route at the root path that returns a JSON message.",
+        "instructions": [
+          "Import FastAPI and create an instance named 'app'.",
+          "Define a function decorated with @app.get(\"/\") to handle GET requests at the URL",
+          "/. The function should return a dictionary with a key 'message' and value 'Hello"
+        ],
+        "difficulty": "easy",
+        "files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n# TODO: define a path operation decorator for a GET request at the root path\ndef read_root():\n    # TODO: implement the function body\n    pass"
+        },
+        "execution": {
+          "target": "http",
+          "command": [
+            "uvicorn",
+            "main:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000"
+          ],
+          "host": "127.0.0.1",
+          "port": 8000,
+          "readiness_path": "/"
+        },
+        "cases": [
+          {
+            "label": "root path returns message",
+            "method": "GET",
+            "path": "/",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Hello World"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "missing decorator fails",
+            "method": "GET",
+            "path": "/items",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 404,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "root path with query param",
+            "method": "GET",
+            "path": "/?q=test",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Hello World"
+            },
+            "expected_text": null,
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Use @app.get(\"/\") to register a route.",
+          "Place the decorator above the function definition."
+        ],
+        "explanation": "The reference uses @app.get(\"/\") to register a route at the root path returning JSON. Without the decorator, FastAPI returns 404 for unknown paths like /items.",
+        "reference_files": {
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Hello World\"}\n"
         }
       }
     }

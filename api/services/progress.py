@@ -1,7 +1,7 @@
 from sqlalchemy import func,select
 from sqlalchemy.orm import Session
 import json
-from api.storage.models import StepState,Attempt,Draft
+from api.storage.models import StepState,Attempt,Draft,CourseProgress
 from api.schemas.results import RunResult,SubmitResult
 from models.lesson_generation_models import _validate_project_files
 
@@ -28,20 +28,39 @@ def get_state(session:Session,course_id:str,step_id:str)->StepState:
 def is_done(state:StepState):
     return state.status in DONE_STATUSES
 
-def module_unlocked(session:Session,course_id:str,modules:list[list[str]],
-                    module_index:int) ->bool:
-    "A module is open when every step of the module before it is done."
-    if module_index==0: return True
-
-    prev=modules[module_index-1]
-    done=session.scalar(
+def _previous_done(session:Session,course_id:str,modules:list[list[str]],
+                   module_index:int) -> bool:
+    "True when every step of the module before this one is done right now."
+    prev = modules[module_index - 1]
+    done = session.scalar(
         select(func.count()).select_from(StepState).where(
-            StepState.course_id==course_id,
+            StepState.course_id == course_id,
             StepState.step_id.in_(prev),
             StepState.status.in_(DONE_STATUSES),
         )
     )
-    return done==len(prev)
+    return done == len(prev)
+
+def unlock_mark(session:Session,course_id:str,modules:list[list[str]])->int:
+    """The furthest module index the learner has earned. It only ever goes up, so
+    regenerating an earlier step can never take an unlocked module away."""
+
+    row=session.get(CourseProgress,course_id)
+    reached=row.max_unlocked if row else 0
+    for m in range(1,len(modules)):
+        if _previous_done(session,course_id,modules,m):
+            reached=max(reached,m)
+
+    if row is None:
+        session.add(CourseProgress(course_id=course_id, max_unlocked=reached))
+    elif reached>row.max_unlocked:
+        row.max_unlocked=reached
+    return reached
+
+def module_unlocked(session:Session,course_id:str,modules:list[list[str]],
+                    module_index:int) ->bool:
+    "A module is open once the module before it has been finished, and stays open."
+    return module_index <= unlock_mark(session, course_id, modules)
 
 # Write State
 

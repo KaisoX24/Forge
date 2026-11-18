@@ -44,3 +44,33 @@ export function useSolution(courseKey: string, stepId: string, unlocked: boolean
       ),
   });
 }
+
+export function useJob(jobId: string | null) {
+  return useQuery({
+    queryKey: ["job", jobId],
+    enabled: jobId != null,
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/jobs/{job_id}", {
+          params: { path: { job_id: jobId! } },
+        }),
+      ),
+    // Poll every second until the job finishes.
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "done" || status === "failed" ? false : 1000;
+    },
+  });
+}
+
+export function useActiveJobs(courseKey: string) {
+  return useQuery({
+    queryKey: ["jobs", courseKey],
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/courses/{course_key}/jobs", {
+          params: { path: { course_key: courseKey }, query: { active: true } },
+        }),
+      ),
+  });
+}

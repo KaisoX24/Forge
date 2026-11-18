@@ -23,7 +23,7 @@ export default function ErrorScreen({
         </h2>
         <p className="mt-2 text-sm text-slate-600">
           {offline
-            ? "Make sure the backend is running, then try again."
+            ? "Site currently under maintainance, try again later."
             : error.message}
         </p>
         {onRetry && (

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCourse, useStep } from "../api/queries";
@@ -6,13 +7,14 @@ import { useComplete } from "../api/mutations";
 import LessonView from "../components/LessonView";
 import ExercisePanel from "./ExercisePanel";
 import ErrorScreen from "./ErrorScreen";
+import RegenerateButton from "./RegenrateButton";
 
 export default function StepPage() {
   const { courseKey = "", stepId = "" } = useParams();
   const { data: step, isPending, error, refetch } = useStep(courseKey, stepId);
   const { data: course } = useCourse(courseKey); // already cached by the layout
   const complete = useComplete(courseKey, stepId);
-
+  const [regenCount, setRegenCount] = useState(0);
   if (isPending) return <p className="p-8 text-slate-500">Loading step…</p>;
   if (error) return <ErrorScreen error={error} onRetry={() => refetch()} />;
 
@@ -59,6 +61,14 @@ export default function StepPage() {
             This lesson is not ready yet (status: {step.lesson_status}).
           </div>
         )}
+        <div className="mt-8 border-t border-slate-200 pt-4">
+          <RegenerateButton
+            key={stepId}
+            courseKey={courseKey}
+            stepId={stepId}
+            onDone={() => setRegenCount((n) => n + 1)}
+          />
+        </div>
 
         {!hasExercise && (
           <div className="mt-8 border-t border-slate-200 pt-6">
@@ -80,7 +90,7 @@ export default function StepPage() {
       {step.exercise && (
         <aside className="w-full shrink-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:w-[44%] lg:min-w-[380px] lg:max-w-[760px] lg:overflow-y-auto">
           <ExercisePanel
-            key={step.step_id}
+            key={`${step.step_id}-${regenCount}`}
             courseKey={courseKey}
             stepId={stepId}
             exercise={step.exercise}

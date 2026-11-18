@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
-import { BookOpen, ChevronRight, CircleCheck, Circle, Flame, Lock, Layers } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { BookOpen, ChevronRight, CircleCheck, Circle, Flame, Lock, Layers, Loader2, Sparkles } from "lucide-react";
 import type { useCourse } from "../api/queries";
+import {useActiveJobs, useJob} from "../api/queries";
+import { useGenerateModule } from "../api/mutations";
+import type { components } from "../api/schema";
 
 type Course = NonNullable<ReturnType<typeof useCourse>["data"]>;
+type Module = components["schemas"]["ModuleSummary"];
 
 function StepIcon({ progress }: { progress: string }) {
   if (progress === "solved" || progress === "completed")
@@ -101,6 +106,8 @@ export default function Sidebar({ course }: { course: Course }) {
                     open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                   }`}
                 >
+                  <div className="min-h-0 overflow-hidden">
+                  <ModuleGenerate courseKey={course.key} module={module} />
                   <ul className="ml-5 min-h-0 space-y-1 overflow-hidden border-l border-slate-200">
                     {module.steps.map((step, i) => (
                       <li key={step.id}>
@@ -132,6 +139,7 @@ export default function Sidebar({ course }: { course: Course }) {
                       </li>
                     ))}
                   </ul>
+                  </div>
                 </div>
               )}
             </section>
@@ -139,5 +147,92 @@ export default function Sidebar({ course }: { course: Course }) {
         })}
       </nav>
     </aside>
+  );
+}
+
+function ModuleGenerate({ courseKey, module }: { courseKey: string; module: Module }) {
+  const qc = useQueryClient();
+  const generate = useGenerateModule(courseKey);
+  const [jobId, setJobId] = useState<string | null>(null);
+
+  // After a refresh, pick up a job that is still running for this module.
+  const active = useActiveJobs(courseKey);
+  const resumed = active.data?.find(
+    (j) => j.kind === "module" && j.module_index === module.index,
+  );
+  const job = useJob(jobId ?? resumed?.id ?? null);
+  const status = job.data?.status;
+
+  // When a job ends, reload the course so step statuses update.
+  useEffect(() => {
+    if (status === "done" || status === "failed") {
+      qc.invalidateQueries({ queryKey: ["course", courseKey] });
+      qc.invalidateQueries({ queryKey: ["jobs", courseKey] });
+    }
+  }, [status]);
+
+  const needsGeneration = module.steps.some((s) => s.lesson !== "ready");
+
+  if (status === "queued" || status === "running") {
+  const { done_steps, total_steps, current_step, current_stage } = job.data!;
+  const pct = total_steps ? Math.round((done_steps / total_steps) * 100) : 0;
+  return (
+    <div className="ml-5 space-y-2 px-3 py-2 text-sm">
+      <div className="flex items-center gap-2 text-slate-700">
+        Step {Math.min(done_steps + 1, total_steps)} of {total_steps}
+        <span className="ml-auto text-xs text-slate-500">
+          <Elapsed />
+        </span>
+      </div>
+      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+        <div
+          className="h-full rounded-full bg-blue-600 transition-all duration-500"
+          style={{ width: `${Math.max(pct, 4)}%` }}
+        />
+      </div>
+      <div className="text-xs text-slate-500">
+        {current_stage ?? "queued"}
+        {current_step ? ` · ${current_step}` : ""}
+      </div>
+    </div>
+  );
+  }
+  if (!needsGeneration) return null;
+
+  return (
+    <div className="ml-5 px-3 py-2">
+      <button
+        type="button"
+        disabled={generate.isPending}
+        onClick={() => generate.mutate(module.index, { onSuccess: (j) => setJobId(j.id) })}
+        className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
+      >
+        <Sparkles className="h-4 w-4" />
+        Generate lessons
+      </button>
+      {status === "failed" && (
+        <p className="mt-1.5 text-xs text-red-600">
+          {job.data?.error ?? "Some steps failed. You can try again."}
+        </p>
+      )}
+      {generate.error && (
+        <p className="mt-1.5 text-xs text-red-600">{generate.error.message}</p>
+      )}
+    </div>
+  );
+}
+
+function Elapsed() {
+  const [start] = useState(() => Date.now());
+  const [now, setNow] = useState(start);
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const s = Math.floor((now - start) / 1000);
+  return (
+    <span className="tabular-nums">
+      {Math.floor(s / 60)}:{String(s % 60).padStart(2, "0")}
+    </span>
   );
 }
