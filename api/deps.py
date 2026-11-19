@@ -5,9 +5,9 @@ from fastapi import Depends,Request
 from sqlalchemy.orm import Session
 
 from api.services.course_store import CourseStore
-from api.services.grader_registry import GraderRegistry
-from api.services.job_worker import JobWorker
-from api.services.jobs import JobService
+from api.services.grader.grader_registry import GraderRegistry
+from api.services.job.job_worker import JobWorker
+from api.services.job.jobs import JobService
 from api.storage.db import session_scope
 
 def get_store(request:Request) -> CourseStore:

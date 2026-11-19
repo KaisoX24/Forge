@@ -4,6 +4,7 @@ from api.deps import DbSession, Jobs, Store, Worker
 from api.errors.errors import NotFound
 from api.schemas.job import JobView
 from api.services.access import require_open_step
+from api.services.reasoning_models.model_factory import check_model_ready
 
 router=APIRouter(tags=['jobs'])
 
@@ -14,6 +15,7 @@ def generate_module(course_key: str, module_index: int, store: Store, jobs: Jobs
     course = store.get(course_key)
     if not 0 <= module_index < len(course.curriculum.modules):
         raise NotFound("Module not found.")
+    check_model_ready()
     steps = len(course.curriculum.modules[module_index].steps)
     job = jobs.enqueue_module(course_key, module_index, steps)
     worker.notify()
@@ -26,6 +28,7 @@ def regenerate_step(course_key: str, step_id: str, store: Store, session: DbSess
     "Queue a new lesson and exercise for one step. The current ones stay until the new ones are ready."
     course = store.get(course_key)
     require_open_step(session, course_key, course, step_id)
+    check_model_ready()
     job = jobs.enqueue_step(course_key, step_id)
     worker.notify()
     return job

@@ -3,6 +3,7 @@ from fastapi import FastAPI,Request,status
 from fastapi.responses import JSONResponse
 
 from api.services.course_store import CourseNotFound
+from api.services.reasoning_models.errors.model_errors import MissingApiKey,ModelNotConfigured
 from exercises.case_runner import HarnessError
 from sandbox.image_builder import ImageBuildError
 
@@ -38,6 +39,16 @@ def registry_error_handlers(app:FastAPI) ->None:
     @app.exception_handler(ApiError)
     def _api_error(_:Request,exc:ApiError):
         return respond(exc.status_code,exc.message)
+
+    @app.exception_handler(ModelNotConfigured)
+    def _no_model(_: Request, exc: ModelNotConfigured):
+        return respond(status.HTTP_409_CONFLICT, "Choose a model in Settings first.")
+
+    @app.exception_handler(MissingApiKey)
+    def _no_key(_: Request, exc: MissingApiKey):
+        return respond(
+            status.HTTP_409_CONFLICT, f"Add your {exc.provider} API key in Settings first."
+        )
 
     @app.exception_handler(CourseNotFound)
     def _course_not_found(_:Request,exc:CourseNotFound):

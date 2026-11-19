@@ -1,4 +1,4 @@
-from api.services.render import render_function_case, render_http_case
+from api.services.generation.render import render_function_case, render_http_case
 from exercises.case_runner import CaseOutcome
 from models.data_models import HttpCaseOutcome
 from models.lesson_generation_models import FunctionCase, HttpCase

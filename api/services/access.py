@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from api.errors.errors import Locked, NotFound
 from api.services.course_store import find_step, module_step_ids
-from api.services.progress import module_unlocked
+from api.services.generation.progress import module_unlocked
 from models.course import Course
 from models.data_models import ObjectivePlan
 

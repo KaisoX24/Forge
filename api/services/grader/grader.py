@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from api.schemas.results import CaseResult,RunResult
-from api.services.render import clean_text,render_function_case,render_http_case
+from api.services.generation.render import clean_text,render_function_case,render_http_case
 from exercises.verify import HttpRunner,Runner,_sandbox_http_runner,_sandbox_runner
 from exercises.case_runner import HarnessError
 from models.lesson_generation_models import (

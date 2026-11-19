@@ -7,10 +7,10 @@ import pytest
 from sqlalchemy import func, select
 
 from api.schemas.results import RunResult
-from api.services import progress as P
+from api.services.generation.generation import progress as P
 from api.services.course_store import CourseStore
-from api.services.job_worker import JobWorker
-from api.services.jobs import JobService
+from api.services.job.job_worker import JobWorker
+from api.services.job.jobs import JobService
 from api.storage.db import init_db, make_engine, make_session_factory, session_scope
 from api.storage.models import Attempt, StepState
 from exercises.case_runner import HarnessError

@@ -1,6 +1,6 @@
 import pytest
 
-from api.services.grader_registry import GraderRegistry
+from api.services.grader.grader_registry import GraderRegistry
 
 
 class FakePool:

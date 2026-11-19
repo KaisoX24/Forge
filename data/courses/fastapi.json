@@ -2812,36 +2812,36 @@
       "title": "Declare a FastAPI application instance named 'app'.",
       "summary": "Import the FastAPI class and create an app instance to start building your API.",
       "you_will_learn": [
-        "Import FastAPI from the fastapi package",
+        "Import the FastAPI class from the fastapi package",
         "Instantiate the FastAPI class with parentheses",
         "Assign the new instance to a variable named app"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Creating Your FastAPI App",
-          "body": "To start building your API, you must first import the `FastAPI` class. Then, create an instance of this class by calling it with parentheses and assign that new object to a variable, typically named `app`. This `app` variable is the main point of interaction for creating all your API endpoints."
+          "heading": "Creating Your First FastAPI App",
+          "body": "To start, import the `FastAPI` class from the `fastapi` package. Then, call the class with empty parentheses to create an instance. Assign this new object to a variable named `app`. This `app` variable is the main entry point for your API."
         },
         {
           "type": "key_points",
           "items": [
             {
-              "title": "Import Statement",
+              "title": "Import Syntax",
               "text": "Use `from fastapi import FastAPI` to bring the class into your current file."
             },
             {
-              "title": "Instantiation Syntax",
-              "text": "Call the class with empty parentheses, like `FastAPI()`, to create a new instance."
+              "title": "Instantiation",
+              "text": "Call `FastAPI()` with no arguments inside parentheses to create a new instance."
             },
             {
               "title": "Variable Assignment",
-              "text": "Assign the result to a variable, such as `app = FastAPI()`, to use it later."
+              "text": "Assign the result to a variable, typically named `app`, to use it in your code."
             }
           ]
         },
         {
           "type": "code",
-          "title": "Basic App Setup",
+          "title": "Basic FastAPI Setup",
           "language": "python",
           "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
           "output": null
@@ -2849,7 +2849,7 @@
         {
           "type": "callout",
           "kind": "tip",
-          "text": "The `app` variable is the main object you will use to add routes and configure your API."
+          "text": "FastAPI is a class that inherits from Starlette. You can use all Starlette functionality with your FastAPI app."
         }
       ],
       "docs": [
@@ -3088,28 +3088,32 @@
       "schema_version": 1,
       "id": "m1-s2",
       "title": "Define a path operation decorator for a GET request at the root path.",
-      "summary": "Learn how to define a GET route at the root path using the @app.get decorator.",
+      "summary": "Learn how to use the @app.get decorator to define a GET route at the root path.",
       "you_will_learn": [
-        "Add a GET route to your app instance",
-        "Specify the path and HTTP method in the decorator",
-        "Understand the structure of a path operation"
+        "Use @app.get to register a handler",
+        "Specify the URL path in parentheses",
+        "Define the function below the decorator"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Defining a GET Path Operation",
-          "body": "To handle requests at the root path, use the `@app.get(\"/\")` decorator. The string inside the parentheses defines the URL path (e.g., \"/\"). The method name before the dot specifies the HTTP verb, such as \"get\" for GET requests."
+          "heading": "Defining a Path Operation Decorator",
+          "body": "To handle requests, use the `@app.get` decorator above your function. The path (e.g., `/`) goes inside the parentheses. FastAPI calls the function when a GET request hits that URL."
         },
         {
           "type": "key_points",
           "items": [
             {
               "title": "Decorator Syntax",
-              "text": "Place `@app.get(\"path\")` directly above your function definition to register it as a route."
+              "text": "Place `@app.get(\"/path\")` directly above your function definition."
             },
             {
-              "title": "Path and Method",
-              "text": "The first argument is the path string, and the method name (like 'get') defines the HTTP operation."
+              "title": "Path Specification",
+              "text": "The string inside the parentheses defines the URL path for the route."
+            },
+            {
+              "title": "Function Definition",
+              "text": "Write a normal or async Python function immediately below the decorator."
             }
           ]
         },
@@ -3123,7 +3127,7 @@
         {
           "type": "callout",
           "kind": "tip",
-          "text": "You can use other methods like `@app.post()`, `@app.put()`, or `@app.delete()` for different HTTP verbs."
+          "text": "You can use other methods like `@app.post()` or `@app.delete()` for different HTTP verbs."
         }
       ],
       "docs": [
@@ -3183,16 +3187,16 @@
         }
       ],
       "exercise": {
-        "title": "Define a Root GET Route",
-        "description": "Create a FastAPI app with a GET route at the root path that returns a JSON message.",
+        "title": "Create Root GET Route",
+        "description": "Define a path operation decorator for a GET request at the root path.",
         "instructions": [
-          "Import FastAPI and create an instance named 'app'.",
-          "Define a function decorated with @app.get(\"/\") to handle GET requests at the URL",
-          "/. The function should return a dictionary with a key 'message' and value 'Hello"
+          "Import FastAPI and create an app instance.",
+          "Use @app.get(\"/\") to define a route for the root path.",
+          "Return a JSON response with a welcome message."
         ],
         "difficulty": "easy",
         "files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n# TODO: define a path operation decorator for a GET request at the root path\ndef read_root():\n    # TODO: implement the function body\n    pass"
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    # TODO: define a path operation decorator for a GET request at the root path\n    pass\n"
         },
         "execution": {
           "target": "http",
@@ -3210,50 +3214,78 @@
         },
         "cases": [
           {
-            "label": "root path returns message",
+            "label": "GET root returns welcome message",
             "method": "GET",
             "path": "/",
             "headers": {},
             "json_body": null,
             "expected_status": 200,
             "expected_json": {
-              "message": "Hello World"
+              "message": "Welcome to the API"
             },
             "expected_text": null,
             "visible": true
           },
           {
-            "label": "missing decorator fails",
-            "method": "GET",
-            "path": "/items",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 404,
-            "expected_json": null,
-            "expected_text": null,
-            "visible": true
-          },
-          {
-            "label": "root path with query param",
+            "label": "GET root with query parameter",
             "method": "GET",
             "path": "/?q=test",
             "headers": {},
             "json_body": null,
             "expected_status": 200,
             "expected_json": {
-              "message": "Hello World"
+              "message": "Welcome to the API"
+            },
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "GET root with multiple query parameters",
+            "method": "GET",
+            "path": "/?a=1&b=2",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Welcome to the API"
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "GET root with empty query string",
+            "method": "GET",
+            "path": "/?",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Welcome to the API"
+            },
+            "expected_text": null,
+            "visible": false
+          },
+          {
+            "label": "GET root with special characters in query",
+            "method": "GET",
+            "path": "/?msg=hello%20world",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 200,
+            "expected_json": {
+              "message": "Welcome to the API"
             },
             "expected_text": null,
             "visible": false
           }
         ],
         "hints": [
-          "Use @app.get(\"/\") to register a route.",
+          "Use @app.get('/') as the decorator.",
           "Place the decorator above the function definition."
         ],
-        "explanation": "The reference uses @app.get(\"/\") to register a route at the root path returning JSON. Without the decorator, FastAPI returns 404 for unknown paths like /items.",
+        "explanation": "The reference app defines a GET route at '/' that returns a static JSON message. All cases expect this same response regardless of query parameters since the function ignores them.",
         "reference_files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Hello World\"}\n"
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Welcome to the API\"}\n"
         }
       }
     }

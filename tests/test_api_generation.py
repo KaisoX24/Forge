@@ -1,6 +1,6 @@
 import pytest
 
-from api.services import generation as G
+from api.services.generation import generation as G
 
 
 class Spy:

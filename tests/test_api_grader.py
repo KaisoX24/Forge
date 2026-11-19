@@ -1,6 +1,6 @@
 import pytest
 
-from api.services.grader import Grader
+from api.services.grader.grader import Grader
 from exercises.case_runner import CaseOutcome, HarnessError, RunReport
 from models.lesson_generation_models import Exercise, FunctionCase, FunctionExecutionConfig
 

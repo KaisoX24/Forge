@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from api.schemas.course import CourseSummary,CourseOutline,ModuleSummary,StepSummary
 from api.services.course_store import module_step_ids
-from api.services.progress import DONE_STATUSES,module_unlocked
+from api.services.generation.progress import DONE_STATUSES,module_unlocked
 from api.storage.models import StepState
 from models.course import Course
 

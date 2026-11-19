@@ -1,6 +1,6 @@
 import pytest
 
-from api.services.jobs import JobService
+from api.services.job.jobs import JobService
 from api.storage.db import init_db, make_engine, make_session_factory
 
 

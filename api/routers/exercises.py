@@ -4,7 +4,7 @@ from api.deps import DbSession,Store,Registry
 from api.errors.errors import Conflict,Invalid,Locked,NotFound
 from api.schemas.exercise import FilesRequest,HintsResponse,SolutionResponse,StepStatus
 from api.schemas.results import RunResult,SubmitResult
-from api.services import progress as P
+from api.services.generation import progress as P
 from api.services.access import require_open_step
 from api.storage.models import StepState
 from models.lesson_generation_models import Exercise

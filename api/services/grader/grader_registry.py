@@ -4,7 +4,7 @@ from collections.abc import Callable
 from contextlib import ExitStack
 from dataclasses import dataclass
 
-from api.services.grader import Grader
+from api.services.grader.grader import Grader
 from models.data_models import EnvironmentSpec
 from sandbox import ContainerPool
 

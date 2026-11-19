@@ -6,9 +6,9 @@ from docker.errors import DockerException
 from sqlalchemy.orm import sessionmaker,Session
 
 from api.schemas.job import JobView
-from api.services import progress as P
+from api.services.generation import progress as P
 from api.services.course_store import CourseStore,find_step
-from api.services.jobs import JobService
+from api.services.job.jobs import JobService
 from api.storage.db import session_scope
 from exercises.case_runner import HarnessError
 from lessons.generator import StepOutcome

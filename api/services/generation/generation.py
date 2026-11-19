@@ -1,10 +1,11 @@
 from collections.abc import Callable
 
-from api.services.grader_registry import GraderRegistry
+from api.services.grader.grader_registry import GraderRegistry
 from exercises.verify import make_verifier
 from exercises.import_check import make_import_checker
 from lessons.step_generator import StepGenerator
 from models.course import Course
+from api.services.reasoning_models.model_factory import get_model
 from reasoning.model import get_llm
 from functools import lru_cache
 
@@ -21,7 +22,6 @@ def _default_retrieval():
 def make_generator_factory(
     registry: GraderRegistry,
     *,
-    model: str = GENERATION_MODEL,
     retrieval_factory: Callable[[], object] = _default_retrieval,
 ):
     """The verifier shares the course's sandbox pool with the grader, and on_stage reports progress to the job."""
@@ -30,7 +30,7 @@ def make_generator_factory(
         retrieval = retrieval_factory()
         pool = registry.pool_for(course_key, course.env)
         return StepGenerator(
-            get_llm(model),
+            get_model(),
             retrieve=retrieval.retrieve,
             verify=make_verifier(pool, course.env),
             packages=list(course.env.packages),

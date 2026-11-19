@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from api.main import create_app
 from api.schemas.results import CaseResult, RunResult
-from api.services import progress as P
+from api.services.generation.generation import progress as P
 from api.services.course_store import CourseStore, module_step_ids
 from exercises.case_runner import HarnessError
 from models.lesson_generation_models import Lesson

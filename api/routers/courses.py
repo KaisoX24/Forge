@@ -6,8 +6,8 @@ from api.deps import DbSession,Store
 from api.schemas.course import CourseOutline,CourseSummary
 from api.schemas.step import StepPage
 from api.services.access import require_open_step
-from api.services.outline import build_outline,build_summary
-from api.services.step_page import build_step_page
+from api.services.generation.outline import build_outline,build_summary
+from api.services.generation.step_page import build_step_page
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
 log = logging.getLogger(__name__)

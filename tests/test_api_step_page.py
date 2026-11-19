@@ -5,9 +5,9 @@ import pytest
 from sqlalchemy import func, select
 
 from api.schemas.results import RunResult
-from api.services import progress as P
+from api.services.generation.generation import progress as P
 from api.services.course_store import CourseStore, module_step_ids
-from api.services.step_page import build_step_page
+from api.services.generation.step_page import build_step_page
 from api.storage.db import init_db, make_engine, make_session_factory, session_scope
 from api.storage.models import StepState
 from models.lesson_generation_models import (

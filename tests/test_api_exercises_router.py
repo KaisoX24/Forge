@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from api.main import create_app
 from api.schemas.results import RunResult
-from api.services import progress as P
+from api.services.generation.generation import progress as P
 from api.services.course_store import CourseStore, module_step_ids
 from api.storage.db import session_scope
 from models.lesson_generation_models import Lesson

@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 @lru_cache(maxsize=1)
-def get_online_llm(model_card:str):
+def get_online_llm(model_provider:str,model_card:str):
     "Instance for Online Frontier Models"
     return init_chat_model(
         model=model_card,
-        model_provider="openai",
+        model_provider=model_provider,
         reasoning_effort="none",
     )
 

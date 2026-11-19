@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { BookOpen, ChevronRight, CircleCheck, Circle, Flame, Lock, Layers, Loader2, Sparkles } from "lucide-react";
+import { BookOpen, ChevronRight, CircleCheck, Circle, Flame, Lock, Layers, Sparkles } from "lucide-react";
 import type { useCourse } from "../api/queries";
 import {useActiveJobs, useJob} from "../api/queries";
 import { useGenerateModule } from "../api/mutations";
@@ -62,8 +62,7 @@ export default function Sidebar({ course }: { course: Course }) {
       <nav className="flex-1 overflow-y-auto px-3 py-3">
         {course.modules.map((module) => {
           const open = overrides[module.index] ?? module.unlocked;
-          const title = `Module ${module.index + 1}: ${module.title}`;
-
+          
           return (
             <section key={module.index} className="mb-1">
               {module.unlocked ? (

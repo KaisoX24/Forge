@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from api.schemas.step import LastAttempt, PublicExercise, PublicLesson, StepPage, StepProgress
 from api.services.course_store import find_step
-from api.services.progress import _GIVE_UP_AFTER, load_draft, solution_unlocked
+from api.services.generation.progress import _GIVE_UP_AFTER, load_draft, solution_unlocked
 from api.storage.models import Attempt, StepState
 from models.course import Course
 
