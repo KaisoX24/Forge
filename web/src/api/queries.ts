@@ -74,3 +74,10 @@ export function useActiveJobs(courseKey: string) {
       ),
   });
 }
+
+export function useSettings() {
+  return useQuery({
+    queryKey: ["settings"],
+    queryFn: async () => unwrap(await api.GET("/api/settings")),
+  });
+}

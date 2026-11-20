@@ -1,14 +1,31 @@
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useMatch } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { BookOpen, ChevronRight, CircleCheck, Circle, Flame, Lock, Layers, Sparkles } from "lucide-react";
-import type { useCourse } from "../api/queries";
-import {useActiveJobs, useJob} from "../api/queries";
+import {
+  BarChart3,
+  BookOpen,
+  ChevronRight,
+  Circle,
+  CircleCheck,
+  Flame,
+  Layers,
+  LayoutGrid,
+  Loader2,
+  Lock,
+  Settings as SettingsIcon,
+  Sparkles,
+} from "lucide-react";
+import { useActiveJobs, useCourse, useJob } from "../api/queries";
 import { useGenerateModule } from "../api/mutations";
 import type { components } from "../api/schema";
 
-type Course = NonNullable<ReturnType<typeof useCourse>["data"]>;
 type Module = components["schemas"]["ModuleSummary"];
+
+const NAV = [
+  { to: "/courses", label: "My Courses", icon: LayoutGrid },
+  { to: "/progress", label: "Progress", icon: BarChart3 },
+  { to: "/settings", label: "Settings", icon: SettingsIcon },
+];
 
 function StepIcon({ progress }: { progress: string }) {
   if (progress === "solved" || progress === "completed")
@@ -18,10 +35,33 @@ function StepIcon({ progress }: { progress: string }) {
   return <Circle className="h-4 w-4 shrink-0 text-slate-300" />;
 }
 
-export default function Sidebar({ course }: { course: Course }) {
-  // Only the modules the learner has clicked are stored here.
-  // Everything else falls back to "open if unlocked".
-  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
+function AppNav() {
+  return (
+    <nav className="space-y-1 px-3 pb-3">
+      {NAV.map(({ to, label, icon: Icon }) => (
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) =>
+            `flex items-center gap-3 rounded-lg px-3 py-2 text-[15px] ${
+              isActive
+                ? "bg-blue-100 font-semibold text-blue-700"
+                : "font-medium text-slate-700 hover:bg-slate-100"
+            }`
+          }
+        >
+          <Icon className="h-5 w-5 shrink-0" />
+          {label}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+
+export default function Sidebar() {
+  // A parent layout can't read a child route's params, so match the URL directly.
+  const match = useMatch("/course/:courseKey/*");
+  const courseKey = match?.params.courseKey;
 
   return (
     <aside className="flex h-full w-80 shrink-0 flex-col border-r border-slate-200 bg-[#F3F9FE]">
@@ -33,6 +73,23 @@ export default function Sidebar({ course }: { course: Course }) {
         </div>
       </div>
 
+      <AppNav />
+
+      {courseKey && <CourseSection key={courseKey} courseKey={courseKey} />}
+    </aside>
+  );
+}
+
+function CourseSection({ courseKey }: { courseKey: string }) {
+  const { data: course } = useCourse(courseKey); // same cache as CourseLayout
+  // Only the modules the learner has clicked are stored here.
+  // Everything else falls back to "open if unlocked".
+  const [overrides, setOverrides] = useState<Record<number, boolean>>({});
+
+  if (!course) return null;
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col border-t border-slate-200">
       <div className="px-4 py-3">
         <div className="mb-2 px-1 text-xs font-medium text-slate-500">Current course</div>
         <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
@@ -59,10 +116,10 @@ export default function Sidebar({ course }: { course: Course }) {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-3">
+      <nav className="flex-1 overflow-y-auto px-3 pb-3">
         {course.modules.map((module) => {
           const open = overrides[module.index] ?? module.unlocked;
-          
+
           return (
             <section key={module.index} className="mb-1">
               {module.unlocked ? (
@@ -79,7 +136,9 @@ export default function Sidebar({ course }: { course: Course }) {
                     <span className="block text-base font-bold text-slate-900">
                       Module {module.index + 1}
                     </span>
-                    <span className="line-clamp-2 block text-sm text-slate-600">{module.title}</span>
+                    <span className="line-clamp-2 block text-sm text-slate-600">
+                      {module.title}
+                    </span>
                   </span>
                   <ChevronRight
                     className={`h-5 w-5 shrink-0 text-slate-600 transition-transform duration-200 ${
@@ -91,12 +150,13 @@ export default function Sidebar({ course }: { course: Course }) {
                 <div className="flex items-center gap-3 px-2 py-2 text-slate-400">
                   <Lock className="h-5 w-5 shrink-0" />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold">Module {module.index + 1}</span>
+                    <span className="block text-sm font-semibold">
+                      Module {module.index + 1}
+                    </span>
                     <span className="line-clamp-2 block text-xs">{module.title}</span>
                   </span>
                 </div>
               )}
-              
 
               {module.unlocked && (
                 // Animating height: a grid row goes from 0fr to 1fr.
@@ -106,38 +166,38 @@ export default function Sidebar({ course }: { course: Course }) {
                   }`}
                 >
                   <div className="min-h-0 overflow-hidden">
-                  <ModuleGenerate courseKey={course.key} module={module} />
-                  <ul className="ml-5 min-h-0 space-y-1 overflow-hidden border-l border-slate-200">
-                    {module.steps.map((step, i) => (
-                      <li key={step.id}>
-                        <NavLink
-                          to={`/course/${course.key}/step/${step.id}`}
-                          className={({ isActive }) =>
-                            `-ml-px flex items-start gap-2 rounded-r-lg border-l-2 py-2 pl-4 pr-2 text-[15px] ${
+                    <ModuleGenerate courseKey={course.key} module={module} />
+                    <ul className="ml-5 space-y-1 border-l border-slate-200">
+                      {module.steps.map((step, i) => (
+                        <li key={step.id}>
+                          <NavLink
+                            to={`/course/${course.key}/step/${step.id}`}
+                            className={({ isActive }) =>
+                              `-ml-px flex items-start gap-2 rounded-r-lg border-l-2 py-2 pl-4 pr-2 text-[15px] ${
                                 isActive
                                   ? "border-blue-600 bg-blue-100 font-semibold text-blue-700"
                                   : "border-transparent font-medium text-slate-700 hover:bg-slate-100"
-                            }`
-                          }
-                        >
-                          <span className="mt-0.5">
-                            <StepIcon progress={step.progress} />
-                          </span>
-                          <span className="line-clamp-2 flex-1">
-                            <span className="mr-1.5 inline-block w-7 text-slate-400 tabular-nums">
-                              {module.index + 1}.{i + 1}
+                              }`
+                            }
+                          >
+                            <span className="mt-0.5">
+                              <StepIcon progress={step.progress} />
                             </span>
-                            {step.title}
-                          </span>
-                          {step.lesson !== "ready" && (
-                            <span className="rounded bg-slate-200 px-1.5 text-[10px] text-slate-600">
-                              {step.lesson}
+                            <span className="line-clamp-2 flex-1">
+                              <span className="mr-1.5 inline-block w-7 text-slate-400 tabular-nums">
+                                {module.index + 1}.{i + 1}
+                              </span>
+                              {step.title}
                             </span>
-                          )}
-                        </NavLink>
-                      </li>
-                    ))}
-                  </ul>
+                            {step.lesson !== "ready" && (
+                              <span className="rounded bg-slate-200 px-1.5 text-[10px] text-slate-600">
+                                {step.lesson}
+                              </span>
+                            )}
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               )}
@@ -145,7 +205,7 @@ export default function Sidebar({ course }: { course: Course }) {
           );
         })}
       </nav>
-    </aside>
+    </div>
   );
 }
 
@@ -173,28 +233,29 @@ function ModuleGenerate({ courseKey, module }: { courseKey: string; module: Modu
   const needsGeneration = module.steps.some((s) => s.lesson !== "ready");
 
   if (status === "queued" || status === "running") {
-  const { done_steps, total_steps, current_step, current_stage } = job.data!;
-  const pct = total_steps ? Math.round((done_steps / total_steps) * 100) : 0;
-  return (
-    <div className="ml-5 space-y-2 px-3 py-2 text-sm">
-      <div className="flex items-center gap-2 text-slate-700">
-        Step {Math.min(done_steps + 1, total_steps)} of {total_steps}
-        <span className="ml-auto text-xs text-slate-500">
-          <Elapsed />
-        </span>
+    const { done_steps, total_steps, current_step, current_stage } = job.data!;
+    const pct = total_steps ? Math.round((done_steps / total_steps) * 100) : 0;
+    return (
+      <div className="ml-5 space-y-2 px-3 py-2 text-sm">
+        <div className="flex items-center gap-2 text-slate-700">
+          <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+          Step {Math.min(done_steps + 1, total_steps)} of {total_steps}
+          <span className="ml-auto text-xs text-slate-500">
+            <Elapsed />
+          </span>
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+          <div
+            className="h-full rounded-full bg-blue-600 transition-all duration-500"
+            style={{ width: `${Math.max(pct, 4)}%` }}
+          />
+        </div>
+        <div className="text-xs text-slate-500">
+          {current_stage ?? "queued"}
+          {current_step ? ` · ${current_step}` : ""}
+        </div>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
-        <div
-          className="h-full rounded-full bg-blue-600 transition-all duration-500"
-          style={{ width: `${Math.max(pct, 4)}%` }}
-        />
-      </div>
-      <div className="text-xs text-slate-500">
-        {current_stage ?? "queued"}
-        {current_step ? ` · ${current_step}` : ""}
-      </div>
-    </div>
-  );
+    );
   }
   if (!needsGeneration) return null;
 

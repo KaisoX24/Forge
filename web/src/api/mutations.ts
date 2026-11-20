@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, unwrap } from "./client";
 import type { useStep } from "./queries";
+import type { components } from "./schema";
 type Step = NonNullable<ReturnType<typeof useStep>["data"]>;
 
 type Files=Record<string,string>;
@@ -116,4 +117,43 @@ export function useRegenerateStep(courseKey: string, stepId: string) {
         }),
       ),
   });
+}
+
+type SettingsView = components["schemas"]["SettingsView"];
+
+// Every settings endpoint returns the full, fresh view, so we put it
+// straight into the cache and the page updates without another request.
+function useSettingsMutation<TVars>(run: (vars: TVars) => Promise<SettingsView>) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: run,
+    onSuccess: (view) => qc.setQueryData(["settings"], view),
+  });
+}
+
+export function useChooseModel() {
+  return useSettingsMutation(async (body: { provider: string; model: string }) =>
+    unwrap(await api.PUT("/api/settings/model", { body })),
+  );
+}
+
+export function useSaveKey() {
+  return useSettingsMutation(async (v: { provider: string; key: string }) =>
+    unwrap(
+      await api.PUT("/api/settings/keys/{provider}", {
+        params: { path: { provider: v.provider } },
+        body: { key: v.key },
+      }),
+    ),
+  );
+}
+
+export function useRemoveKey() {
+  return useSettingsMutation(async (provider: string) =>
+    unwrap(
+      await api.DELETE("/api/settings/keys/{provider}", {
+        params: { path: { provider } },
+      }),
+    ),
+  );
 }

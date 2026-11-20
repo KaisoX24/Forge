@@ -56,7 +56,7 @@ def choose_model(body:ModelChoice):
     save_settings(body.provider,body.model)
     return _view()
 
-@router.put("/api/settings/keys/{provide}",response_model=SettingsView)
+@router.put("/api/settings/keys/{provider}",response_model=SettingsView)
 def save_key(provider:str,body:KeyBody):
     "Save/Replace a key, Saved goes to the system credential manager."
     _online(provider)
