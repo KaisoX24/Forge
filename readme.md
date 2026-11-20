@@ -1,211 +1,184 @@
-# The FORGE Interactive Learning Platform — Project Plan
+# Forge
 
-## 1. Problem Statement
+**Turn a framework's documentation into an interactive, hands-on course, generated and graded entirely on your own machine.**
 
-People learning a new tech stack or framework watch tutorial after tutorial, but passive
-watching only yields ~10-15% retention. Actively implementing what you learn pushes retention
-up to ~40-50%. Platforms like DataCamp already do interactive, hands-on learning well — but
-they're paid and closed.
+Watching tutorials gives you roughly 10–15% retention; writing the code yourself gets you to 40–50%. Platforms like DataCamp do hands-on learning well, but they are paid and closed. Forge is the local alternative: point it at a Python framework's docs, and a local LLM writes the lessons and exercises. You solve them in an in-browser editor, and your code is run against tests inside a locked-down Docker sandbox.
 
-**Goal:** a locally-run tool that takes a framework/technology and generates a full interactive
-course for it — modules with objectives, and hands-on exercises the learner implements and gets
-graded on immediately, instead of just watching.
+> **Status:** Work in progress. . See [Roadmap](#roadmap) for what is not built yet.
 
-Using a **local LLM** (not API calls) is a deliberate choice — this avoids rate limits, which
-would otherwise be a hard blocker for a tool that needs to generate large volumes of curriculum
-and exercise content.
-
----
-
-## 2. Scope
-
-### v1 (this plan)
-- **Python frameworks only.** The sandbox, test harness, and AST tooling all assume a Python
-  runtime — "any framework" (JS, Rust, etc.) is explicitly out of scope for v1, not just
-  deprioritized. Multi-language support is a real architectural expansion, not a config flag.
-- One framework at a time, hardcoded per run
-- Local LLM generates: curriculum (modules + objectives), exercises, hints, feedback
-- RAG grounding against that framework's real docs (reduces hallucinated/outdated APIs)
-- Sandboxed code execution for grading (pass/fail against test cases)
-- Simple local web UI (FastAPI + Monaco editor)
-- Spaced repetition (FSRS-6) review of completed/failed exercises — note: this is a genuine
-  adaptation of the existing flashcard-app FSRS-6 pattern, not a drop-in port. "Review" here
-  means re-attempting a similar exercise, a different review action than flashcard recall.
-
-### Explicitly deferred to later versions
-- Multi-framework generalization
-- User accounts / multi-user support
-- AST-based grading (detecting hardcoded answers, code quality checks)
-- Live test-output streaming via WebSockets
-- Polished UI/UX pass
-- Support for languages beyond Python (new sandbox runtime + test harness per language)
-
----
-
-## 3. Things to Learn Before / During Build
-
-This is new territory beyond your existing LLM-app-building experience — budget real time for
-these, especially the first one.
-
-### 3.1 Sandboxed code execution (highest priority — security-critical)
-- Docker fundamentals: images, containers, resource limits (`--memory`, `--cpus`)
-- Execution timeouts / killing runaway processes
-- Disabling network access for containers (`--network none`)
-- Read-only filesystem mounts where possible
-- Alternatives worth knowing about: `firejail`, gVisor (lighter-weight sandboxing)
-
-### 3.2 RAG / embeddings (new territory — you've done structured output, not retrieval)
-- Chunking strategies for documentation (by heading, fixed token windows, etc.)
-- Local embedding models via Ollama (e.g. `nomic-embed-text`)
-- Vector stores: start with Chroma (simplest), FAISS as an alternative
-- Retrieval quality basics: top-k tuning, re-ranking (can skip re-ranking for v1)
-
-### 3.3 Local LLM selection for structured output reliability
-- Smaller models (7B) are less reliable at strictly following a Pydantic schema —
-  test multiple models against your actual schemas before committing
-- Code-tuned models tend to perform better here than general chat models at similar size
-  (e.g. `qwen2.5-coder`, `deepseek-coder` family via Ollama)
-- Understand quantization tradeoffs (Q4 vs Q8) for your available hardware
-
-### 3.4 FastAPI + Monaco integration
-- Serving Monaco via CDN in a plain HTML/JS frontend (no need for React/Vue for v1)
-- FastAPI endpoint design for submitting code and returning grading results
-- Basic understanding of WebSockets (even if v1 uses simple polling, know the upgrade path)
-
-### 3.5 AST parsing (optional, later)
-- Python's `ast` module — for eventually detecting hardcoded/gamed solutions
-- Not needed for v1's pass/fail-against-tests grading
-
----
-
-## 4. Architecture
+## How it works
 
 ```
-┌─────────────────────┐
-│   Doc Ingestion      │  scrape framework docs/GitHub → chunk → embed → store in Chroma
-└──────────┬───────────┘
-           │
-┌─────────────────────┐
-│  Curriculum Planner   │  local LLM + Pydantic structured output → ordered modules + objectives
-└──────────┬───────────┘
-           │
-┌─────────────────────┐
-│  Exercise Generator   │  per module, grounded via RAG retrieval → problem + starter code + tests
-└──────────┬───────────┘
-           │
-┌─────────────────────┐
-│   Sandbox Runner      │  Docker container, resource-capped → executes user code vs test cases
-└──────────┬───────────┘
-           │
-┌─────────────────────┐
-│  Grader / Feedback    │  pass/fail + LLM-generated targeted hint (not full answer)
-└──────────┬───────────┘
-           │
-┌─────────────────────┐
-│  SQLite + FSRS-6      │  tracks completion, schedules spaced review of weak/failed exercises
-└──────────────────────┘
+Docs ──► Ingestion ──► Curriculum planner ──► Step generator ──► Sandbox verify ──► Course JSON
+ (crawl)  (chunk +      (modules + steps,     (lesson, then      (reference must     (cached on
+          embed →        grounded in the       exercise, with     pass, starter       disk)
+          Chroma)        docs outline)         retrieval)         must fail)
+                                                                         │
+                         Web UI (React) ◄── FastAPI ◄── Grader ◄── Docker sandbox
+                         Monaco editor      progress     (run / submit)   (no network,
+                                            in SQLite                      capped CPU/RAM)
 ```
 
-**UI layer:** FastAPI backend serving a single-page frontend with the Monaco editor embedded,
-talking to the backend via REST endpoints for submit/run/grade.
+1. **Ingestion.** Crawls the framework's documentation (crawl4ai), splits it into chunks, embeds them with `nomic-embed-text` and stores them in a local Chroma database. The scrape date is recorded, so a course always says which docs it was built from.
+2. **Planning.** The local LLM produces an ordered curriculum of modules and steps, with structured output and a repair loop on validation errors.
+3. **Step generation.** When a learner enters a module, each step is generated with two model calls: a lesson, then an exercise. Retrieval supplies the real docs and the model only writes. The exercise model sees the concept and key points, but not the lesson's example code.
+4. **Exercise verification.** Exercises are built in three stages (reference solution → starter code → test cases) and checked in the sandbox before a learner ever sees them (see [Exercise verification](#exercise-verification)).
+5. **Grading.** *Run* executes the visible test cases; *Submit* executes all of them, including hidden ones. Hidden cases only report pass or fail.
+6. **Progress.** Attempts, revealed hints, drafts and passed flags are stored in SQLite. Earlier material must be completed before later steps unlock.
 
-**Two important correctness/reliability additions to the pipeline above:**
+### Exercise verification
 
-- **Reference-solution self-check.** When the exercise generator produces a problem + test
-  cases, it must *also* produce a reference solution. Run that reference solution through the
-  sandbox against the generated tests before ever showing the exercise to the user. If the
-  reference solution fails its own tests, discard and regenerate — otherwise a bad test case
-  will fail a learner's *correct* code and they'll debug a phantom bug for no reason.
-- **Structured-output retry/repair loop.** Any LLM generation step (curriculum, exercise,
-  hints) needs a bounded retry loop: on Pydantic validation failure, feed the validation error
-  back to the model and ask it to correct the output, capped at N attempts (e.g. 3) before
-  falling back to a simpler/smaller generation task. Without this, one flaky generation
-  crashes the whole pipeline.
+A small local model is reliable only when each call does one small thing, so anything that can be checked in code is checked in code:
 
-**Generation strategy:** generate lazily, not eagerly. Build the curriculum *outline* up front
-(cheap), but generate each module's actual exercise only when the learner reaches it — this
-saves compute and avoids generating content for modules a learner may never get to.
+- The **reference solution** must compile and give deterministic output.
+- The **starter code must fail** the tests, and an AST guard rejects starter == reference.
+- **Case variety:** a lazy constant answer (such as `return True`) cannot pass the test set.
+- **Case pruning:** cases the reference itself fails are dropped, as long as at least 3 remain.
+- Every import in the reference must resolve against the course's installed packages.
+- Failed generations retry up to 5 times, with the temperature rising on later attempts.
 
-**Caching:** persist generated curricula keyed by framework name + doc scrape date/version,
-rather than regenerating from scratch on every run. Regenerating is wasteful and makes each
-run non-reproducible.
+Two exercise targets exist for now: `function` (call a function with inputs, compare outputs) and `http` (start the learner's app in the sandbox and send requests to it).
 
----
+## Requirements
 
-## 5. Tech Stack
+| Needs | Why |
+|---|---|
+| Python 3.13+ and [uv](https://docs.astral.sh/uv/) | Backend and pipeline |
+| Node.js (developed on 26.x) | Web UI |
+| [Docker](https://docs.docker.com/get-docker/) | Sandbox for running exercise code |
+| [Ollama](https://ollama.com/) | Local LLM and embeddings |
 
-| Layer | Choice | Notes |
-|---|---|---|
-| LLM serving | Ollama | already familiar; local, no API limits |
-| LLM (curriculum/exercises) | `qwen2.5-coder` or `deepseek-coder` family | test against your schemas first |
-| Embeddings | `nomic-embed-text` (via Ollama) | local, avoids API calls |
-| Vector store | Chroma | simplest to start with |
-| Structured output | Pydantic + LangChain | existing pattern from IdeaGen/DiagramGen |
-| Sandboxing | Docker | resource limits, no network, **warm container pool** (see below) |
-| Backend | FastAPI | already comfortable with this |
-| Frontend | Plain HTML/JS + Monaco Editor (via CDN) | no framework overhead needed for v1 |
-| Persistence | SQLite | existing pattern from DSA/flashcard apps |
-| Spaced repetition | FSRS-6 | reuse existing implementation pattern |
+Developed on Windows 11 with an RTX 3060 (12 GB VRAM) and 16 GB RAM, where generating one step takes a few seconds. The goal is that ordinary hardware is enough, so the default model is a small one.
 
----
+## Quick start
 
-## 6. Security Considerations
+```bash
+# 1. Models
+ollama pull qwen3.5:9b
+ollama pull nomic-embed-text
 
-- **Never execute user-submitted code on the host process.** Container or nothing.
-- **Resource limits per run:** memory cap (e.g. 256MB), CPU shares, wall-clock timeout (5-10s).
-- **Process limit (`--pids-limit`):** without this, a fork bomb inside the container can hang
-  the host — this is a real gap in a naive Docker setup, not a theoretical one.
-- **Run as non-root inside the container, with `--cap-drop=ALL`.**
-- **No network egress** from the execution container.
-- **Warm container pool instead of spin-up-per-run.** Cold-starting a fresh Docker container
-  per submission adds 1-3+ seconds of latency before the user's code even runs — bad for a
-  tight write-code-get-feedback loop. Keep a pool of N pre-started containers, reset/wipe their
-  filesystem state between runs instead of destroying and respawning. This is a meaningfully
-  different implementation than naive per-run spin-up, so design for it from the start rather
-  than retrofitting later.
-- **Pre-baked images per framework** for dependencies rather than allowing arbitrary
-  `pip install` at exercise-run time.
-- **Prompt injection awareness:** if user input (e.g. custom framework name) feeds into
-  LLM prompts, template/validate it rather than raw string concatenation, to avoid the LLM
-  being coaxed into generating malicious "starter code."
-- **Doc/framework versioning:** pin the scrape date and framework version used to build the
-  RAG index, and surface it to the user (e.g. "generated against FastAPI docs as of X"). Without
-  this, outdated APIs get taught silently as the framework evolves, with no way to trace why.
-- **Structured logging from day one** for all LLM inputs/outputs — needed to debug bad
-  generations, and far more expensive to retrofit later than to build in now.
+# 2. Backend dependencies
+uv sync
 
----
+# 3. Choose the model (see "Configuration" below), then start the API
+uv run uvicorn api.main:create_app --factory --reload
 
-## 7. Phased Build Plan
+# 4. In a second terminal, start the UI
+cd web
+npm install
+npm run dev
+```
 
-1. **Pick one framework** to target first (ideally one you're actively learning) — Python only
-2. **Sandbox runner** — build and stress-test in isolation first, before any LLM is involved.
-   Include the full security list from Section 6 (pids-limit, non-root, no network, resource
-   caps) and the **warm container pool** from the start, not as a later optimization.
-   Prove safe execution + pass/fail grading against hardcoded test cases.
-3. **RAG ingestion** — scrape and embed that framework's docs, pinning scrape date/version
-   (can run in parallel with step 2)
-4. **Curriculum planner** — structured output, 4-5 modules, tightly hardcoded schema, with the
-   **retry/repair loop** on validation failure built in from the start
-5. **Exercise generator** — one exercise per module, grounded in retrieved doc chunks, with the
-   **reference-solution self-check** (generate + sandbox-verify a reference solution before
-   ever surfacing the exercise) and lazy generation (only when the learner reaches the module)
-6. **Curriculum/exercise caching** — persist generated content keyed by framework + doc version
-7. **Wire grader → hint system** — connect sandbox output to LLM-generated targeted hints
-8. **FSRS-6 review layer** — adapt (not port) spaced repetition for "re-attempt a similar
-   exercise" as the review action
-9. **UI** — FastAPI + Monaco, wiring all of the above together into a usable flow
+Open <http://localhost:5173>. The dev server proxies `/api` to the backend on port 8000.
 
-Steps 2 and 3 don't depend on each other and can be built in parallel. Structured logging
-(Section 6) should be present from step 2 onward, not added later.
+The first run builds a Docker image for the course's environment (Python plus the pinned packages), which takes a minute or two.
 
----
+For a single-process setup, build the UI once (`npm run build`). FastAPI then serves `web/dist` itself at <http://localhost:8000>.
 
-## 8. Future Improvements (Post-v1)
+## Configuration
 
-- Generalize curriculum generation to arbitrary frameworks (better RAG robustness needed)
-- AST-based grading for code quality / anti-gaming detection
-- WebSocket-based live test execution streaming
-- Multi-language support beyond Python
-- Polished UI/UX pass
-- Possible multi-user support if turned into something shareable
+**Model.** Forge reads `~/.forge/settings.json`. For a local Ollama model:
+
+```json
+{ "provider": "ollama", "model": "qwen3.5:9b" }
+```
+
+Supported providers are `ollama`, `openai`, `anthropic` and `google_genai`. API keys for hosted providers are stored in your OS keychain (via `keyring`), never in the file. The model name is just a config value, so you can swap it without touching code.
+
+**Paths.** Courses live in `data/courses/`, learner progress in `data/learner.db`, the vector store in `data/chroma/`, and scraped docs in `raw_docs/`. All are set in `config.py`.
+
+## Creating a course
+
+The repository ships with a generated FastAPI course (5 modules, 17 steps, built from the FastAPI tutorial docs). To build your own, or to regenerate steps from the command line:
+
+```bash
+# Generate the first 3 steps of module 2 (plans the course first if it doesn't exist yet)
+uv run python generate_steps.py --module 2 --steps 3
+
+# Generate exactly one step
+uv run python generate_steps.py --module 2 --step 1
+```
+
+From the UI, generating a module and regenerating a step run as background jobs with live progress over SSE. Regenerating a step resets that step's learner state but keeps the old attempts.
+
+Pointing Forge at a different framework mostly means redoing the **ingestion layer**: a URL list (see `course_sources.py`), `ingestion/doc_scraper.py`, and the planner entry point. The HTTP exercise path is still FastAPI-specific; see [`ideas.md`](ideas.md) for the planned framework profiles.
+
+## HTTP API
+
+All routes live under `/api`. Interactive docs are at `/docs` while the backend is running.
+
+| Method & path | Purpose |
+|---|---|
+| `GET /api/health` | Liveness check |
+| `GET /api/courses` | List courses |
+| `GET /api/courses/{cid}` | Course outline with learner progress |
+| `GET /api/courses/{cid}/steps/{sid}` | Lesson, public exercise and learner state in one response |
+| `POST /api/courses/{cid}/modules/{index}/generate` | Generate a module; returns a `job_id` |
+| `POST /api/courses/{cid}/steps/{sid}/regenerate` | Regenerate one step |
+| `GET /api/jobs/{job_id}` | Job status |
+| `GET /api/courses/{cid}/jobs` | Jobs for a course |
+| `PUT …/steps/{sid}/draft` | Autosave the learner's code |
+| `POST …/steps/{sid}/run` | Run the visible test cases |
+| `POST …/steps/{sid}/submit` | Run all cases and record the attempt |
+| `POST …/steps/{sid}/hints/next` | Reveal the next hint |
+| `POST …/steps/{sid}/complete` | Mark the step complete |
+| `POST …/steps/{sid}/give-up` | Unlock the solution (after N failed submits) |
+| `GET …/steps/{sid}/solution` | The reference solution; locked until passed or given up |
+
+Hidden test cases never leave the server: the public schema excludes them.
+
+## Sandbox and safety
+
+Learner code never runs in the host process. Each run happens in a container from a warm pool, which avoids the 1–3 s cold start of spinning up a fresh container per submission. Containers are reset between runs and are created with:
+
+- no network (`network_disabled`)
+- non-root user (`1000:1000`) and `cap_drop=all`
+- read-only root filesystem, with a small `noexec` tmpfs at `/tmp`
+- memory cap (256 MB by default), half a CPU, and `pids_limit=50` against fork bombs
+- dependencies baked into the image, with no `pip install` at run time
+
+## Project layout
+
+```
+api/            FastAPI app: routers, schemas, services (grader, jobs, generation), SQLite storage
+ingestion/      Doc scraping, chunking, embeddings, Chroma vector store
+retrieval/      Retriever and the retrieval tool used by the generators
+planner/        Curriculum planner and doc outline
+lessons/        Step generator (lesson, then exercise)
+exercises/      Verification checks, starter/reference handling, function and HTTP drivers
+sandbox/        Docker image builder, warm container pool, dependency resolver
+reasoning/      LLM factory, structured-output helpers, and the prompt files (system_messages/)
+models/         Course and exercise data models
+web/            React + TypeScript + Vite UI (Tailwind, Monaco, TanStack Query)
+data/           Generated courses, learner database, vector store
+tests/          pytest suite
+```
+
+## Development
+
+```bash
+uv run pytest                 # unit tests (no Docker or Ollama needed for most)
+cd web && npm run lint        # oxlint
+cd web && npm run gen:api     # regenerate TypeScript API types from the running backend
+```
+
+`tests/integration/` and `tests/check_container.py` need Docker. After changing a prompt or the pipeline, regenerate the FastAPI course and compare pass counts and `FAILED GENERATION ATTEMPT` entries in the logs; that is the informal regression benchmark.
+
+## Roadmap
+
+Built : planner, lessons, three-stage exercise generation with verification, function and HTTP exercise types, the full API layer, and a first React UI with a module celebration and a generation animation.
+
+Planned (details and reasoning in [`ideas.md`](ideas.md)):
+
+- **More libraries and frameworks:** per-framework profiles for the HTTP path (Flask, Starlette), and output conversion for data libraries (numpy, pandas).
+- **Manual exercise type** for steps that cannot run in a sandbox (network, API keys, GPU), with self-rating, and as a fallback when generation fails.
+- **Spaced repetition (FSRS-6)** to review weak or failed exercises.
+- **Pipeline quality:** a review script, a regression benchmark, per-stage model routing.
+- **Desktop app** with Tauri around the existing React UI.
+- Later: more exercise categories (CLI, app), search, settings screen, multi-user support.
+
+Out of scope for v1: non-Python languages (the sandbox, test harness and AST tooling all assume Python).
+
+## License
+
+[MIT](LICENSE) © 2026 Pramit Acharjya
