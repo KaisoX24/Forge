@@ -1,8 +1,8 @@
 [project]
 name = "forge"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "A system that turns a technology into an interactive environment where you learn by building."
+readme = "readme.md"
 authors = [
     { name = "KaisoX24", email = "acharjyapramit@gmail.com" }
 ]
