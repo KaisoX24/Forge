@@ -13,7 +13,7 @@ from api.services.grader.grader_registry import GraderRegistry
 from api.services.job.jobs import JobService
 from api.services.job.job_worker import JobWorker
 from api.storage.db import init_db,make_engine,make_session_factory
-from api.routers import courses,exercises,jobs
+from api.routers import courses,exercises,jobs,settings
 from config import COURSES_DIR,LEARNER_DB_URL,WEB_DIST_DIR
 
 DEV_ORIGINS = ["http://localhost:5173","http://127.0.0.1:5173"]
@@ -53,6 +53,7 @@ def create_app(
     app.include_router(courses.router)
     app.include_router(exercises.router)
     app.include_router(jobs.router)
+    app.include_router(settings.router)
     app.state.store=CourseStore(courses_dir)
     app.state.registry=registry or GraderRegistry()
 
