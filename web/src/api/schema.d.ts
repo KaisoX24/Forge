@@ -258,6 +258,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Settings */
+        get: operations["read_settings_api_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/model": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Choose Model
+         * @description Make this the active model. Online providers need a saved key first.
+         */
+        put: operations["choose_model_api_settings_model_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/keys/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save Key
+         * @description Save/Replace a key, Saved goes to the system credential manager.
+         */
+        put: operations["save_key_api_settings_keys__provider__put"];
+        post?: never;
+        /** Remove Key */
+        delete: operations["remove_key_api_settings_keys__provider__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -279,6 +337,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActiveModel */
+        ActiveModel: {
+            /** Provider */
+            provider: string;
+            /** Model */
+            model: string;
+        };
         /** CalloutBlock */
         CalloutBlock: {
             /**
@@ -415,6 +480,11 @@ export interface components {
              */
             created_at: string;
         };
+        /** KeyBody */
+        KeyBody: {
+            /** Key */
+            key: string;
+        };
         /** KeyPoint */
         KeyPoint: {
             /** Title */
@@ -446,6 +516,13 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** ModelChoice */
+        ModelChoice: {
+            /** Provider */
+            provider: string;
+            /** Model */
+            model: string;
+        };
         /** ModuleSummary */
         ModuleSummary: {
             /** Index */
@@ -456,6 +533,19 @@ export interface components {
             unlocked: boolean;
             /** Steps */
             steps: components["schemas"]["StepSummary"][];
+        };
+        /** ProviderView */
+        ProviderView: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Needs Key */
+            needs_key: boolean;
+            /** Has Key */
+            has_key: boolean;
+            /** Models */
+            models: string[];
         };
         /** PublicDoc */
         PublicDoc: {
@@ -528,6 +618,12 @@ export interface components {
             passed_count: number;
             /** Total */
             total: number;
+        };
+        /** SettingsView */
+        SettingsView: {
+            active: components["schemas"]["ActiveModel"] | null;
+            /** Providers */
+            providers: components["schemas"]["ProviderView"][];
         };
         /** SolutionResponse */
         SolutionResponse: {
@@ -1105,6 +1201,125 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["JobView"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_settings_api_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsView"];
+                };
+            };
+        };
+    };
+    choose_model_api_settings_model_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelChoice"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_key_api_settings_keys__provider__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KeyBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_key_api_settings_keys__provider__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsView"];
                 };
             };
             /** @description Validation Error */

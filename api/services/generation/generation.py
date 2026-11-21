@@ -6,7 +6,6 @@ from exercises.import_check import make_import_checker
 from lessons.step_generator import StepGenerator
 from models.course import Course
 from api.services.reasoning_models.model_factory import get_model
-from reasoning.model import get_llm
 from functools import lru_cache
 
 GENERATION_MODEL= "qwen3.5:9b"
