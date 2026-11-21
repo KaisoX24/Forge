@@ -316,6 +316,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Context
+         * @description Set the cap on the context window. Applies to the next generation job.
+         */
+        put: operations["set_context_api_settings_context_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/model-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Model Info
+         * @description What the local Ollama server says about a model. Empty for online providers.
+         */
+        get: operations["model_info_api_settings_model_info_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Forget
+         * @description Remove a model from a provider's list. The active model can't be removed.
+         */
+        delete: operations["forget_api_settings_models_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -396,6 +456,11 @@ export interface components {
             code: string;
             /** Output */
             output?: string | null;
+        };
+        /** ContextBody */
+        ContextBody: {
+            /** Max Context */
+            max_context: number | null;
         };
         /** CourseOutline */
         CourseOutline: {
@@ -523,6 +588,13 @@ export interface components {
             /** Model */
             model: string;
         };
+        /** ModelInfoView */
+        ModelInfoView: {
+            /** Max Context */
+            max_context: number | null;
+            /** Billions */
+            billions?: number | null;
+        };
         /** ModuleSummary */
         ModuleSummary: {
             /** Index */
@@ -624,6 +696,14 @@ export interface components {
             active: components["schemas"]["ActiveModel"] | null;
             /** Providers */
             providers: components["schemas"]["ProviderView"][];
+            /** Max Context */
+            max_context: number | null;
+            /** Auto Context */
+            auto_context: number;
+            /** Min Context */
+            min_context: number;
+            /** Max Context Limit */
+            max_context_limit: number;
         };
         /** SolutionResponse */
         SolutionResponse: {
@@ -1309,6 +1389,103 @@ export interface operations {
             path: {
                 provider: string;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_context_api_settings_context_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContextBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingsView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    model_info_api_settings_model_info_get: {
+        parameters: {
+            query: {
+                provider: string;
+                model: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelInfoView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    forget_api_settings_models_delete: {
+        parameters: {
+            query: {
+                provider: string;
+                model: string;
+            };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;

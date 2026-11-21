@@ -81,3 +81,17 @@ export function useSettings() {
     queryFn: async () => unwrap(await api.GET("/api/settings")),
   });
 }
+
+export function useModelInfo(provider: string, model: string) {
+  return useQuery({
+    queryKey: ["model-info", provider, model],
+    enabled: provider === "ollama" && model.length > 0,
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/settings/model-info", {
+          params: { query: { provider, model } },
+        }),
+      ),
+    staleTime: 60_000,
+  });
+}

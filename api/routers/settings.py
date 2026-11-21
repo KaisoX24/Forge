@@ -1,9 +1,11 @@
 from fastapi import APIRouter
 
+from reasoning.model_limits import ollama_info
 from api.errors.errors import Invalid
-from api.schemas.settings import ActiveModel,ModelChoice,ProviderView,SettingsView,KeyBody
+from api.schemas.settings import ActiveModel,ModelChoice,ProviderView,SettingsView,KeyBody,ModelInfoView,ContextBody
 from api.services.reasoning_models.model_settings import(
-    PROVIDERS,get_api_key,load_settings,save_settings,set_api_key,delete_api_key
+    PROVIDERS,get_api_key,load_settings,save_settings,set_api_key,delete_api_key,
+    MAX_CONTEXT_LIMIT,MIN_CONTEXT,load_max_context,save_max_context,AUTO_MAX_CONTEXT,forget_model
 )
 from api.services.reasoning_models.errors.model_errors import MissingApiKey
 
@@ -29,7 +31,11 @@ def _view() ->SettingsView:
                 models=history.get(p,[]),
             )
             for p in PROVIDERS
-        ]
+        ],
+        max_context=load_max_context(),
+        min_context=MIN_CONTEXT,
+        auto_context=AUTO_MAX_CONTEXT,
+        max_context_limit=MAX_CONTEXT_LIMIT
     )
 
 def _online(provider: str) -> None:
@@ -72,4 +78,34 @@ def save_key(provider:str,body:KeyBody):
 def remove_key(provider: str):
     _online(provider)
     delete_api_key(provider)
+    return _view()
+
+@router.put("/api/settings/context",response_model=SettingsView)
+def set_context(body:ContextBody) ->SettingsView:
+    "Set the cap on the context window. Applies to the next generation job."
+    try:
+        save_max_context(body.max_context)
+    except ValueError as exc:
+        raise Invalid(str(exc))
+    return _view()
+
+@router.get("/api/settings/model-info", response_model=ModelInfoView)
+def model_info(provider: str, model: str):
+    "What the local Ollama server says about a model. Empty for online providers."
+    if provider != "ollama" or not model.strip():
+        return ModelInfoView()
+    info = ollama_info(model.strip())
+    if info is None:
+        return ModelInfoView()
+    return ModelInfoView(max_context=info.max_context, billions=info.billions)
+
+@router.delete("/api/settings/models", response_model=SettingsView)
+def forget(provider: str, model: str):
+    "Remove a model from a provider's list. The active model can't be removed."
+    if provider not in PROVIDERS:
+        raise Invalid("Unknown provider.")
+    current = load_settings()
+    if current and current.provider == provider and current.model == model:
+        raise Invalid("That's the active model. Switch to another one first.")
+    forget_model(provider, model)
     return _view()

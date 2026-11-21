@@ -157,3 +157,15 @@ export function useRemoveKey() {
     ),
   );
 }
+
+export function useSetContext() {
+  return useSettingsMutation(async (max_context: number | null) =>
+    unwrap(await api.PUT("/api/settings/context", { body: { max_context } })),
+  );
+}
+
+export function useForgetModel() {
+  return useSettingsMutation(async (v: { provider: string; model: string }) =>
+    unwrap(await api.DELETE("/api/settings/models", { params: { query: v } })),
+  );
+}

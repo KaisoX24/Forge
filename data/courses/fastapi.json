@@ -2878,46 +2878,42 @@
       "schema_version": 1,
       "id": "m1-s2",
       "title": "Define a path operation decorator for a GET request at the root path.",
-      "summary": "Learn how to define a GET route at the root path using the @app.get decorator.",
+      "summary": "Add a GET path operation decorator for the root path `/` on your FastAPI app.",
       "you_will_learn": [
-        "Use @app.get to register a route",
-        "Specify the path string in parentheses",
-        "Define the function below the decorator"
+        "Write a GET path operation decorator",
+        "Set the root path with `/`",
+        "Connect the decorator to a function"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Defining a GET Path Operation",
-          "body": "To handle requests, use the `@app.get` decorator above your function. The path is the first argument inside the parentheses, like `/`. This tells FastAPI to call your function when a GET request hits that URL."
+          "heading": "Decorators map paths to operations",
+          "body": "Write `@app.get(\"/\")` directly above the function that handles the route. The string `/` specifies the root path, while `.get` specifies the GET operation. FastAPI then associates that function with GET requests sent to `/`."
         },
         {
           "type": "key_points",
           "items": [
             {
-              "title": "Decorator Syntax",
-              "text": "Place `@app.get` directly above your function definition."
+              "title": "Route syntax",
+              "text": "Use `@app.get(\"/\")` above the function handling the root route."
             },
             {
-              "title": "Path Argument",
-              "text": "The path string (e.g., `/`) is the first argument inside the parentheses."
-            },
-            {
-              "title": "Function Definition",
-              "text": "Write a normal or async function immediately below the decorator."
+              "title": "Path and method",
+              "text": "The `/` argument is the path; `get` in `app.get` is the HTTP operation."
             }
           ]
         },
         {
           "type": "code",
-          "title": "Root GET Route Example",
+          "title": "Root GET route",
           "language": "python",
-          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
+          "code": "@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
           "output": null
         },
         {
           "type": "callout",
           "kind": "tip",
-          "text": "You can use other methods like `@app.post` or `@app.delete`, but the path syntax remains the same."
+          "text": "Place the decorator immediately above the function it should connect to."
         }
       ],
       "docs": [
@@ -2977,16 +2973,17 @@
         }
       ],
       "exercise": {
-        "title": "Define Root GET Operation",
-        "description": "Create a FastAPI app with a GET route at the root path that returns a JSON response.",
+        "title": "Create a root GET route",
+        "description": "Build a FastAPI app with a GET path operation at the root URL and return a simple JSON response.",
         "instructions": [
-          "Import FastAPI and create an instance named app.",
-          "Define a function decorated with @app.get(\"/\") to handle GET requests at the URL",
-          "Return a JSON object containing a message string."
+          "Create a FastAPI app named app.",
+          "Add @app.get(\"/\") above the root handler.",
+          "Return {\"message\": \"Hello, World!\"}.",
+          "Keep the route available for GET requests only."
         ],
         "difficulty": "easy",
         "files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    # TODO: define a path operation decorator for a GET request at the root path\n    pass\n"
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\ndef read_root():\n    # TODO: map GET requests at the root path to this function\n    return {\"message\": \"Hello, World!\"}\n"
         },
         "execution": {
           "target": "http",
@@ -3004,50 +3001,48 @@
         },
         "cases": [
           {
-            "label": "GET root returns message",
+            "label": "Root GET returns greeting",
             "method": "GET",
             "path": "/",
             "headers": {},
             "json_body": null,
             "expected_status": 200,
             "expected_json": {
-              "message": "Hello World"
+              "message": "Hello, World!"
             },
             "expected_text": null,
             "visible": true
           },
           {
-            "label": "GET root with query param",
-            "method": "GET",
-            "path": "/?foo=bar",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "message": "Hello World"
-            },
-            "expected_text": null,
-            "visible": true
-          },
-          {
-            "label": "POST root returns 405",
+            "label": "Root route rejects POST",
             "method": "POST",
             "path": "/",
             "headers": {},
-            "json_body": null,
+            "json_body": {},
             "expected_status": 405,
+            "expected_json": null,
+            "expected_text": null,
+            "visible": true
+          },
+          {
+            "label": "Unknown path not found",
+            "method": "GET",
+            "path": "/missing",
+            "headers": {},
+            "json_body": null,
+            "expected_status": 404,
             "expected_json": null,
             "expected_text": null,
             "visible": false
           }
         ],
         "hints": [
-          "Use @app.get to create a GET endpoint.",
-          "Place the decorator above your function definition."
+          "Connect the handler to the application using a path operation decorator.",
+          "Use the GET decorator with the root path directly above the handler."
         ],
-        "explanation": "The reference defines a GET path operation at '/' that returns a JSON message. The starter has the decorator but no return statement, causing an error or missing response. Cases test successful GET and expected 405 for POST.",
+        "explanation": "The @app.get(\"/\") decorator maps GET requests at the root path to read_root, which returns the greeting JSON. Other methods or paths are not handled by this route.",
         "reference_files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Hello World\"}\n"
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Hello, World!\"}\n"
         }
       }
     },

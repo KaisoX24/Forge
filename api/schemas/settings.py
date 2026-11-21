@@ -14,10 +14,23 @@ class ProviderView(BaseModel):
 class SettingsView(BaseModel):
     active:ActiveModel|None
     providers:list[ProviderView]
+    max_context:int | None
+    auto_context:int
+    min_context:int
+    max_context_limit:int
 
 class ModelChoice(ActiveModel):
     pass
 
 class KeyBody(BaseModel):
     key:str
+
+class ContextBody(BaseModel):
+    max_context:int|None
+
+class ModelInfoView(BaseModel):
+    max_context:int|None
+    billions:float|None=None
+
+
 

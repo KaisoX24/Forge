@@ -1,16 +1,17 @@
-import { useState } from "react";
-import { Cloud, Cpu, Info, KeyRound, TriangleAlert } from "lucide-react";
-import { useRemoveKey, useSaveKey, useChooseModel } from "../api/mutations";
+import { useState, useEffect } from "react";
+import { Cloud, Cpu, Info, KeyRound, TriangleAlert, X } from "lucide-react";
+import { useRemoveKey, useSaveKey, useChooseModel, useSetContext, useForgetModel } from "../api/mutations";
 import type { components } from "../api/schema";
-import { useSettings } from "../api/queries";
+import { useSettings, useModelInfo } from "../api/queries";
 import ErrorScreen from "./ErrorScreen";
-import { looksTooSmall } from "../lib/modelSize";
+import { MIN_RECOMMENDED_B, paramBillions } from "../lib/modelSize";
 
 
 type Provider = components["schemas"]["ProviderView"];
 
 export default function SettingsPage() {
   const choose=useChooseModel();
+  const forget=useForgetModel();
   const { data, isPending, error, refetch } = useSettings();
   // Which provider card is selected while browsing. This is not the active model yet.
   const [picked, setPicked] = useState<string | null>(null);
@@ -101,6 +102,10 @@ export default function SettingsPage() {
           activeModel={activeModelHere}
           value={modelValue}
           onChange={(m) => setChosen((c) => ({ ...c, [selectedProvider.id]: m }))}
+          onForget={(m) => {
+            forget.mutate({ provider: selectedProvider.id, model: m });
+            if (modelValue === m) setChosen((c) => ({ ...c, [selectedProvider.id]: "" }));
+          }}
         />
       )}
       {selectedProvider?.needs_key && (
@@ -109,13 +114,7 @@ export default function SettingsPage() {
 
       {selectedProvider && (
         <div className="mt-8 border-t border-slate-200 pt-6">
-          {looksTooSmall(trimmed) && (
-            <div className="mb-4 flex max-w-xl items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-              Models under 9B often struggle with lesson and exercise generation. It will
-              work, but expect weaker results.
-            </div>
-          )}
+          <ModelNotes provider={selectedProvider.id} model={trimmed} />
 
           <div className="flex flex-wrap items-center gap-3">
             <button
@@ -135,6 +134,13 @@ export default function SettingsPage() {
           </p>
         </div>
       )}
+        <AdvancedSection
+          key={data.max_context}
+          manual={data.max_context}
+          auto={data.auto_context}
+          min={data.min_context}
+          max={data.max_context_limit}
+        />
     </div>
     
   );
@@ -146,12 +152,15 @@ function ModelSection({
   activeModel,
   value,
   onChange,
+  onForget,
+
 }: {
   providerId: string;
   models: string[];
   activeModel: string | null;
   value: string;
   onChange: (value: string) => void;
+  onForget: (model: string) => void;
 }) {
   return (
     <>
@@ -162,32 +171,44 @@ function ModelSection({
           {models.map((m) => {
             const isChosen = value === m;
             return (
-              <button
+              <div
                 key={m}
-                type="button"
-                role="radio"
-                aria-checked={isChosen}
-                onClick={() => onChange(m)}
-                className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
-                  isChosen
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-slate-200 hover:border-blue-300"
+                className={`flex items-center rounded-xl border transition ${
+                  isChosen ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-300"
                 }`}
               >
-                <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                    isChosen ? "border-blue-600" : "border-slate-300"
-                  }`}
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={isChosen}
+                  onClick={() => onChange(m)}
+                  className="flex flex-1 items-center gap-3 px-4 py-3 text-left"
                 >
-                  {isChosen && <span className="h-2 w-2 rounded-full bg-blue-600" />}
-                </span>
-                <span className="flex-1 font-medium text-slate-900">{m}</span>
-                {m === activeModel && (
-                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                    Active
+                  <span
+                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                      isChosen ? "border-blue-600" : "border-slate-300"
+                    }`}
+                  >
+                    {isChosen && <span className="h-2 w-2 rounded-full bg-blue-600" />}
                   </span>
+                  <span className="flex-1 font-medium text-slate-900">{m}</span>
+                  {m === activeModel && (
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                      Active
+                    </span>
+                  )}
+                </button>
+                {m !== activeModel && (
+                  <button
+                    type="button"
+                    aria-label={`Remove ${m} from the list`}
+                    onClick={() => onForget(m)}
+                    className="mr-2 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
@@ -313,5 +334,177 @@ function KeySection({ provider }: { provider: Provider }) {
         The key stays on this computer. It isn't shown again after saving.
       </p>
     </>
+  );
+}
+
+function AdvancedSection({
+  manual,
+  auto,
+  min,
+  max,
+}: {
+  manual: number | null;
+  auto: number;
+  min: number;
+  max: number;
+}) {
+  const save = useSetContext();
+  const [mode, setMode] = useState<"auto" | "manual">(manual === null ? "auto" : "manual");
+  const [draft, setDraft] = useState(String(manual ?? auto));
+
+  const n = Number(draft);
+  const valid = draft.trim() !== "" && Number.isInteger(n) && n >= min && n <= max;
+  const changed = mode === "auto" ? manual !== null : valid && n !== manual;
+
+  const option = (selected: boolean) =>
+    `flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition ${
+      selected ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-300"
+    }`;
+  const dot = (selected: boolean) => (
+    <span
+      className={`mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+        selected ? "border-blue-600" : "border-slate-300"
+      }`}
+    >
+      {selected && <span className="h-2 w-2 rounded-full bg-blue-600" />}
+    </span>
+  );
+
+  return (
+    <details className="mt-8 border-t border-slate-200 pt-6">
+      <summary className="cursor-pointer text-lg font-bold text-slate-900">Advanced</summary>
+
+      <div className="mt-4 max-w-xl space-y-2" role="radiogroup" aria-label="Context window">
+        <p className="text-sm font-medium text-slate-700">Context window</p>
+
+        <button
+          type="button"
+          role="radio"
+          aria-checked={mode === "auto"}
+          onClick={() => setMode("auto")}
+          className={option(mode === "auto")}
+        >
+          {dot(mode === "auto")}
+          <span>
+            <span className="font-medium text-slate-900">Auto (recommended)</span>
+            <span className="block text-sm text-slate-500">
+              Uses your local model's own window, up to {auto.toLocaleString()} tokens.
+              Online models use {auto.toLocaleString()}.
+            </span>
+          </span>
+        </button>
+
+        <div className={option(mode === "manual")}>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={mode === "manual"}
+            aria-label="Manual"
+            onClick={() => setMode("manual")}
+            className="mt-0"
+          >
+            {dot(mode === "manual")}
+          </button>
+          <div className="flex-1">
+            <span className="font-medium text-slate-900">Manual</span>
+            <span className="block text-sm text-slate-500">
+              Set your own cap. A local model is still limited to what it supports.
+            </span>
+            <input
+              type="number"
+              min={min}
+              max={max}
+              step={1024}
+              value={draft}
+              onFocus={() => setMode("manual")}
+              onChange={(e) => {
+                setMode("manual");
+                setDraft(e.target.value);
+              }}
+              className="mt-2 block w-40 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+        </div>
+
+        <p className="text-sm text-slate-500">
+          A bigger window lets each lesson use more documentation, but needs more memory on
+          local models and costs more on online ones.
+        </p>
+
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          <button
+            type="button"
+            disabled={!changed || save.isPending}
+            onClick={() => save.mutate(mode === "auto" ? null : n)}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
+          >
+            {save.isPending ? "Saving…" : "Save"}
+          </button>
+          {mode === "manual" && !valid && (
+            <span className="text-sm text-red-600">
+              Enter a whole number from {min.toLocaleString()} to {max.toLocaleString()}.
+            </span>
+          )}
+          {save.isSuccess && !changed && (
+            <span className="text-sm text-emerald-700">Saved. Applies to the next generation.</span>
+          )}
+        </div>
+
+        {save.isError && <p className="text-sm text-red-600">{save.error.message}</p>}
+      </div>
+    </details>
+  );
+}
+
+function useDebounced<T>(value: T, ms: number): T {
+  const [v, setV] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setV(value), ms);
+    return () => clearTimeout(t);
+  }, [value, ms]);
+  return v;
+}
+
+function ModelNotes({ provider, model }: { provider: string; model: string }) {
+  // Wait for a pause in typing so we don't ask Ollama about every half-typed name.
+  const name = useDebounced(model, 400);
+  const info = useModelInfo(provider, name);
+
+  const maxContext = info.data?.max_context ?? null;
+  const realBillions = info.data?.billions ?? null;
+  const found = maxContext !== null || realBillions !== null;
+  // Ollama's real size wins. The name is only a fallback (and all we have for online models).
+  const billions = realBillions ?? paramBillions(name);
+  const small = billions !== null && billions < MIN_RECOMMENDED_B;
+  const notFound = provider === "ollama" && name !== "" && info.isSuccess && !found;
+
+  if (!found && !small && !notFound) return null;
+
+  return (
+    <div className="mb-4 max-w-xl space-y-3">
+      {found && (
+        <p className="text-sm text-slate-600">
+          {[
+            maxContext !== null && `Supports up to ${maxContext.toLocaleString()} tokens`,
+            realBillions !== null && `${realBillions}B parameters`,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      )}
+      {notFound && (
+        <p className="text-sm text-slate-500">
+          Ollama didn't recognise this model. Check that it's running and the model is
+          pulled (<code>ollama pull {name}</code>).
+        </p>
+      )}
+      {small && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          Models under {MIN_RECOMMENDED_B}B often struggle with lesson and exercise
+          generation. It will work, but expect weaker results.
+        </div>
+      )}
+    </div>
   );
 }
