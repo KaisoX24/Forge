@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useParams } from "react-router";
-import { useCourse } from "./api/queries";
+import { useCourse, useSettings } from "./api/queries";
 import ErrorScreen from "./components/ErrorScreen";
 import ModuleCelebration from "./components/ModuleCelebration";
 import Sidebar from "./components/Sidebar";
@@ -7,6 +7,16 @@ import StepPage from "./components/StepPage";
 import CoursesPage from "./components/CoursePage";
 import ProgressPage from "./components/ProgressPage";
 import SettingsPage from "./components/SettingsPage";
+
+
+function Landing() {
+  const { data, isPending } = useSettings();
+  if (isPending) return <p className="p-8 text-slate-500">Loading…</p>;
+
+  const needsModel = data && !data.active;
+  return <Navigate to={needsModel ? "/settings" : "/course/fastapi"} replace />;
+}
+
 
 // Always visible: logo, nav, and (inside a course) the module list.
 function AppShell() {
@@ -51,21 +61,12 @@ function CourseHome() {
   return <Navigate to={`/course/${courseKey}/step/${target.id}`} replace />;
 }
 
-// Stand-in until each page is built.
-function Placeholder({ title }: { title: string }) {
-  return (
-    <div className="h-full overflow-y-auto rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
-    </div>
-  );
-}
-
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<AppShell />}>
-          <Route path="/" element={<Navigate to="/course/fastapi" replace />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/courses" element={ <CoursesPage/> } />
           <Route path="/progress" element={ <ProgressPage/> } />
           <Route path="/settings" element={ <SettingsPage/> } />

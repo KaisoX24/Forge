@@ -4,6 +4,13 @@ from langchain_core.language_models import BaseChatModel
 from api.services.reasoning_models.model_settings import get_api_key,load_settings,ModelSettings
 from api.services.reasoning_models.errors.model_errors import MissingApiKey,ModelNotConfigured
 from reasoning.model import get_llm
+import re
+
+def _provider_kwargs(provider: str, model: str) -> dict:
+    if provider == "openai" and re.match(r"(gpt-5|o\d)", model):
+        return {"reasoning_effort": "none"}
+    return {}
+
 
 def check_model_ready(rt:bool=False) ->ModelSettings | None:
     settings=load_settings()
@@ -27,5 +34,6 @@ def get_model() -> BaseChatModel:
     return init_chat_model(
         model=settings.model,
         model_provider=settings.provider,
-        api_key=key
+        api_key=key,
+        **_provider_kwargs(settings.provider, settings.model)
     )

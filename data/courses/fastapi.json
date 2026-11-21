@@ -1516,232 +1516,50 @@
         }
       }
     },
-    "m4-s1": {
-      "schema_version": 1,
-      "id": "m4-s1",
-      "title": "Declare a Pydantic model with mixed Path, Query, and Body parameters using `Field` for validation.",
-      "summary": "Learn to mix Path, Query, and Body parameters in one endpoint using Pydantic Field for validation.",
-      "you_will_learn": [
-        "Import Field from pydantic",
-        "Add constraints like max_length or gt",
-        "Mix path query and body params",
-        "Use Annotated with Body embed"
-      ],
-      "blocks": [
-        {
-          "type": "text",
-          "heading": "Using Field for Model Validation",
-          "body": "Import `Field` from `pydantic`, not `fastapi`. Use it inside Pydantic models to add metadata like titles, defaults, or constraints (e.g., `max_length`, `gt`). You can freely mix Path, Query, and Body parameters in a single endpoint. FastAPI automatically detects the source: path params use `{param}`, query uses singular types with defaults, and Pydantic models become request bodies."
-        },
-        {
-          "type": "key_points",
-          "items": [
-            {
-              "title": "Import Field Correctly",
-              "text": "Always import `Field` from `pydantic`, not `fastapi`. It works like `Query` or `Body` but for model attributes."
-            },
-            {
-              "title": "Mix Parameter Types",
-              "text": "You can combine path, query, and body parameters in one function. FastAPI knows where to get each value automatically."
-            },
-            {
-              "title": "Use Annotated with Body",
-              "text": "Prefer `Annotated[Model, Body(embed=True)]` for clarity, though plain model types also work as request bodies."
-            }
-          ]
-        },
-        {
-          "type": "code",
-          "title": "Mixed Parameters with Field Validation",
-          "language": "python",
-          "code": "from typing import Annotated\nfrom fastapi import FastAPI, Path\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\nclass Item(BaseModel):\n    name: str\n    description: str | None = Field(default=None, max_length=300)\n    price: float = Field(gt=0)\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(\n    item_id: Annotated[int, Path(title=\"Item ID\", ge=0)],\n    q: str | None = None,\n    item: Item | None = None,\n):\n    results = {\"item_id\": item_id}\n    if q:\n        results[\"q\"] = q\n    if item:\n        results[\"item\"] = item.model_dump()\n    return results",
-          "output": null
-        },
-        {
-          "type": "callout",
-          "kind": "tip",
-          "text": "Remember that `Field` is from `pydantic`. Use it in models, while `Path`, `Query`, and `Body` are from `fastapi`."
-        }
-      ],
-      "docs": [
-        {
-          "label": "Declare model attributes",
-          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#declare-model-attributes",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Import `Field`",
-          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#import-field",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Body - Fields",
-          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#body-fields",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Body - Multiple Parameters",
-          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#body-multiple-parameters",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Recap",
-          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#recap",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Mix `Path`, `Query` and body parameters",
-          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#mix-path-query-and-body-parameters",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Request body + path + query parameters",
-          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Use the model",
-          "url": "https://fastapi.tiangolo.com/tutorial/body/#use-the-model",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Declare it as a parameter",
-          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
-          "grounding": "grounded",
-          "coverage": 0.727
-        },
-        {
-          "label": "Path Parameters and Numeric Validations",
-          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#path-parameters-and-numeric-validations",
-          "grounding": "grounded",
-          "coverage": 0.727
-        }
-      ],
-      "exercise": {
-        "title": "Create Pydantic Model with Mixed Parameters",
-        "description": "Define a Pydantic model using Field for validation and mix path, query, and body parameters.",
-        "instructions": [
-          "Import Field from pydantic.",
-          "Define a model with a required string field, an optional integer field with a gt",
-          "Create a function that accepts a dict of values, builds the model instance, and",
-          "Return the model as a JSON-compatible dictionary."
-        ],
-        "difficulty": "medium",
-        "files": {
-          "main.py": "from typing import Optional\nfrom pydantic import BaseModel, Field\n\nclass MixedParamsModel(BaseModel):\n    # TODO: Define the path_id field with a description\n    pass\n\n# TODO: Define the query_limit field with default=10 and gt=0\npass\n\n# TODO: Define the body_name field as Optional[str] with max_length=50\npass\n\ndef build_model(path_id: str, query_limit: int, body_name: Optional[str] = None) -> dict:\n    model = MixedParamsModel(\n        path_id=path_id,\n        query_limit=query_limit,\n        body_name=body_name\n    )\n    return model.model_dump(mode=\"json\")"
-        },
-        "execution": {
-          "target": "function",
-          "entry_file": "main.py",
-          "function_name": "build_model"
-        },
-        "cases": [
-          {
-            "label": "valid inputs with defaults",
-            "inputs": [
-              "user123",
-              5,
-              null
-            ],
-            "expected": {
-              "path_id": "user123",
-              "query_limit": 5,
-              "body_name": null
-            },
-            "visible": true
-          },
-          {
-            "label": "query limit at default",
-            "inputs": [
-              "user456",
-              10,
-              "Alice"
-            ],
-            "expected": {
-              "path_id": "user456",
-              "query_limit": 10,
-              "body_name": "Alice"
-            },
-            "visible": true
-          },
-          {
-            "label": "body name too long",
-            "inputs": [
-              "userABC",
-              5,
-              "ThisNameIsWayTooLongForTheField"
-            ],
-            "expected": {
-              "path_id": "userABC",
-              "query_limit": 5,
-              "body_name": "ThisNameIsWayTooLongForTheField"
-            },
-            "visible": false
-          }
-        ],
-        "hints": [
-          "Use Field(...) to add metadata like description, default values, or constraints to model fields.",
-          "Remember that gt sets a greater-than constraint and max_length limits string length."
-        ],
-        "explanation": "Tests Field validation: path_id required, query_limit default=10 and gt=0, body_name optional with max_length=50.",
-        "reference_files": {
-          "main.py": "from typing import Optional\nfrom pydantic import BaseModel, Field\n\nclass MixedParamsModel(BaseModel):\n    path_id: str = Field(..., description=\"Path parameter ID\")\n    query_limit: int = Field(default=10, gt=0, description=\"Query limit with constraint\")\n    body_name: Optional[str] = Field(None, max_length=50, description=\"Optional body name\")\n\ndef build_model(path_id: str, query_limit: int, body_name: Optional[str] = None) -> dict:\n    model = MixedParamsModel(\n        path_id=path_id,\n        query_limit=query_limit,\n        body_name=body_name\n    )\n    return model.model_dump(mode=\"json\")"
-        }
-      }
-    },
     "m4-s2": {
       "schema_version": 1,
       "id": "m4-s2",
       "title": "Define nested models where attributes are lists or sets of submodels with type parameters.",
-      "summary": "Learn to declare list and set attributes containing submodels or primitive types in FastAPI Pydantic models.",
+      "summary": "Declare nested model attributes with parameterized lists and sets for structured, validated data.",
       "you_will_learn": [
-        "Declare a list of strings using square brackets",
-        "Define a set of unique items with the set type",
-        "Use a Pydantic model as an element inside a list",
-        "Understand how to handle nested JSON structures"
+        "Declare a list with a type parameter",
+        "Use a Pydantic model as a list item type",
+        "Declare unique string tags with set[str]"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Declaring List and Set Attributes in Models",
-          "body": "In FastAPI, you can define attributes that hold lists or sets of other types. Use square brackets `[]` for lists and the `set` keyword for sets. You can also nest Pydantic models inside these containers to handle complex JSON structures."
+          "heading": "Parameterized nested attributes",
+          "body": "Use standard Python generic syntax in Pydantic model attributes. Write list[Image] when an attribute contains a list of Image submodels. For unique strings, write set[str]. Pydantic models can therefore describe nested JSON objects and collections with specific types; a set converts duplicate input items into unique items."
         },
         {
           "type": "key_points",
           "items": [
             {
-              "title": "List Syntax",
-              "text": "Use `list[Type]` to declare a list of specific items, like `tags: list[str] = []`."
+              "title": "List of submodels",
+              "text": "Use images: list[Image] to declare a list whose items are Image models."
             },
             {
-              "title": "Set Syntax",
-              "text": "Use `set[Type]` for unique items, such as `tags: set[str] = set()`."
+              "title": "Unique items",
+              "text": "Use tags: set[str] to declare a set of unique strings."
             },
             {
-              "title": "Nested Models",
-              "text": "You can define a list of Pydantic models like `images: list[Image] | None = None`."
+              "title": "Square brackets",
+              "text": "Put the contained type inside brackets, as in list[str] or list[Image]."
             }
           ]
         },
         {
           "type": "code",
-          "title": "Model with List and Set Attributes",
+          "title": "Nested images and unique tags",
           "language": "python",
-          "code": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Image(BaseModel):\n    url: str\n    name: str\n\nclass Item(BaseModel):\n    name: str\n    price: float\n    tags: set[str] = set()\n    images: list[Image] | None = None",
+          "code": "from fastapi import FastAPI\nfrom pydantic import BaseModel, HttpUrl\n\napp = FastAPI()\n\n\nclass Image(BaseModel):\n    url: HttpUrl\n    name: str\n\n\nclass Item(BaseModel):\n    name: str\n    price: float\n    tags: set[str] = set()\n    images: list[Image] | None = None\n\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(item_id: int, item: Item):\n    return {\"item_id\": item_id, \"item\": item}",
           "output": null
         },
         {
           "type": "callout",
           "kind": "tip",
-          "text": "FastAPI automatically converts JSON arrays into Python lists or sets based on your type annotation."
+          "text": "Do not omit the element type: list[Image] describes its items, while bare list does not."
         }
       ],
       "docs": [
@@ -1807,155 +1625,127 @@
         }
       ],
       "exercise": {
-        "title": "Nested Models with List and Set Attributes",
-        "description": "Create a Pydantic model containing nested models where attributes are lists or sets of submodels.",
+        "title": "Validate a photo collection",
+        "description": "Create nested Pydantic models for photos and unique tags, then return validated JSON data.",
         "instructions": [
-          "Define a Pydantic model named 'ComplexData' that contains a list of 'Item' sub-.",
-          "Add a set attribute to hold unique strings and a nested model inside a list.",
-          "Ensure the function accepts plain values, builds the object, and returns JSON."
+          "Accept a dictionary containing photo data and tags.",
+          "Define a nested Photo model with typed attributes.",
+          "Define a Gallery model with a list of photos and set of tags.",
+          "Return the validated models as JSON-compatible data."
         ],
         "difficulty": "medium",
         "files": {
-          "main.py": "from typing import List, Set\nfrom pydantic import BaseModel\n\nclass Item(BaseModel):\n    name: str\n    value: float\n\nclass ComplexData(BaseModel):\n    items: List[Item]\n    tags: Set[str]\n    metadata: dict\n\ndef create_complex_data(item_names: list, item_values: list, tag_list: list, meta_dict: dict) -> dict:\n    # TODO: Create a list of Item models from the provided name and value lists\n    # TODO: Create a set of tags from the provided tag list\n    # TODO: Return a ComplexData model with these attributes converted to JSON\n    pass"
+          "main.py": "from pydantic import BaseModel, ValidationError\n\n\nclass Photo(BaseModel):\n    url: str\n    width: int\n\n\nclass Gallery(BaseModel):\n    # TODO: declare the nested photo collection and unique tag collection\n    pass\n\n\ndef validate_gallery(data):\n    try:\n        gallery = Gallery.model_validate(data)\n        return gallery.model_dump(mode=\"json\")\n    except (ValidationError, TypeError, ValueError) as error:\n        return {\"error\": str(error)}\n"
         },
         "execution": {
           "target": "function",
           "entry_file": "main.py",
-          "function_name": "create_complex_data"
+          "function_name": "validate_gallery"
         },
         "cases": [
           {
-            "label": "basic positive case",
+            "label": "nested photos and unique tags",
             "inputs": [
-              [
-                "item1",
-                "item2"
-              ],
-              [
-                10.5,
-                20.3
-              ],
-              [
-                "tag_a",
-                "tag_b"
-              ],
               {
-                "version": "1.0"
+                "photos": [
+                  {
+                    "url": "https://example.com/a.jpg",
+                    "width": 640
+                  },
+                  {
+                    "url": "https://example.com/b.jpg",
+                    "width": 1024
+                  }
+                ],
+                "tags": [
+                  "travel",
+                  "summer",
+                  "travel"
+                ]
               }
             ],
             "expected": {
-              "items": [
+              "photos": [
                 {
-                  "name": "item1",
-                  "value": 10.5
+                  "url": "https://example.com/a.jpg",
+                  "width": 640
                 },
                 {
-                  "name": "item2",
-                  "value": 20.3
+                  "url": "https://example.com/b.jpg",
+                  "width": 1024
                 }
               ],
               "tags": [
-                "tag_b",
-                "tag_a"
-              ],
-              "metadata": {
-                "version": "1.0"
-              }
+                "travel",
+                "summer"
+              ]
             },
             "visible": true
           },
           {
-            "label": "empty lists and tags",
+            "label": "empty collections",
             "inputs": [
-              [],
-              [],
-              [],
-              {}
-            ],
-            "expected": {
-              "items": [],
-              "tags": [],
-              "metadata": {}
-            },
-            "visible": true
-          },
-          {
-            "label": "single item and tag",
-            "inputs": [
-              [
-                "single_item"
-              ],
-              [
-                99.9
-              ],
-              [
-                "only_tag"
-              ],
               {
-                "key": "val"
+                "photos": [],
+                "tags": []
               }
             ],
             "expected": {
-              "items": [
+              "photos": [],
+              "tags": []
+            },
+            "visible": true
+          },
+          {
+            "label": "numeric widths and duplicate tags",
+            "inputs": [
+              {
+                "photos": [
+                  {
+                    "url": "img.png",
+                    "width": 300
+                  },
+                  {
+                    "url": "img2.png",
+                    "width": 300
+                  }
+                ],
+                "tags": [
+                  "a",
+                  "a",
+                  "b",
+                  "b",
+                  "c"
+                ]
+              }
+            ],
+            "expected": {
+              "photos": [
                 {
-                  "name": "single_item",
-                  "value": 99.9
+                  "url": "img.png",
+                  "width": 300
+                },
+                {
+                  "url": "img2.png",
+                  "width": 300
                 }
               ],
               "tags": [
-                "only_tag"
-              ],
-              "metadata": {
-                "key": "val"
-              }
-            },
-            "visible": false
-          },
-          {
-            "label": "duplicate tags handled by set",
-            "inputs": [
-              [
+                "c",
                 "a",
                 "b"
-              ],
-              [
-                1,
-                2
-              ],
-              [
-                "x",
-                "y",
-                "x"
-              ],
-              {}
-            ],
-            "expected": {
-              "items": [
-                {
-                  "name": "a",
-                  "value": 1.0
-                },
-                {
-                  "name": "b",
-                  "value": 2.0
-                }
-              ],
-              "tags": [
-                "y",
-                "x"
-              ],
-              "metadata": {}
+              ]
             },
             "visible": false
           }
         ],
         "hints": [
-          "Use a list comprehension to create Item instances from the item_names and item_values lists.",
-          "Convert the tag_list to a set using the set() constructor."
+          "Identify the model fields that contain multiple values and specify each contained type.",
+          "Use generic collection annotations so photos are validated as submodels and tags become unique."
         ],
-        "explanation": "The reference creates Item models from parallel lists, converts the tag list to a set (removing duplicates), and returns the ComplexData model as JSON. The starter must implement this logic.",
+        "explanation": "The reference defines Gallery with photos as list[Photo] and tags as set[str]. Pydantic validates each nested photo, serializes the models, and removes duplicate tag values through set conversion.",
         "reference_files": {
-          "main.py": "from typing import List, Set\nfrom pydantic import BaseModel\n\nclass Item(BaseModel):\n    name: str\n    value: float\n\nclass ComplexData(BaseModel):\n    items: List[Item]\n    tags: Set[str]\n    metadata: dict\n\ndef create_complex_data(item_names: list, item_values: list, tag_list: list, meta_dict: dict) -> dict:\n    try:\n        items = [Item(name=name, value=value) for name, value in zip(item_names, item_values)]\n        tags = set(tag_list)\n        return ComplexData(items=items, tags=tags, metadata=meta_dict).model_dump(mode='json')\n    except Exception as e:\n        return {'error': str(e)}"
+          "main.py": "from pydantic import BaseModel, ValidationError\n\n\nclass Photo(BaseModel):\n    url: str\n    width: int\n\n\nclass Gallery(BaseModel):\n    photos: list[Photo]\n    tags: set[str]\n\n\ndef validate_gallery(data):\n    try:\n        gallery = Gallery.model_validate(data)\n        return gallery.model_dump(mode=\"json\")\n    except (ValidationError, TypeError, ValueError) as error:\n        return {\"error\": str(error)}\n"
         }
       }
     },
@@ -2810,7 +2600,7 @@
       "schema_version": 1,
       "id": "m1-s1",
       "title": "Declare a FastAPI application instance named 'app'.",
-      "summary": "Import the FastAPI class and create an app instance to start building your API.",
+      "summary": "Import the FastAPI class and create an instance named 'app' to start building your API.",
       "you_will_learn": [
         "Import the FastAPI class from the fastapi package",
         "Instantiate the FastAPI class with parentheses",
@@ -2819,23 +2609,23 @@
       "blocks": [
         {
           "type": "text",
-          "heading": "Creating Your First FastAPI App",
-          "body": "To start, import the `FastAPI` class from the `fastapi` package. Then, call the class with empty parentheses to create an instance. Assign this new object to a variable named `app`. This `app` variable is the main entry point for your API."
+          "heading": "Creating Your FastAPI App",
+          "body": "To start, import the FastAPI class. Then, create an instance by calling the class with empty parentheses and assign it to a variable called 'app'. This object is where you will define all your API endpoints."
         },
         {
           "type": "key_points",
           "items": [
             {
               "title": "Import Syntax",
-              "text": "Use `from fastapi import FastAPI` to bring the class into your current file."
+              "text": "Use 'from fastapi import FastAPI' at the top of your file."
             },
             {
               "title": "Instantiation",
-              "text": "Call `FastAPI()` with no arguments inside parentheses to create a new instance."
+              "text": "Call 'FastAPI()' to create a new application instance."
             },
             {
               "title": "Variable Assignment",
-              "text": "Assign the result to a variable, typically named `app`, to use it in your code."
+              "text": "Assign the result to 'app' so you can use it for decorators like @app.get()."
             }
           ]
         },
@@ -2849,7 +2639,7 @@
         {
           "type": "callout",
           "kind": "tip",
-          "text": "FastAPI is a class that inherits from Starlette. You can use all Starlette functionality with your FastAPI app."
+          "text": "If you see an error about 'FastAPI' not being defined, check that you imported it correctly from the fastapi package."
         }
       ],
       "docs": [
@@ -3088,32 +2878,32 @@
       "schema_version": 1,
       "id": "m1-s2",
       "title": "Define a path operation decorator for a GET request at the root path.",
-      "summary": "Learn how to use the @app.get decorator to define a GET route at the root path.",
+      "summary": "Learn how to define a GET route at the root path using the @app.get decorator.",
       "you_will_learn": [
-        "Use @app.get to register a handler",
-        "Specify the URL path in parentheses",
+        "Use @app.get to register a route",
+        "Specify the path string in parentheses",
         "Define the function below the decorator"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Defining a Path Operation Decorator",
-          "body": "To handle requests, use the `@app.get` decorator above your function. The path (e.g., `/`) goes inside the parentheses. FastAPI calls the function when a GET request hits that URL."
+          "heading": "Defining a GET Path Operation",
+          "body": "To handle requests, use the `@app.get` decorator above your function. The path is the first argument inside the parentheses, like `/`. This tells FastAPI to call your function when a GET request hits that URL."
         },
         {
           "type": "key_points",
           "items": [
             {
               "title": "Decorator Syntax",
-              "text": "Place `@app.get(\"/path\")` directly above your function definition."
+              "text": "Place `@app.get` directly above your function definition."
             },
             {
-              "title": "Path Specification",
-              "text": "The string inside the parentheses defines the URL path for the route."
+              "title": "Path Argument",
+              "text": "The path string (e.g., `/`) is the first argument inside the parentheses."
             },
             {
               "title": "Function Definition",
-              "text": "Write a normal or async Python function immediately below the decorator."
+              "text": "Write a normal or async function immediately below the decorator."
             }
           ]
         },
@@ -3127,7 +2917,7 @@
         {
           "type": "callout",
           "kind": "tip",
-          "text": "You can use other methods like `@app.post()` or `@app.delete()` for different HTTP verbs."
+          "text": "You can use other methods like `@app.post` or `@app.delete`, but the path syntax remains the same."
         }
       ],
       "docs": [
@@ -3187,12 +2977,12 @@
         }
       ],
       "exercise": {
-        "title": "Create Root GET Route",
-        "description": "Define a path operation decorator for a GET request at the root path.",
+        "title": "Define Root GET Operation",
+        "description": "Create a FastAPI app with a GET route at the root path that returns a JSON response.",
         "instructions": [
-          "Import FastAPI and create an app instance.",
-          "Use @app.get(\"/\") to define a route for the root path.",
-          "Return a JSON response with a welcome message."
+          "Import FastAPI and create an instance named app.",
+          "Define a function decorated with @app.get(\"/\") to handle GET requests at the URL",
+          "Return a JSON object containing a message string."
         ],
         "difficulty": "easy",
         "files": {
@@ -3214,78 +3004,263 @@
         },
         "cases": [
           {
-            "label": "GET root returns welcome message",
+            "label": "GET root returns message",
             "method": "GET",
             "path": "/",
             "headers": {},
             "json_body": null,
             "expected_status": 200,
             "expected_json": {
-              "message": "Welcome to the API"
+              "message": "Hello World"
             },
             "expected_text": null,
             "visible": true
           },
           {
-            "label": "GET root with query parameter",
+            "label": "GET root with query param",
             "method": "GET",
-            "path": "/?q=test",
+            "path": "/?foo=bar",
             "headers": {},
             "json_body": null,
             "expected_status": 200,
             "expected_json": {
-              "message": "Welcome to the API"
+              "message": "Hello World"
             },
             "expected_text": null,
             "visible": true
           },
           {
-            "label": "GET root with multiple query parameters",
-            "method": "GET",
-            "path": "/?a=1&b=2",
+            "label": "POST root returns 405",
+            "method": "POST",
+            "path": "/",
             "headers": {},
             "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "message": "Welcome to the API"
-            },
-            "expected_text": null,
-            "visible": false
-          },
-          {
-            "label": "GET root with empty query string",
-            "method": "GET",
-            "path": "/?",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "message": "Welcome to the API"
-            },
-            "expected_text": null,
-            "visible": false
-          },
-          {
-            "label": "GET root with special characters in query",
-            "method": "GET",
-            "path": "/?msg=hello%20world",
-            "headers": {},
-            "json_body": null,
-            "expected_status": 200,
-            "expected_json": {
-              "message": "Welcome to the API"
-            },
+            "expected_status": 405,
+            "expected_json": null,
             "expected_text": null,
             "visible": false
           }
         ],
         "hints": [
-          "Use @app.get('/') as the decorator.",
-          "Place the decorator above the function definition."
+          "Use @app.get to create a GET endpoint.",
+          "Place the decorator above your function definition."
         ],
-        "explanation": "The reference app defines a GET route at '/' that returns a static JSON message. All cases expect this same response regardless of query parameters since the function ignores them.",
+        "explanation": "The reference defines a GET path operation at '/' that returns a JSON message. The starter has the decorator but no return statement, causing an error or missing response. Cases test successful GET and expected 405 for POST.",
         "reference_files": {
-          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Welcome to the API\"}\n"
+          "main.py": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Hello World\"}\n"
+        }
+      }
+    },
+    "m4-s1": {
+      "schema_version": 1,
+      "id": "m4-s1",
+      "title": "Declare a Pydantic model with mixed Path, Query, and Body parameters using `Field` for validation.",
+      "summary": "Use Pydantic’s Field for model constraints while combining path, query, and body parameters in one endpoint.",
+      "you_will_learn": [
+        "Import Field from pydantic",
+        "Add metadata and constraints to model fields",
+        "Combine path, query, and body parameters",
+        "Make a body parameter optional"
+      ],
+      "blocks": [
+        {
+          "type": "text",
+          "heading": "Field and mixed parameters",
+          "body": "Import Field from pydantic, not fastapi. Use it inside a BaseModel to add metadata or validation, such as max_length, title, description, and gt. FastAPI can freely combine Path, Query, and body parameters in one endpoint. It identifies each parameter’s source and validates the resulting schema."
+        },
+        {
+          "type": "key_points",
+          "items": [
+            {
+              "title": "Field import",
+              "text": "Use from pydantic import Field; Field is not imported from fastapi."
+            },
+            {
+              "title": "Model constraints",
+              "text": "Use Field(default=None, max_length=300) or Field(gt=0) on model attributes."
+            },
+            {
+              "title": "Mixed sources",
+              "text": "FastAPI recognizes path, query, and Pydantic body parameters together."
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "title": "Constrained model with a path parameter",
+          "language": "python",
+          "code": "from typing import Annotated\n\nfrom fastapi import Body, FastAPI, Path\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n    description: str | None = Field(\n        default=None, title=\"The description of the item\", max_length=300\n    )\n    price: float = Field(gt=0, description=\"The price must be greater than zero\")\n    tax: float | None = None\n\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(\n    item_id: Annotated[int, Path(title=\"The ID of the item to get\", ge=0, le=1000)],\n    q: str | None = None,\n    item: Item | None = None,\n):\n    results = {\"item_id\": item_id}\n    if q:\n        results.update({\"q\": q})\n    if item:\n        results.update({\"item\": item})\n    return results",
+          "output": null
+        },
+        {
+          "type": "callout",
+          "kind": "tip",
+          "text": "Do not import Field from fastapi; the documentation imports it directly from pydantic."
+        }
+      ],
+      "docs": [
+        {
+          "label": "Declare model attributes",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#declare-model-attributes",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Import `Field`",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#import-field",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Body - Fields",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-fields/#body-fields",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Body - Multiple Parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#body-multiple-parameters",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Recap",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#recap",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Mix `Path`, `Query` and body parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/#mix-path-query-and-body-parameters",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Request body + path + query parameters",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#request-body-path-query-parameters",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Use the model",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#use-the-model",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Declare it as a parameter",
+          "url": "https://fastapi.tiangolo.com/tutorial/body/#declare-it-as-a-parameter",
+          "grounding": "grounded",
+          "coverage": 0.727
+        },
+        {
+          "label": "Path Parameters and Numeric Validations",
+          "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/#path-parameters-and-numeric-validations",
+          "grounding": "grounded",
+          "coverage": 0.727
+        }
+      ],
+      "exercise": {
+        "title": "Validate a mixed request model",
+        "description": "Create a Pydantic model and validate path, query, and body values with Field constraints.",
+        "instructions": [
+          "Accept a path identifier, query limit, and body dictionary.",
+          "Declare a Pydantic model with Field validation.",
+          "Return the validated values as JSON-compatible data.",
+          "Return an error dictionary when validation fails."
+        ],
+        "difficulty": "medium",
+        "files": {
+          "main.py": "from typing import Optional\n\nfrom pydantic import BaseModel, Field, ValidationError\n\n\nclass ProductUpdate(BaseModel):\n    # TODO: declare the fields with the required validation constraints\n    pass\n\n\ndef validate_request(product_id, limit, body):\n    # TODO: validate the mixed inputs and return the structured result\n    pass\n"
+        },
+        "execution": {
+          "target": "function",
+          "entry_file": "main.py",
+          "function_name": "validate_request"
+        },
+        "cases": [
+          {
+            "label": "valid product with note",
+            "inputs": [
+              7,
+              10,
+              {
+                "name": "Widget",
+                "price": 12.5,
+                "note": "Popular item"
+              }
+            ],
+            "expected": {
+              "product_id": 7,
+              "limit": 10,
+              "body": {
+                "name": "Widget",
+                "price": 12.5,
+                "note": "Popular item"
+              }
+            },
+            "visible": true
+          },
+          {
+            "label": "valid product without optional note",
+            "inputs": [
+              1,
+              1,
+              {
+                "name": "Basic",
+                "price": 0.01
+              }
+            ],
+            "expected": {
+              "product_id": 1,
+              "limit": 1,
+              "body": {
+                "name": "Basic",
+                "price": 0.01,
+                "note": null
+              }
+            },
+            "visible": true
+          },
+          {
+            "label": "invalid nonpositive price",
+            "inputs": [
+              4,
+              5,
+              {
+                "name": "Free",
+                "price": 0,
+                "note": null
+              }
+            ],
+            "expected": {
+              "error": "1 validation error for ProductUpdate\nprice\n  Input should be greater than 0 [type=greater_than, input_value=0, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.14/v/greater_than"
+            },
+            "visible": false
+          },
+          {
+            "label": "invalid oversized name",
+            "inputs": [
+              9,
+              2,
+              {
+                "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "price": 3.5
+              }
+            ],
+            "expected": {
+              "error": "1 validation error for ProductUpdate\nname\n  String should have at most 300 characters [type=string_too_long, input_value='xxxxxxxxxxxxxxxxxxxxxxxx...xxxxxxxxxxxxxxxxxxxxxxx', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.14/v/string_too_long"
+            },
+            "visible": false
+          }
+        ],
+        "hints": [
+          "Identify which constraints belong on each model field and which inputs must be positive integers.",
+          "Use Pydantic validation for the body, then combine the validated path, query, and body values in the returned mapping."
+        ],
+        "explanation": "The reference validates positive integer path and query values, then uses ProductUpdate.model_validate to enforce required name and positive price plus 300-character limits for name and optional note, returning either serialized data or an error object.",
+        "reference_files": {
+          "main.py": "from typing import Optional\n\nfrom pydantic import BaseModel, Field, ValidationError\n\n\nclass ProductUpdate(BaseModel):\n    name: str = Field(max_length=300)\n    price: float = Field(gt=0)\n    note: Optional[str] = Field(default=None, max_length=300)\n\n\ndef validate_request(product_id, limit, body):\n    try:\n        if not isinstance(product_id, int) or isinstance(product_id, bool) or product_id <= 0:\n            raise ValueError(\"product_id must be a positive integer\")\n        if not isinstance(limit, int) or isinstance(limit, bool) or limit <= 0:\n            raise ValueError(\"limit must be a positive integer\")\n        product = ProductUpdate.model_validate(body)\n        return {\n            \"product_id\": product_id,\n            \"limit\": limit,\n            \"body\": product.model_dump(mode=\"json\"),\n        }\n    except (ValidationError, ValueError, TypeError) as error:\n        return {\"error\": str(error)}\n"
         }
       }
     }

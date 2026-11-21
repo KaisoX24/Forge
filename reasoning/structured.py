@@ -4,7 +4,6 @@ from typing import Callable,TypeVar,Any,overload
 from langchain.messages import AIMessage,HumanMessage
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
-
 logger=logging.getLogger(__name__)
 T=TypeVar("T",bound=BaseModel)
 R=TypeVar("R")
@@ -23,6 +22,11 @@ def _describe_error(err: BaseException) -> str:
     if "Invalid json" in text:
         return "The reply was not valid JSON."
     return text[:400]
+
+def _structured_kwargs(llm) -> dict:
+    if type(llm).__name__ == "ChatOpenAI":
+        return {"method": "function_calling"}
+    return {}
 
 class StructuredResult:
     "Calls a model for structured output, retrying with feedback. Knows nothing about retrieval."
@@ -57,11 +61,13 @@ class StructuredResult:
         feedback:list[BaseMessage]=[]
         last_problem = "no attempt was made"
         for attempt in range(1, self.max_attempts + 1):
-            llm = self.llm if attempt <= 2 else self.llm.model_copy(
-                update={"temperature": min(0.2 + 0.2 * (attempt - 2), 0.8)})
-            structured=llm.with_structured_output(schema,include_raw=True)
+            llm = self.llm 
+            if attempt > 2 and type(llm).__name__=='ChatOllama':
+                llm=self.llm.model_copy(
+                    update={"temperature": min(0.2 + 0.2 * (attempt - 2), 0.8)}
+                )
+            structured=llm.with_structured_output(schema,include_raw=True,**_structured_kwargs(llm))
             try:
-            # Runs for max 5 iterations if any error occurs store the detail and pass it to llm for retry
                 result = structured.invoke(list(messages)+feedback)
             except Exception as exc:
                 last_problem = f"model call failed: {type(exc).__name__}: {exc}"
