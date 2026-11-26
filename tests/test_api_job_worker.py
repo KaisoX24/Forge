@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy import func, select
 
 from api.schemas.results import RunResult
-from api.services.generation.generation import progress as P
+from api.services.generation import progress as P
 from api.services.course_store import CourseStore
 from api.services.job.job_worker import JobWorker
 from api.services.job.jobs import JobService

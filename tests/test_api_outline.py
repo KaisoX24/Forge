@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from api.services.generation.generation import progress as P
+from api.services.generation import progress as P
 from api.services.course_store import CourseStore, module_step_ids
 from api.services.generation.outline import build_outline, build_summary
 from api.storage.db import init_db, make_engine, make_session_factory, session_scope

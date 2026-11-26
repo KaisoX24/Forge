@@ -4,7 +4,7 @@ import os
 from datetime import datetime,timezone
 from typing import Literal
 from pathlib import Path
-from pydantic import Field,BaseModel,model_validator
+from pydantic import Field,BaseModel,model_validator,HttpUrl,field_validator
 
 from models.data_models import Curriculum,EnvironmentSpec
 from models.lesson_generation_models import Lesson
@@ -19,6 +19,21 @@ class GenerationFailure(BaseModel):
 def step_id(module_index:int,step_index:int)->str:
     "Generates the step id for the lesson : m1-s1"
     return f"m{module_index+1}-s{step_index+1}"
+
+class CourseSources(BaseModel):
+    name:str
+    docs_url:HttpUrl
+    page_list:list[HttpUrl]=Field(default_factory=list)
+    selector:str|None=None
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls,value:str) ->str:
+        value=value.strip()
+        if not value:
+            raise ValueError("Source name cannot be empty")
+        return value
+
 
 class Course(BaseModel):
     schema_version: int = 1

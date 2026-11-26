@@ -2600,46 +2600,42 @@
       "schema_version": 1,
       "id": "m1-s1",
       "title": "Declare a FastAPI application instance named 'app'.",
-      "summary": "Import the FastAPI class and create an instance named 'app' to start building your API.",
+      "summary": "Import FastAPI and create the app instance that will be your main API interaction point.",
       "you_will_learn": [
-        "Import the FastAPI class from the fastapi package",
-        "Instantiate the FastAPI class with parentheses",
-        "Assign the new instance to a variable named app"
+        "Import the FastAPI class",
+        "Instantiate FastAPI correctly",
+        "Assign the instance to app"
       ],
       "blocks": [
         {
           "type": "text",
-          "heading": "Creating Your FastAPI App",
-          "body": "To start, import the FastAPI class. Then, create an instance by calling the class with empty parentheses and assign it to a variable called 'app'. This object is where you will define all your API endpoints."
+          "heading": "Create the FastAPI application",
+          "body": "Import the FastAPI class with `from fastapi import FastAPI`. Then call the class and assign the result to `app` with `app = FastAPI()`. The `app` variable is an instance of `FastAPI` and is the main point of interaction for creating your API."
         },
         {
           "type": "key_points",
           "items": [
             {
-              "title": "Import Syntax",
-              "text": "Use 'from fastapi import FastAPI' at the top of your file."
+              "title": "Import",
+              "text": "Use `from fastapi import FastAPI` to import the class."
             },
             {
-              "title": "Instantiation",
-              "text": "Call 'FastAPI()' to create a new application instance."
-            },
-            {
-              "title": "Variable Assignment",
-              "text": "Assign the result to 'app' so you can use it for decorators like @app.get()."
+              "title": "Instantiate",
+              "text": "Write `app = FastAPI()` to create and store the application instance."
             }
           ]
         },
         {
           "type": "code",
-          "title": "Basic FastAPI Setup",
+          "title": "Declare app",
           "language": "python",
-          "code": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World\"}",
+          "code": "from fastapi import FastAPI\n\napp = FastAPI()",
           "output": null
         },
         {
           "type": "callout",
           "kind": "tip",
-          "text": "If you see an error about 'FastAPI' not being defined, check that you imported it correctly from the fastapi package."
+          "text": "Keep the variable name `app` so the application instance is available as shown in the documentation."
         }
       ],
       "docs": [

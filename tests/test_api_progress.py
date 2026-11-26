@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import select
 
 from api.schemas.results import RunResult
-from api.services.generation.generation import progress as P
+from api.services.generation import progress as P
 from api.storage.db import init_db, make_engine, make_session_factory, session_scope
 from api.storage.models import Attempt
 

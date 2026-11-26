@@ -10,7 +10,7 @@ from api.services.course_store import CourseStore, module_step_ids
 from models.lesson_generation_models import Lesson
 from tests.test_api_step_page import SECRET_SOLUTION, HIDDEN_EXPECTED, make_exercise
 
-SOURCE = Path("data/course_v3.json")
+SOURCE = Path("data/courses/fastapi.json")
 
 
 @pytest.fixture
